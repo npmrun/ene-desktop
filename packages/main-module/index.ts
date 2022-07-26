@@ -17,35 +17,37 @@ export function init(oldMainConfig?: TConfig) {
     // initShortcut(oldMainConfig)
     // 初始化Log
     initGlobalLog()
-    Settings.n.onChange("storagePath", ()=>{
+    Settings.n.onChange("storagePath", () => {
         initGlobalLog()
     })
     // 初始化菜单
     initMenu()
+    Settings.n.onChange("language", c => {
+        initMenu()
+    })
     // 初始化更新模块
     initUpdate()
     Settings.n.onChange(["update.channel", "update.url"], c => {
-        initUpdate() 
+        initUpdate()
     })
     // 初始化数据备份方案
     initBackupJob()
     Settings.n.onChange("backup_rule", c => {
-        initBackupJob() 
+        initBackupJob()
     })
-
-    // 协议处理
-    // protocol.registerFileProtocol("rush", function (request, callback) {
-    //     console.log(request);
-    //     // callback({ path: path.normalize(__dirname + "/" + url) })
-    // })
-    // 文件协议
-    // https://vastiny.com/post/tech/electron-protocol
-    protocol.unregisterProtocol("rush-file")
-    protocol.registerFileProtocol(
-        "rush-file",
-        (request, callback) => {
-            const url = request.url.slice(12)
-            callback(path.resolve(Settings.n.values("storagePath"), "./file", url))
-        }
-    )
+    if (protocol.isProtocolRegistered("rush-file")) {
+        // 协议处理
+        // protocol.registerFileProtocol("rush", function (request, callback) {
+        //     console.log(request);
+        //     // callback({ path: path.normalize(__dirname + "/" + url) })
+        // })
+        // 文件协议
+        // https://vastiny.com/post/tech/electron-protocol
+        // protocol.isProtocolRegistered("rush-file")
+        protocol.unregisterProtocol("rush-file")
+    }
+    protocol.registerFileProtocol("rush-file", (request, callback) => {
+        const url = request.url.slice(12)
+        callback(path.resolve(Settings.n.values("storagePath"), "./file", url))
+    })
 }
