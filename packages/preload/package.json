@@ -1,0 +1,14 @@
+{
+  "name": "@rush/preload",
+  "version": "1.0.0",
+  "description": "",
+  "main": "preload.ts",
+  "scripts": {
+    "dev": "vite",
+    "build": "vue-tsc --noEmit --skipLibCheck & vite build",
+    "preview": "vite preview"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
