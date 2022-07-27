@@ -36,27 +36,8 @@ export function init() {
         initBackupJob()
     })
 
-    // initProtocol()
-    // Settings.n.onChange("system.protocol", c => {
-    //     initProtocol()
-    // })
-
-    const PROTOCOL_FILE = "rush-file"
-    if (protocol.isProtocolRegistered(PROTOCOL_FILE)) {
-        // 协议处理
-        // protocol.registerFileProtocol("rush", function (request, callback) {
-        //     console.log(request);
-        //     // callback({ path: path.normalize(__dirname + "/" + url) })
-        // })
-        // 文件协议
-        // https://vastiny.com/post/tech/electron-protocol
-        // protocol.isProtocolRegistered("rush-file")
-        protocol.unregisterProtocol(PROTOCOL_FILE)
-    }
-    protocol.registerFileProtocol(PROTOCOL_FILE, (request, callback) => {
-        console.log(111);
-        const url = request.url.slice(PROTOCOL_FILE.length+3)
-        
-        callback(path.resolve(Settings.n.values("storagePath"), "./file", url))
+    initProtocol()
+    Settings.n.onChange("system.protocol", c => {
+        initProtocol()
     })
 }

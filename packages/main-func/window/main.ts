@@ -21,7 +21,7 @@ export function showMainWindow(opts = {}) {
             defaultHeight: 600,
             path: Settings.n.values("storagePath")
         });
-        const mainSession = session.fromPartition('main')
+        // const mainSession = session.fromPartition('main')
         /**
          * Initial window options
          */ 
@@ -43,7 +43,7 @@ export function showMainWindow(opts = {}) {
                 webviewTag: false,
                 nodeIntegration: true,
                 contextIsolation: true,
-                session: mainSession,
+                // session: mainSession,
                 preload: __appStatic + "/preload.js", // 预加载项
             },
             ...opts,

@@ -8,6 +8,7 @@ import Store from "electron-store"
 import { Settings } from "@rush/main-config/config"
 import { Mitt } from "@rush/main-tool/mitt"
 import { init as initModules } from "@rush/main-module"
+import { handleArgv, handleUrl } from "@rush/main-module/protocol"
 
 crashReporter.start({
     uploadToServer: false,
@@ -17,7 +18,6 @@ initCommands()
 // 配置文件初始化
 Settings.init()
 
-
 Mitt.on("app-message", () => {
     // 处理全局消息, 可以自行处理以及发送到前端处理
 })
@@ -25,7 +25,7 @@ function createWindow() {
     // Shared.data.lastChoice = 1
     // setupTray()
     initModules()
-    showMainWindow() 
+    showMainWindow()
     // Shared.data.mainWindow.webContents.openDevTools({mode: "detach"});
 }
 
@@ -33,12 +33,25 @@ const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
     app.exit()
 } else {
-    app.on("second-instance", (event, commandLine, workingDirectory) => {
+    app.on("second-instance", (event, argv, workingDirectory) => {
         if (Shared.data.mainWindow) {
             if (Shared.data.mainWindow.isMinimized()) Shared.data.mainWindow.restore()
             Shared.data.mainWindow.focus()
             Shared.data.mainWindow.show()
         }
+        // Windows 下通过协议URL启动时，URL会作为参数，所以需要在这个事件里处理
+        if (process.platform === "win32") {
+            handleArgv(argv, ()=>{
+                console.log("success");
+            })
+        }
+    })
+
+    // macOS 下通过协议URL启动时，主实例会通过 open-url 事件接收这个 URL
+    app.on("open-url", (event, urlStr) => {
+        handleUrl(urlStr, ()=>{
+            console.log("success");
+        })
     })
 
     app.on("ready", () => setTimeout(createWindow, 500))

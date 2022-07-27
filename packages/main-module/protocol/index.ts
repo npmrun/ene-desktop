@@ -1,4 +1,5 @@
 import { Settings } from "@rush/main-config/config"
+import { Shared } from "@rush/main-share"
 import { app, dialog, protocol } from "electron"
 import fs from "fs-extra"
 import path from "path"
@@ -26,6 +27,26 @@ function check(PROTOCOL) {
     }
 }
 
+export function handleArgv(argv, cb?: Function) {
+    const prefix = `${PROTOCOL}:`
+    // 开发阶段，跳过前两个参数（`electron.exe .`）
+    // 打包后，跳过第一个参数（`myapp.exe`）
+    const offset = app.isPackaged ? 1 : 2
+    const url = argv.find((arg, i) => i >= offset && arg.startsWith(prefix))
+    if (url) handleUrl(url, cb)
+}
+
+export function handleUrl(urlStr, cb?: Function) {
+    // myapp://?name=1&pwd=2
+    const urlObj = new URL(urlStr)
+    const { searchParams } = urlObj
+    console.log(urlObj.search) // -> ?name=1&pwd=2
+    console.log(searchParams.get("name")) // -> 1
+    console.log(searchParams.get("pwd")) // -> 2
+    cb&&cb(searchParams, urlObj)
+    // 根据需要做其他事情
+}
+
 export function init() {
     PROTOCOL = Settings.n.values("system.protocol") ?? "rush"
     PROTOCOL_FILE = (Settings.n.values("system.protocol") ?? "rush") + "-file"
@@ -39,9 +60,9 @@ export function init() {
     fs.ensureFileSync(protocolFile)
     fs.writeFileSync(protocolFile, PROTOCOL)
     // rush://?name=1&pwd=2
-    // app.setAsDefaultProtocolClient(PROTOCOL, process.execPath, args)
+    app.setAsDefaultProtocolClient(PROTOCOL, process.execPath, args)
     // 如果打开协议时，没有其他实例，则当前实例当做主实例，处理参数
-    // handleArgv(process.argv)
+    handleArgv(process.argv)
 
     // 应用内部协议，不需要处理应用程序
     if (protocol.isProtocolRegistered(PROTOCOL_FILE)) {
@@ -55,44 +76,8 @@ export function init() {
         // protocol.isProtocolRegistered("rush-file")
         protocol.unregisterProtocol(PROTOCOL_FILE)
     }
-    console.log(PROTOCOL_FILE);
-    
     protocol.registerFileProtocol(PROTOCOL_FILE, (request, callback) => {
-        console.log(111);
-        const url = request.url.slice(PROTOCOL_FILE.length+3)
-        
+        const url = request.url.slice(PROTOCOL_FILE.length + 3)
         callback(path.resolve(Settings.n.values("storagePath"), "./file", url))
     })
-}
-
-// 其他实例启动时，主实例会通过 second-instance 事件接收其他实例的启动参数 `argv`
-app.on("second-instance", (event, argv) => {
-    // Windows 下通过协议URL启动时，URL会作为参数，所以需要在这个事件里处理
-    if (process.platform === "win32") {
-        handleArgv(argv)
-    }
-})
-
-// macOS 下通过协议URL启动时，主实例会通过 open-url 事件接收这个 URL
-app.on("open-url", (event, urlStr) => {
-    handleUrl(urlStr)
-})
-
-function handleArgv(argv) {
-    const prefix = `${PROTOCOL}:`
-    // 开发阶段，跳过前两个参数（`electron.exe .`）
-    // 打包后，跳过第一个参数（`myapp.exe`）
-    const offset = app.isPackaged ? 1 : 2
-    const url = argv.find((arg, i) => i >= offset && arg.startsWith(prefix))
-    if (url) handleUrl(url)
-}
-
-function handleUrl(urlStr) {
-    // myapp://?name=1&pwd=2
-    const urlObj = new URL(urlStr)
-    const { searchParams } = urlObj
-    console.log(urlObj.search) // -> ?name=1&pwd=2
-    console.log(searchParams.get("name")) // -> 1
-    console.log(searchParams.get("pwd")) // -> 2
-    // 根据需要做其他事情
 }
