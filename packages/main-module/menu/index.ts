@@ -7,7 +7,6 @@ import { cloneDeep } from "lodash-es"
 import {windowsMenu} from "./windowsMenu"
 import {macMenu} from "./macMenu"
 import "./popup"
-import { mainConfig } from "@rush/main-config"
 import { Settings } from "@rush/main-config/config"
 
 export function initMenu() {

@@ -1,6 +1,6 @@
 import { validateCron } from "@rush/common/util"
-import { backup } from "@rush/main-tool/backup"
-import { mainConfig } from "@rush/main-config"
+import { Settings } from "@rush/main-config/config"
+// import { mainConfig } from "@rush/main-config"
 import schedule, { Job } from "node-schedule"
 // import watcher, { AsyncSubscription } from "@parcel/watcher"
 import path from "path"
@@ -15,16 +15,16 @@ export function setCanBackup() {
 }
 
 export async function initBackupJob() {
-    if (!validateCron(mainConfig.backup_rule)) {
+    if (!validateCron(Settings.n.values("backup_rule"))) {
         console.error("无效Cron表达式")
         return
     }
     if (job) {
-        job.reschedule(mainConfig.backup_rule)
+        job.reschedule(Settings.n.values("backup_rule"))
         console.error("定时备份任务重新运行")
     } else if (job == null) {
         console.error("定时备份任务初始化成功")
-        job = schedule.scheduleJob(mainConfig.backup_rule, async function () {
+        job = schedule.scheduleJob(Settings.n.values("backup_rule"), async function () {
             console.log("备份测试");
             // if (canBackup) {
             //     await backup(mainConfig.storagePath)

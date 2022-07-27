@@ -4,14 +4,7 @@ import path from "path"
 import setting from "@rush/share/setting"
 import { cloneDeep } from "lodash-es"
 
-interface IConfig {
-    language: "zh" | "en" // i18n
-    "common.theme": "light" | "dark" | "auto" // 主题
-    "update.url"?: string // 更新地址
-    "update.channel"?: string // 更新通道
-    backup_rule: string // 备份规则
-    storagePath: string // 存储地址
-}
+
 type IOnFunc = (n: IConfig, c: IConfig)=>void
 type IT = ((keyof IConfig)[]) | (keyof IConfig) | '_'
 

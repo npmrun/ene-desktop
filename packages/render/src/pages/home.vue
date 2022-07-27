@@ -13,7 +13,7 @@
             class="border py-6px px-5px max-h-200px overflow-auto min-w-350px max-w-350px mx-auto leading-4 rounded-5px">
             <div v-for="(item, index) in messages" :key="index">{{ item }}</div>
         </div>
-        <img class="hidden" src="rush-file://1111.jpg">
+        <img src="rush-file://1111.jpg">
     </div>
 </template>
 <script lang="ts" setup>

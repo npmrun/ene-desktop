@@ -8,12 +8,12 @@ import "./filechange"
 import { protocol, app } from "electron"
 import path from "path"
 import fs from "fs"
-import { mainConfig } from "@rush/main-config"
 import { Settings } from "@rush/main-config/config"
 import { initUpdate } from "./updater"
+import { init as initProtocol } from "./protocol"
 import { Shared } from "@rush/main-share"
 
-export function init(oldMainConfig?: TConfig) {
+export function init() {
     // initShortcut(oldMainConfig)
     // 初始化Log
     initGlobalLog()
@@ -35,7 +35,14 @@ export function init(oldMainConfig?: TConfig) {
     Settings.n.onChange("backup_rule", c => {
         initBackupJob()
     })
-    if (protocol.isProtocolRegistered("rush-file")) {
+
+    // initProtocol()
+    // Settings.n.onChange("system.protocol", c => {
+    //     initProtocol()
+    // })
+
+    const PROTOCOL_FILE = "rush-file"
+    if (protocol.isProtocolRegistered(PROTOCOL_FILE)) {
         // 协议处理
         // protocol.registerFileProtocol("rush", function (request, callback) {
         //     console.log(request);
@@ -44,10 +51,12 @@ export function init(oldMainConfig?: TConfig) {
         // 文件协议
         // https://vastiny.com/post/tech/electron-protocol
         // protocol.isProtocolRegistered("rush-file")
-        protocol.unregisterProtocol("rush-file")
+        protocol.unregisterProtocol(PROTOCOL_FILE)
     }
-    protocol.registerFileProtocol("rush-file", (request, callback) => {
-        const url = request.url.slice(12)
+    protocol.registerFileProtocol(PROTOCOL_FILE, (request, callback) => {
+        console.log(111);
+        const url = request.url.slice(PROTOCOL_FILE.length+3)
+        
         callback(path.resolve(Settings.n.values("storagePath"), "./file", url))
     })
 }

@@ -5,7 +5,6 @@ import { appTrayPath } from "@rush/main-tool"
 import { mime } from "@rush/main-tool/mime-util"
 import fs from "fs"
 import path from "path"
-import { mainConfig } from "@rush/main-config"
 import CryptoJS from "crypto-js"
 
 export function openDir(path: string){

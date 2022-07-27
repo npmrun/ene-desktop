@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain } from "electron"
+import { app, BrowserWindow, dialog, ipcMain, session } from "electron"
 import { Shared } from "@rush/main-share"
 import { getFileUrl } from "@rush/main-tool"
 import { quit } from "."
@@ -21,6 +21,7 @@ export function showMainWindow(opts = {}) {
             defaultHeight: 600,
             path: Settings.n.values("storagePath")
         });
+        const mainSession = session.fromPartition('main')
         /**
          * Initial window options
          */ 
@@ -42,6 +43,7 @@ export function showMainWindow(opts = {}) {
                 webviewTag: false,
                 nodeIntegration: true,
                 contextIsolation: true,
+                session: mainSession,
                 preload: __appStatic + "/preload.js", // 预加载项
             },
             ...opts,
