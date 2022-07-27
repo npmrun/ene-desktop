@@ -13,11 +13,21 @@
             class="border py-6px px-5px max-h-200px overflow-auto min-w-350px max-w-350px mx-auto leading-4 rounded-5px">
             <div v-for="(item, index) in messages" :key="index">{{ item }}</div>
         </div>
-        <img src="rush-file://1111.jpg">
+        <img src="rush-file://1111.jpg" @click="showDialog = !showDialog">
+        <NiuDialog v-model:show="showDialog">
+            <div class="bg-light-50">asdads
+                sd
+                sadds
+                ad
+                da
+            </div>
+        </NiuDialog>
     </div>
 </template>
 <script lang="ts" setup>
 import { EProcessStatus } from '@rush/common/process';
+
+const showDialog = ref(false)
 
 const messages = ref<any[]>([])
 onBeforeMount(() => {
