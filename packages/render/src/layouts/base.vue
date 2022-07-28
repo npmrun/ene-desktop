@@ -1,11 +1,15 @@
 <template>
-    <router-view v-slot="{ Component, route: route }">
-        <transition :name="getTransitionName(route)" mode="out-in" appear>
-            <keep-alive :include="cacheList">
-                <component :key="route.fullPath" :is="Component" />
-            </keep-alive>
-        </transition>
-    </router-view>
+    <div class="h-1/1 flex flex-col">
+        <div class="flex-1">
+            <router-view v-slot="{ Component, route: route }">
+                <transition :name="getTransitionName(route)" mode="out-in" appear>
+                    <keep-alive :include="cacheList">
+                        <component :key="route.fullPath" :is="Component" />
+                    </keep-alive>
+                </transition>
+            </router-view>
+        </div>
+    </div>
 </template>
 
 <style lang="less" scoped>

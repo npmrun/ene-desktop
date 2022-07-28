@@ -1,7 +1,7 @@
 <template>
     <div
         class="niu-mask component"
-        v-if="show"
+        v-show="show"
         @click.stop="clickMask"
     ></div>
 </template>

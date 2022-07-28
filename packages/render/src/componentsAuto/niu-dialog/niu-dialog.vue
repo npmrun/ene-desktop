@@ -1,11 +1,11 @@
 <template>
     <teleport :to="to" :disabled="disabled">
-        <transition name="fade" @after-leave="close(2)">
-            <niu-mask v-model:show="isShowMask"></niu-mask>
+        <transition name="fade" @after-leave="close()">
+            <niu-mask v-model:show="isShow"></niu-mask>
         </transition>
-        <div class="niu-dialog__wrapper" v-if="isShow" @click="hide">
-            <transition name="slide-fade" @after-leave="close(1)">
-                <div class="niu-dialog__content" v-if="isShowContent" @click.stop>
+        <div class="niu-dialog__wrapper" v-show="isShowWraper" @click.stop>
+            <transition name="slide-fade" @after-leave="close()">
+                <div class="niu-dialog__content" v-show="isShow" @click.stop>
                     <slot></slot>
                 </div>
             </transition>
@@ -39,46 +39,35 @@ onMounted(() => {
     })
 })
 
-const isShowMask = ref(false)
-const isShowContent = ref(false)
+const isShow = ref(false)
+const isShowWraper = ref(false)
 
 function show() {
-    isShow.value = true
-    nextTick(() => {
-        isShowMask.value = true
-        isShowContent.value = true
+    isShowWraper.value = true
+    nextTick(()=>{
+        isShow.value = true
     })
 }
 
 function hide() {
-    isShowMask.value = false
-    isShowContent.value = false
+    isShow.value = false
 }
 
-const isShow = ref(false)
-let action: number[] = []
-function close(type: number) {
-    action.push(type)
-    if (action.length == 2) {
-         isShow.value = false
-        emits("update:show", false)
-        action = []
-    }
+function close() {
+    isShowWraper.value = false
+    emits("update:show", false)
 }
 </script>
 
 <style lang="less" scoped>
 .niu-dialog__wrapper {
     position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
     z-index: 999;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    top: 0;
-    display: flex;
-    overflow: hidden;
     .niu-dialog__content {
-        margin: auto;
+
     }
 }
 

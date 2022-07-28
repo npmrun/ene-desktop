@@ -1,7 +1,10 @@
 <template>
     <div class="bg-pink-800">
         dsada
-        <img src="rush-file://1111.jpg" @click="showDialog = !showDialog">
+        <div class="w-500px">
+
+            <img class="w-1/1" src="rush-file://1111.jpg" @click="showDialog = !showDialog">
+        </div>
         <NiuDialog v-model:show="showDialog">
             <div class="bg-light-50">asdads
                 sd
