@@ -8,14 +8,13 @@ import { createSvgIconsPlugin } from "vite-plugin-svg-icons"
 import vueI18n from "@intlify/vite-plugin-vue-i18n"
 import { createHtmlPlugin } from "vite-plugin-html"
 import { viteMockServe } from "vite-plugin-mock"
-import WindiCSS from "vite-plugin-windicss"
 import Pages from "vite-plugin-pages"
 import Layouts from "vite-plugin-vue-layouts"
 import Inspector from "vite-plugin-vue-inspector"
 import OptimizationPersist from "vite-plugin-optimize-persist"
 import PkgConfig from "vite-plugin-package-config"
-import monacoEditorPlugin from "vite-plugin-monaco-editor"
 import ViteRestart from 'vite-plugin-restart'
+import Unocss from 'unocss/vite'
 
 import PrincessResolver from "princess-ui/PrincessResolver"
 // import setting from "@rush/share/setting" //https://github.com/vitejs/vite/issues/5370
@@ -67,15 +66,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
             vue(),
             vueJsx(),
             Inspector(),
-            WindiCSS({
-                scan: {
-                    dirs: ["."],
-                    fileExtensions: ["vue", "js", "jsx", "ts", "tsx"],
-                },
-            }),
-            monacoEditorPlugin({
-                base: ".",
-            }),
+            Unocss(),
             vueI18n({
                 compositionOnly: false,
                 include: path.resolve(__dirname, "../common/languages/**"),

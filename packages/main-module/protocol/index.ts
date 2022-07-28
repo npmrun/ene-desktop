@@ -13,7 +13,7 @@ if (!app.isPackaged) {
 args.push("--")
 let PROTOCOL = ""
 let PROTOCOL_FILE = ""
-const protocolFile = path.resolve(app.getPath("appData"), "__protocol__")
+const protocolFile = path.resolve(app.getPath("userData"), "__protocol__")
 
 function check(PROTOCOL) {
     if (app.isDefaultProtocolClient(PROTOCOL, process.execPath, args)) {
