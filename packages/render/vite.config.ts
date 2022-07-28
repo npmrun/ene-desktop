@@ -17,9 +17,8 @@ import ViteRestart from 'vite-plugin-restart'
 import Unocss from 'unocss/vite'
 
 import PrincessResolver from "princess-ui/PrincessResolver"
-// import setting from "@rush/share/setting" //https://github.com/vitejs/vite/issues/5370
-
-// console.log(setting)
+// @ts-ignore
+import setting from "../setting" //https://github.com/vitejs/vite/issues/5370
 
 import _ from "lodash-es"
 import path from "path"
@@ -113,7 +112,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
                         template: "html/index.html",
                         injectOptions: {
                             data: {
-                                title: "rush-desktop",
+                                title: setting.app_title,
                             },
                         },
                     },
@@ -122,7 +121,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
                         template: "html/about.html",
                         injectOptions: {
                             data: {
-                                title: "rush-desktop",
+                                title: setting.app_title,
                             },
                         },
                     },
@@ -131,7 +130,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
                         template: "html/iframe.html",
                         injectOptions: {
                             data: {
-                                title: "rush-desktop",
+                                title: setting.app_title,
                             },
                         },
                     },
