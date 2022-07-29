@@ -18,6 +18,11 @@
 <script lang="ts" setup>
 
 const showDialog = ref(false)
+
+;(async () => {
+    const files = await _agent.file.walkDir("D:\\1XYX\\pro\\electron-template\\extra")
+    console.log(files);
+})()
 </script>
 
 <style lang="less" scoped>
