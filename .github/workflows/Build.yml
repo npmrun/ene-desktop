@@ -80,7 +80,7 @@ jobs:
         id: description
         uses: juliangruber/read-file-action@v1
         with:
-          path: ./changelog/${{steps.version.outputs.value}}.txt
+          path: ./changelog/${{steps.version.outputs.value}}.md
     #   - name: Generate release tag
     #     id: tag
     #     run: |
@@ -93,7 +93,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.tag.outputs.release_tag }}
-          release_name: ${{ steps.tag.outputs.release_tag }}
+          name: ${{ steps.tag.outputs.release_tag }}
           files: "out/*exe"
           body: ${{steps.description.outputs.content}}
           draft: false
