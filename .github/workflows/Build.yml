@@ -10,11 +10,10 @@ jobs:
   # 工作的名称“编译windows版”
   buildwin:
     # 运行的操作系统 windows
-    runs-on: windows-${{ matrix.vsversion }}
+    runs-on: windows-2022
     strategy:
       matrix:
         node-version: [16.5.0]
-        vsversion: 2022
     # 步骤
     steps:
       # 使用预制action：拉取最新的代码
