@@ -58,3 +58,9 @@ jobs:
           name: windows
           # 打包的路径以及文件过滤，此为仅打包dist目录下的exe文件
           path: out/*exe
+      - name: release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: "out/*exe"
+        env:
+          GITHUB_TOKEN: ${{ secrets.ELECTRON_TOKEN }}
