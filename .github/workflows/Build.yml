@@ -69,9 +69,14 @@ jobs:
           name: windows
           # 打包的路径以及文件过滤，此为仅打包dist目录下的exe文件
           path: out/*exe
+      - name: Generate release tag
+        id: tag
+        run: |
+          echo "::set-output name=release_tag::UserBuild_$(date +"%Y.%m.%d_%H-%M")"
       - name: release # https://github.com/softprops/action-gh-release/issues/20
         uses: softprops/action-gh-release@v1
         with:
+          tag_name: ${{ steps.tag.outputs.release_tag }}
           files: "out/*exe"
         env:
           GITHUB_TOKEN: ${{ secrets.ELECTRON_TOKEN }}
