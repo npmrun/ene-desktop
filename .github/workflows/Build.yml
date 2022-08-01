@@ -1,4 +1,5 @@
 # https://zhuanlan.zhihu.com/p/164901026
+# https://www.antmoe.com/posts/18c087cf/
 # https://cloud.tencent.com/developer/article/1949574
 # 此工作流的名字
 name: Build
@@ -69,14 +70,33 @@ jobs:
     #       name: windows
     #       # 打包的路径以及文件过滤，此为仅打包dist目录下的exe文件
     #       path: out/*exe
+      - name: 读取当前版本号
+        id: version
+        uses: ashley-taylor/read-json-property-action@v1.0
+        with:
+          path: ./dist/package.json
+          property: version
+      - name: 读取描述文件
+        id: description
+        uses: juliangruber/read-file-action@v1
+        with:
+          path: ./changelog/${{steps.version.outputs.value}}.txt
+    #   - name: Generate release tag
+    #     id: tag
+    #     run: |
+    #       echo "::set-output name=release_tag::UserBuild_$(date +"%Y.%m.%d_%H-%M")"
       - name: Generate release tag
         id: tag
         run: |
-          echo "::set-output name=release_tag::UserBuild_$(date +"%Y.%m.%d_%H-%M")"
+          echo "::set-output name=release_tag::v${{steps.version.outputs.value}}"
       - name: release # https://github.com/softprops/action-gh-release/issues/20
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.tag.outputs.release_tag }}
+          release_name: ${{ steps.tag.outputs.release_tag }}
           files: "out/*exe"
+          body: ${{steps.description.outputs.content}}
+          draft: false
+          prerelease: false
         env:
           GITHUB_TOKEN: ${{ secrets.ELECTRON_TOKEN }}
