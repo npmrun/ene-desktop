@@ -15,11 +15,12 @@ jobs:
   # 工作的名称“编译windows版”
   buildwin:
     # 运行的操作系统 windows
-    runs-on: windows-2022
+    runs-on: ${{ matrix.os }}
     strategy:
       matrix:
         # https://www.likecs.com/ask-314443.html
         node-version: [16.16.0]
+        os: [windows-2022, macos-10.15, ubuntu-latest]
     # 步骤
     steps:
       # 使用预制action：拉取最新的代码
@@ -54,6 +55,7 @@ jobs:
       # https://github.com/wxWidgets/wxWidgets/blob/master/.github/workflows/ci_msw.yml
       # https://github.com/microsoft/setup-msbuild
       - name: Add msbuild to PATH
+        if: matrix.os == 'windows-2022'
         uses: microsoft/setup-msbuild@v1.1
         with:
           vs-prerelease: true
@@ -81,6 +83,10 @@ jobs:
         uses: juliangruber/read-file-action@v1
         with:
           path: ./changelog/${{steps.version.outputs.value}}.md
+      # step5: cleanup artifacts in dist_electron
+      - name: 清理不必要的资产
+        run: |
+          npx rimraf "out/!(*.exe|*.dmg)"
     #   - name: Generate release tag
     #     id: tag
     #     run: |
@@ -93,7 +99,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.tag.outputs.release_tag }}
-          name: ${{ steps.tag.outputs.release_tag }}
+          name: ${{ matrix.os }}-${{ steps.tag.outputs.release_tag }}
           files: "out/*exe"
           body: ${{steps.description.outputs.content}}
           draft: false
