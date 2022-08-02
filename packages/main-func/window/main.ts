@@ -50,6 +50,11 @@ export function showMainWindow(opts = {}) {
         })
         mainWindowState.manage(Shared.data.mainWindow); 
         Shared.data.mainWindow.loadURL(getFileUrl("index.html"))
+        // const mainWindow = Shared.data.mainWindow
+        // mainWindow.webContents.on("did-finish-load", function() {
+        //     // 注入全局配置变量
+        //     mainWindow.webContents.executeJavaScript(`globalConfig = ${JSON.stringify(Settings.n.config())}`,false)
+        // });
         Shared.data.mainWindow.on("close", (event: any) => {
             quit(event)
         })
