@@ -3,7 +3,7 @@ import { showAboutWindow } from "@rush/main-func/window/about"
 import { setupTray } from "@rush/main-func/window/tray"
 import { Shared } from "@rush/main-share"
 import { BrowserWindow, Menu, app, ipcMain, MenuItem } from "electron"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep } from "lodash"
 import setting from "@rush/share/setting"
 
 function updateMenu(id: string, key: string, value: any) {

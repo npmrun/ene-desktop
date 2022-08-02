@@ -1,4 +1,4 @@
-import { cloneDeep } from "lodash-es"
+import { cloneDeep } from "lodash"
 import { autoRetry } from "."
 import { allData, flushData, storeData } from "./data"
 

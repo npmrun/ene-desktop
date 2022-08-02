@@ -1,6 +1,6 @@
 import { filter, filterNext, findNode } from "@rush/common/util/treeHelper"
 import { getData, saveData } from "@rush/main-tool/db"
-import { clone, cloneDeep } from "lodash-es"
+import { clone, cloneDeep } from "lodash"
 import { flushData, allData, storeData } from "./data"
 import { setValue, tempSnippet } from "./snip"
 

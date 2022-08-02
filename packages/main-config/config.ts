@@ -2,7 +2,7 @@ import fs from "fs-extra"
 import { app } from "electron"
 import path from "path"
 import setting from "@rush/share/setting"
-import { cloneDeep } from "lodash-es"
+import { cloneDeep } from "lodash"
 
 
 type IOnFunc = (n: IConfig, c: IConfig)=>void
