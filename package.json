@@ -4,7 +4,8 @@
     "main": "index.js",
     "scripts": {
         "dev": "npm run rm -C build & npm run build -C packages/main-script & npm run dev -C build",
-        "build": "npm run rm -C build & npm run build -C packages/main-script & npm run build -C packages/render && npm run build -C build"
+        "build": "npm run rm -C build & npm run build -C packages/main-script & npm run build -C packages/render && npm run build -C build",
+        "github": "npm run sync -C build"
     },
     "keywords": [],
     "author": "",

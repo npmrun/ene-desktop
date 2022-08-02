@@ -103,7 +103,7 @@ jobs:
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ steps.tag.outputs.release_tag }}
-          name: ${{ matrix.os }}-${{ steps.tag.outputs.release_tag }}
+          name: ${{ steps.tag.outputs.release_tag }}
           files: "out/*exe,out/*dmg,out/*AppImage"
           body: ${{steps.description.outputs.content}}
           draft: false
