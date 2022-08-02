@@ -1,5 +1,6 @@
 # https://zhuanlan.zhihu.com/p/164901026
 # https://www.antmoe.com/posts/18c087cf/
+# https://zhuanlan.zhihu.com/p/348712087
 # https://cloud.tencent.com/developer/article/1949574
 # 此工作流的名字
 name: Build
@@ -103,7 +104,7 @@ jobs:
         with:
           tag_name: ${{ steps.tag.outputs.release_tag }}
           name: ${{ matrix.os }}-${{ steps.tag.outputs.release_tag }}
-          files: "out/*{exe,dmg,AppImage}"
+          files: "out/*exe,*dmg,*AppImage"
           body: ${{steps.description.outputs.content}}
           draft: false
           prerelease: true
