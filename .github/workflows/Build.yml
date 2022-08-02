@@ -23,7 +23,7 @@ jobs:
       matrix:
         # https://www.likecs.com/ask-314443.html
         node-version: [16.16.0]
-        os: [windows-2022, macos-10.15, ubuntu-latest]
+        os: [windows-2022, ubuntu-latest]
     # 步骤
     steps:
       # 使用预制action：拉取最新的代码
