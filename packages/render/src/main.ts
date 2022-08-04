@@ -1,6 +1,5 @@
-import '@unocss/reset/normalize.css'
-import 'uno.css'
-import 'virtual:unocss-devtools'
+import 'virtual:windi.css'
+import 'virtual:windi-devtools'
 
 import "virtual:svg-icons-register"
 import "@/assets/style/common.less"

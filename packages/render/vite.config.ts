@@ -14,7 +14,7 @@ import Inspector from "vite-plugin-vue-inspector"
 import OptimizationPersist from "vite-plugin-optimize-persist"
 import PkgConfig from "vite-plugin-package-config"
 import ViteRestart from 'vite-plugin-restart'
-import Unocss from 'unocss/vite'
+import WindiCSS from "vite-plugin-windicss"
 
 import PrincessResolver from "princess-ui/PrincessResolver"
 // @ts-ignore
@@ -58,6 +58,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
             isDev && ViteRestart({
                 restart: [
                   'vite.config.[jt]s',
+                  'windi.config.[jt]s',
                 ]
             }),
             PkgConfig(),
@@ -65,7 +66,12 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
             vue(),
             vueJsx(),
             Inspector(),
-            Unocss(),
+            WindiCSS({
+                scan: {
+                    dirs: ["."],
+                    fileExtensions: ["vue", "js", "jsx", "ts", "tsx"],
+                },
+            }),
             vueI18n({
                 compositionOnly: false,
                 include: path.resolve(__dirname, "../common/languages/**"),
