@@ -13,7 +13,10 @@ import { initUpdate } from "./updater"
 import { init as initProtocol } from "./protocol"
 import { Shared } from "@rush/main-share"
 
-export function init() {
+/**
+ * 初始化模块
+ */
+export function initModules() {
     // initShortcut(oldMainConfig)
     // 初始化Log
     initGlobalLog()
@@ -36,8 +39,10 @@ export function init() {
         initBackupJob()
     })
 
-    initProtocol()
-    Settings.n.onChange("system.protocol", c => {
+    app.whenReady().then(()=>{
         initProtocol()
+        Settings.n.onChange("system.protocol", c => {
+            initProtocol()
+        })
     })
 }

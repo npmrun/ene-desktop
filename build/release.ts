@@ -46,6 +46,9 @@ if (process.env.MAKE_FOR === "dev") {
 builder.build({
     ...targets,
     config: {
+        releaseInfo: {
+            releaseNotesFile: path.resolve(rootPath, `changelog/${setting.app_version}.md`)
+        },
         npmRebuild: true, // 是否在打包应用程序之前rebuild本地依赖
         nodeGypRebuild: false, // 是否在开始打包应用程序之前执行,用electron-builder node-gyp-rebuild 来代替
         buildDependenciesFromSource: true, // 是否从源构建应用程序本机依赖项。
@@ -53,6 +56,7 @@ builder.build({
         appId: "com.dash." + setting.app_title,
         copyright: `Copyright © ${new Date().getFullYear()} Dash.All Rights Reserved.`,
         // asarUnpack: ["**/node_modules/live-server/**/*"],
+        asarUnpack: ["**/*.node"],
         directories: {
             output: path.resolve(rootPath, "out"),
             app: path.resolve(rootPath, "dist"),

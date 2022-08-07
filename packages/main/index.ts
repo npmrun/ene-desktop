@@ -1,5 +1,5 @@
 import { isPromise, readCommand } from "@rush/main-tool"
-import { ipcMain, app, crashReporter } from "electron"
+import { ipcMain, app, crashReporter, shell } from "electron"
 import { Shared } from "@rush/main-share"
 import { showMainWindow } from "@rush/main-func/window/main"
 import { setupTray } from "@rush/main-func/window/tray"
@@ -7,7 +7,7 @@ import { initCommands } from "./parseCommand"
 import Store from "electron-store"
 import { Settings } from "@rush/main-config/config"
 import { Mitt } from "@rush/main-tool/mitt"
-import { init as initModules } from "@rush/main-module"
+import { initModules } from "@rush/main-module"
 import { handleArgv, handleUrl } from "@rush/main-module/protocol"
 
 crashReporter.start({
@@ -17,6 +17,8 @@ crashReporter.start({
 initCommands()
 // 配置文件初始化
 Settings.init()
+// 初始化模块
+initModules()
 
 Mitt.on("app-message", () => {
     // 处理全局消息, 可以自行处理以及发送到前端处理
@@ -24,7 +26,6 @@ Mitt.on("app-message", () => {
 function createWindow() {
     // Shared.data.lastChoice = 1
     // setupTray()
-    initModules()
     showMainWindow()
     // Shared.data.mainWindow.webContents.openDevTools({mode: "detach"});
 }
@@ -70,6 +71,14 @@ if (!gotTheLock) {
             app.exit()
         }
     })
+
+    // 所有链接的打开方式都由默认程序打开
+    app.on('web-contents-created', (e, webContents) => {
+        webContents.addListener('new-window', (event, url) => {
+            event.preventDefault();
+            shell.openExternal(url);
+        });
+    });
 
     app.on("activate", () => {
         if (Shared.data.mainWindow === null) {

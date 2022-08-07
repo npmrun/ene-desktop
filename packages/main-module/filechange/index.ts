@@ -1,4 +1,4 @@
-import watcher from "@parcel/watcher"
+// import watcher from "@parcel/watcher"
 
 // console.log("开始监听");
 // (async () => {

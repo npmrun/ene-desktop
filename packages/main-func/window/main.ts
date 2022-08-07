@@ -19,12 +19,12 @@ export function showMainWindow(opts = {}) {
         let mainWindowState = windowStateKeeper({
             defaultWidth: 800,
             defaultHeight: 600,
-            path: Settings.n.values("storagePath")
-        });
+            path: Settings.n.values("storagePath"),
+        })
         // const mainSession = session.fromPartition('main')
         /**
          * Initial window options
-         */ 
+         */
         Shared.data.mainWindow = new BrowserWindow({
             height: mainWindowState.height,
             useContentSize: true,
@@ -48,7 +48,7 @@ export function showMainWindow(opts = {}) {
             },
             ...opts,
         })
-        mainWindowState.manage(Shared.data.mainWindow); 
+        mainWindowState.manage(Shared.data.mainWindow)
         Shared.data.mainWindow.loadURL(getFileUrl("index.html"))
         // const mainWindow = Shared.data.mainWindow
         // mainWindow.webContents.on("did-finish-load", function() {

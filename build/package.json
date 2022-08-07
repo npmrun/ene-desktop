@@ -8,7 +8,7 @@
     "scripts": {
         "dev": "cross-env PORT=3344 NODE_ENV=development ts-node -r tsconfig-paths/register -P tsconfig.json ./dev.ts",
         "rm": "ts-node -r tsconfig-paths/register -P tsconfig.json ./rm.ts",
-        "build": "npm run build:main & npm run sync & npm run build:pack",
+        "build": "npm run build:main && npm run sync && npm run build:pack",
         "sync": "ts-node -r tsconfig-paths/register -P tsconfig.json ./syncPackage.ts",
         "build:main": "cross-env NODE_ENV=production ts-node -r tsconfig-paths/register -P tsconfig.json ./build.ts",
         "build:pack": "cross-env NODE_ENV=production ts-node -r tsconfig-paths/register -P tsconfig.json ./release.ts"

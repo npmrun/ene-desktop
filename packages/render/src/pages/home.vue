@@ -1,9 +1,10 @@
 <template>
-    <div class="bg-pink-800">
-        dsada
-        <div class="w-500px">
-
-            <img class="w-1/1" src="rush-file://1111.jpg" @click="showDialog = !showDialog">
+    <div class="h-1/1 flex">
+        <div class="w-120px border-r">
+            设置
+        </div>
+        <div class="flex-1 w-0">
+            asd
         </div>
         <NiuDialog v-model:show="showDialog">
             <div class="bg-light-50">asdads
@@ -19,10 +20,6 @@
 
 const showDialog = ref(false)
 
-;(async () => {
-    const files = await _agent.file.walkDir("D:\\1XYX\\pro\\electron-template\\extra")
-    console.log(files);
-})()
 </script>
 
 <style lang="less" scoped>

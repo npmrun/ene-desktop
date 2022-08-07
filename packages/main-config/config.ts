@@ -4,9 +4,8 @@ import path from "path"
 import setting from "@rush/share/setting"
 import { cloneDeep } from "lodash"
 
-
-type IOnFunc = (n: IConfig, c: IConfig)=>void
-type IT = ((keyof IConfig)[]) | (keyof IConfig) | '_'
+type IOnFunc = (n: IConfig, c: IConfig) => void
+type IT = (keyof IConfig)[] | keyof IConfig | "_"
 
 // 判断是否是空文件夹
 function isEmptyDir(fPath: string) {
@@ -36,26 +35,26 @@ class Settings {
 
     onChange(fn: IOnFunc, that?: any)
     onChange(key: IT, fn: IOnFunc, that?: any)
-    onChange(fnOrType: IT | IOnFunc, fnOrThat: IOnFunc | any = null, that: any = null){
-        if(typeof fnOrType === "function"){
+    onChange(fnOrType: IT | IOnFunc, fnOrThat: IOnFunc | any = null, that: any = null) {
+        if (typeof fnOrType === "function") {
             this.#cb.push(["_", fnOrType.bind(fnOrThat)])
-        }else{
+        } else {
             this.#cb.push([fnOrType, fnOrThat.bind(that)])
         }
     }
 
-    #runCB(n: IConfig, c: IConfig, keys: (keyof IConfig)[]){
+    #runCB(n: IConfig, c: IConfig, keys: (keyof IConfig)[]) {
         for (let i = 0; i < this.#cb.length; i++) {
-            const temp = this.#cb[i];
-            const k = temp[0];
-            const fn = temp[1];
-            if(k==="_"){
+            const temp = this.#cb[i]
+            const k = temp[0]
+            const fn = temp[1]
+            if (k === "_") {
                 fn(n, c)
             }
-            if(typeof k === "string" && keys.includes(k as keyof IConfig)){
+            if (typeof k === "string" && keys.includes(k as keyof IConfig)) {
                 fn(n, c)
             }
-            if(Array.isArray(k) && k.filter(v=>keys.indexOf(v)!==-1).length){
+            if (Array.isArray(k) && k.filter(v => keys.indexOf(v) !== -1).length) {
                 fn(n, c)
             }
         }
@@ -71,28 +70,38 @@ class Settings {
     #configPath(storagePath?: string): string {
         return path.join(storagePath || this.#config.storagePath, "./config.json")
     }
-
+    /**
+     * 读取配置文件变量同步
+     * @param confingPath 配置文件路径
+     */
+    #syncVar(confingPath?: string){
+        const config = fs.readJSONSync(this.#configPath(confingPath)) as IConfig
+        confingPath && (config.storagePath = confingPath)
+        // 优先取本地的值
+        for (const key in config) {
+            // if (Object.prototype.hasOwnProperty.call(this.#config, key)) {
+            //     this.#config[key] = config[key] || this.#config[key]
+            // }
+            if(typeof this.#config[key] === typeof config[key]){
+                // 删除配置时本地的配置不会改变，想一下哪种方式更好
+                this.#config[key] = config[key] || this.#config[key]
+            }
+        }
+    }
     #init() {
         console.log(`位置：${this.#pathFile}`)
         if (fs.pathExistsSync(this.#pathFile)) {
             const confingPath = fs.readFileSync(this.#pathFile, { encoding: "utf8" })
             if (confingPath && fs.pathExistsSync(this.#configPath(confingPath))) {
-                const config = fs.readJSONSync(this.#configPath(confingPath)) as IConfig
-                config.storagePath = confingPath
-                // 优先取本地的值
-                for (const key in config) {
-                    // if (Object.prototype.hasOwnProperty.call(this.#config, key)) {
-                    //     this.#config[key] = config[key] || this.#config[key]
-                    // }
-                    // 删除配置时本地的配置不会改变，想一下哪种方式更好
-                    this.#config[key] = config[key] || this.#config[key]
-                }
+                this.#syncVar(confingPath)
                 // 防止增加了配置本地却没变的情况
                 this.#sync(confingPath)
-            }else{
+            } else {
+                this.#syncVar(confingPath)
                 this.#sync(confingPath)
             }
-        }else{
+        } else {
+            this.#syncVar()
             this.#sync()
         }
     }
