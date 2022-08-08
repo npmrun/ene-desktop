@@ -5,6 +5,7 @@ import schedule, { Job } from "node-schedule"
 import logger from "electron-log"
 import watcher, { AsyncSubscription } from "@parcel/watcher"
 import path from "path"
+import fs from "fs-extra"
 
 let job: Job | null = null
 let wat: AsyncSubscription | null = null
@@ -16,14 +17,22 @@ export async function initBackupJob() {
         console.error("无效Cron表达式")
         return
     }
-    console.log(Settings.n.values("backup_rule"));
     if(wat){
         await wat.unsubscribe()
     }
-    wat = await watcher.subscribe(path.resolve(Settings.n.values("storagePath"), "db"), (err, events) => {
-        logger.debug(events)
-        canBackup = true
-    })
+    const targetDir = path.resolve(Settings.n.values("storagePath"), "db")
+    if(fs.existsSync(targetDir)){
+        wat = await watcher.subscribe(targetDir, async (err, events) => {
+            if(!fs.existsSync(targetDir)){
+                await wat.unsubscribe()
+            }else{
+                canBackup = true
+            }
+            logger.debug(events)
+        })
+    }else{
+        console.error("备份目标文件夹不存在")
+    }
 
     if (job) {
         job.reschedule(Settings.n.values("backup_rule"))

@@ -30,7 +30,7 @@ export function initModules() {
     })
     // 初始化更新模块
     initUpdate()
-    Settings.n.onChange(["update.channel", "update.url"], c => {
+    Settings.n.onChange(["update.owner", "update.repo"], c => {
         initUpdate()
     })
     // 初始化数据备份方案
