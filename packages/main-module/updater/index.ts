@@ -1,23 +1,24 @@
 import { ipcMain, app } from "electron"
 import { NsisUpdater, ProgressInfo, UpdateInfo } from "electron-updater"
-import setting from "@rush/share/setting"
 import { Settings } from "@rush/main-config/config"
 import { broadcast } from "@rush/main-tool"
+import logger from "electron-log"
 
 let autoUpdater: NsisUpdater
 
 export function initUpdate(): void {
     if (!app.isPackaged) return
-    let updateUrl =
-        Settings.n.values("update.url") ?? "https://media.githubusercontent.com/media/npmrun/rush-desktop/develop/out/"
-    let channel = Settings.n.values("update.channel") ?? setting.app_version.includes("beta") ? "beta" : "latest"
+
+    let owner = Settings.n.values("update.owner")
+    let repo = Settings.n.values("update.repo")
     if (!autoUpdater) {
         autoUpdater = new NsisUpdater({
-            provider: "generic",
-            // url: 'http://update.xieyaxin.top/electron',
-            url: updateUrl,
-            channel: channel,
+            provider: "github",
+            repo: repo,
+            owner: owner,
         })
+        const log = logger._createLog("updater").log
+        autoUpdater.logger = log
         // 开始检查更新
         autoUpdater.on("checking-for-update", () => {
             broadcast("checking-for-update", {
@@ -71,10 +72,9 @@ export function initUpdate(): void {
         autoUpdater.checkForUpdatesAndNotify()
     } else {
         autoUpdater.setFeedURL({
-            provider: "generic",
-            // url: 'http://update.xieyaxin.top/electron',
-            url: updateUrl,
-            channel: channel,
+            provider: "github",
+            repo: repo,
+            owner: owner,
         })
     }
 }

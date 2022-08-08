@@ -67,8 +67,9 @@ builder.build({
         },
         publish: [
             {
-                provider: "generic",
-                url: "https://media.githubusercontent.com/media/npmrun/rush-desktop/develop/out",//隐藏版本服务器地址
+                provider: 'github',
+                repo: 'electron-template',
+                owner: 'npmrun'
             }
         ],
         // mac: {

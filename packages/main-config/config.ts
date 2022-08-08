@@ -7,6 +7,15 @@ import { cloneDeep } from "lodash"
 type IOnFunc = (n: IConfig, c: IConfig) => void
 type IT = (keyof IConfig)[] | keyof IConfig | "_"
 
+const defaultConfig: IConfig = {
+    language: "zh",
+    backup_rule: "0 0/30 * * * ?",
+    "common.theme": "auto",
+    "update.repo": "electron-template",
+    "update.owner": "npmrun",
+    storagePath: path.join(app.getPath("documents"), setting.app_title),
+}
+
 // 判断是否是空文件夹
 function isEmptyDir(fPath: string) {
     var pa = fs.readdirSync(fPath)
@@ -61,12 +70,7 @@ class Settings {
     }
 
     #pathFile: string = path.resolve(app.getPath("userData"), "./config_path")
-    #config: IConfig = {
-        language: "zh",
-        backup_rule: "0 0/30 * * * ?",
-        "common.theme": "auto",
-        storagePath: path.join(app.getPath("documents"), setting.app_title),
-    }
+    #config: IConfig = defaultConfig
     #configPath(storagePath?: string): string {
         return path.join(storagePath || this.#config.storagePath, "./config.json")
     }
@@ -74,7 +78,7 @@ class Settings {
      * 读取配置文件变量同步
      * @param confingPath 配置文件路径
      */
-    #syncVar(confingPath?: string){
+    #syncVar(confingPath?: string) {
         const config = fs.readJSONSync(this.#configPath(confingPath)) as IConfig
         confingPath && (config.storagePath = confingPath)
         // 优先取本地的值
@@ -82,10 +86,8 @@ class Settings {
             // if (Object.prototype.hasOwnProperty.call(this.#config, key)) {
             //     this.#config[key] = config[key] || this.#config[key]
             // }
-            if(typeof this.#config[key] === typeof config[key]){
-                // 删除配置时本地的配置不会改变，想一下哪种方式更好
-                this.#config[key] = config[key] || this.#config[key]
-            }
+            // 删除配置时本地的配置不会改变，想一下哪种方式更好
+            this.#config[key] = config[key] || this.#config[key]
         }
     }
     #init() {
