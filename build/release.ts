@@ -123,7 +123,7 @@ builder.build({
             to: "",
         },
         mac: {
-            icon: path.resolve(rootPath, "extra/icons/180x180.png"),
+            icon: path.resolve(rootPath, "extra/icons/512x512.png"),
         },
         win: {
             icon: path.resolve(rootPath, "extra/icons/1024x1024.png"),
