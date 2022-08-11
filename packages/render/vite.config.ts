@@ -37,9 +37,6 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
         },
         resolve: {
             alias: {
-                // https://vue-i18n.intlify.dev/guide/advanced/optimization.html#quasar-cli
-                // 9.1.9 版本必会出现那个警告，此时不需要去管他，等升级就好了。这里因为网页限制,不能使用eval,只能运行runtime了
-                "vue-i18n": "vue-i18n/dist/vue-i18n.runtime.esm-bundler.js",
                 "@": path.join(__dirname, "src"),
             },
         },
