@@ -17,6 +17,14 @@
             "@/*": ["src/*"]
         }
     },
-    "include": ["src", "components.d.ts", "custom-components.d.ts", "auto-import.d.ts", "../common", "typings"],
+    "include": [
+        "src",
+        "components.d.ts",
+        "custom-components.d.ts",
+        "auto-import.d.ts",
+        "../common",
+        "typings",
+        "vite.env.d.ts"
+    ],
     "references": [{ "path": "./tsconfig.node.json" }]
 }

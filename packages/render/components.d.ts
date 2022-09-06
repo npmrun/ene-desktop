@@ -5,14 +5,11 @@ import '@vue/runtime-core'
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
-    NiuAdjustWidth: typeof import('./src/componentsAuto/niu-adjust-width/niu-adjust-width.vue')['default']
     NiuDialog: typeof import('./src/componentsAuto/niu-dialog/niu-dialog.vue')['default']
     NiuMask: typeof import('./src/componentsAuto/niu-mask/niu-mask.vue')['default']
-    NiuScrollbar: typeof import('./src/componentsAuto/niu-scrollbar/niu-scrollbar.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SvgIcon: typeof import('./src/componentsAuto/SvgIcon/SvgIcon.vue')['default']
-    Tabs: typeof import('./src/componentsAuto/Tabs/Tabs.vue')['default']
   }
 }
 
