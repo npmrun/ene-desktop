@@ -3,6 +3,10 @@ import Msg from "./Msg"
 
 type Events = {
     "app-message"?: any
+    boot?: {
+        argv: any
+        cb?(...any): void
+    }
 }
 
 const Mitt: Emitter<Events> = mitt<Events>()

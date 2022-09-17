@@ -1,8 +1,10 @@
 import { Settings } from "@rush/main-config/config"
 import { Shared } from "@rush/main-share"
+import { Mitt } from "@rush/main-tool/mitt"
 import { app, dialog, protocol } from "electron"
 import fs from "fs-extra"
 import path from "path"
+import setting from "@rush/share/setting"
 
 const args = []
 if (!app.isPackaged) {
@@ -15,54 +17,70 @@ let PROTOCOL = ""
 let PROTOCOL_FILE = ""
 const protocolFile = path.resolve(app.getPath("userData"), "__protocol__")
 
+// 开发时程序结束回主动清理默认协议
+process
+    // Handle normal exits
+    .on("exit", code => {
+        const PROTOCOL = Settings.n.values("system.protocol")
+        if (app.isDefaultProtocolClient(PROTOCOL, process.execPath, args)) {
+            const AgreementAppName = app.getApplicationNameForProtocol(`${PROTOCOL}://`)
+            if (AgreementAppName.includes("Electron")) {
+                app.removeAsDefaultProtocolClient(PROTOCOL, process.execPath, args)
+                console.log(`${PROTOCOL}协议已注销`);
+            } else {
+                console.log(`${PROTOCOL}协议已被其他程序占用，请确认`)
+            }
+        }
+    })
+
+    // Handle CTRL+C
+    .on("SIGINT", () => {
+        const PROTOCOL = Settings.n.values("system.protocol")
+        if (app.isDefaultProtocolClient(PROTOCOL, process.execPath, args)) {
+            const AgreementAppName = app.getApplicationNameForProtocol(`${PROTOCOL}://`)
+            if (AgreementAppName.includes("Electron")) {
+                app.removeAsDefaultProtocolClient(PROTOCOL, process.execPath, args)
+                console.log(`${PROTOCOL}协议已注销`);
+            } else {
+                console.log(`${PROTOCOL}协议已被其他程序占用，请确认`)
+            }
+        }
+    })
+
+
 function check(PROTOCOL) {
     if (app.isDefaultProtocolClient(PROTOCOL, process.execPath, args)) {
         const AgreementAppName = app.getApplicationNameForProtocol(`${PROTOCOL}://`)
         console.log("获取该自定义协议链接的应用处理程序的名字", AgreementAppName)
-        if (AgreementAppName.includes("Electron") || AgreementAppName.includes("rush-desktop")) {
+        // 开发时是`Electron`,构建之后就是setting.app_title
+        if (AgreementAppName.includes("Electron") || AgreementAppName.includes(setting.app_title)) {
             app.removeAsDefaultProtocolClient(PROTOCOL, process.execPath, args)
         } else {
+            // 通知前端协议被占用
+            Mitt.emit("app-message", { event: "app-warnning", msg: `${PROTOCOL}协议已被其他程序占用`})
             console.log(`${PROTOCOL}协议已被其他程序占用，请确认`)
+            return false
         }
     }
-}
-
-export function handleArgv(argv, cb?: Function) {
-    const prefix = `${PROTOCOL}:`
-    // 开发阶段，跳过前两个参数（`electron.exe .`）
-    // 打包后，跳过第一个参数（`myapp.exe`）
-    const offset = app.isPackaged ? 1 : 2
-    const url = argv.find((arg, i) => i >= offset && arg.startsWith(prefix))
-    if (url) handleUrl(url, cb)
-}
-
-export function handleUrl(urlStr, cb?: Function) {
-    // myapp://?name=1&pwd=2
-    const urlObj = new URL(urlStr)
-    const { searchParams } = urlObj
-    console.log(urlObj.search) // -> ?name=1&pwd=2
-    console.log(searchParams.get("name")) // -> 1
-    console.log(searchParams.get("pwd")) // -> 2
-    cb&&cb(searchParams, urlObj)
-    // 根据需要做其他事情
+    return true
 }
 
 export function init() {
-    PROTOCOL = Settings.n.values("system.protocol") ?? "rush"
-    PROTOCOL_FILE = (Settings.n.values("system.protocol") ?? "rush") + "-file"
+    PROTOCOL = Settings.n.values("system.protocol")
+    PROTOCOL_FILE = (Settings.n.values("system.protocol")) + "-file"
     console.log(protocolFile)
+    let isSuccess = false
     if (fs.existsSync(protocolFile)) {
         const tempProtocol = fs.readFileSync(protocolFile, "utf8")
-        check(tempProtocol)
+        isSuccess = check(tempProtocol)
     } else {
-        check(PROTOCOL)
+        isSuccess = check(PROTOCOL)
     }
+    // 协议被占用时跳过执行
+    if (!isSuccess) return
     fs.ensureFileSync(protocolFile)
     fs.writeFileSync(protocolFile, PROTOCOL)
-    // rush://?name=1&pwd=2
     app.setAsDefaultProtocolClient(PROTOCOL, process.execPath, args)
-    // 如果打开协议时，没有其他实例，则当前实例当做主实例，处理参数
-    handleArgv(process.argv)
 
     // 应用内部协议，不需要处理应用程序
     if (protocol.isProtocolRegistered(PROTOCOL_FILE)) {

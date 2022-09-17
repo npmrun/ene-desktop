@@ -8,7 +8,6 @@ import Store from "electron-store"
 import { Settings } from "@rush/main-config/config"
 import { Mitt } from "@rush/main-tool/mitt"
 import { initModules } from "@rush/main-module"
-import { handleArgv, handleUrl } from "@rush/main-module/protocol"
 
 crashReporter.start({
     uploadToServer: false,
@@ -23,10 +22,31 @@ initModules()
 Mitt.on("app-message", () => {
     // 处理全局消息, 可以自行处理以及发送到前端处理
 })
+
+// rush://?name=1&pwd=2
+Mitt.on("boot", ({ argv, ...opts })=>{
+    const PROTOCOL = Settings.n.values("system.protocol")
+    const prefix = `${PROTOCOL}:`
+    // 开发阶段，跳过前两个参数（`electron.exe .`）
+    // 打包后，跳过第一个参数（`myapp.exe`）
+    const offset = app.isPackaged ? 1 : 2
+    const url = argv.find((arg, i) => i >= offset && arg.startsWith(prefix))
+    if (url) {
+        const urlObj = new URL(url)
+        const { searchParams } = urlObj
+        console.log(urlObj.search) // -> ?name=1&pwd=2
+        console.log(searchParams.get("name")) // -> 1
+        console.log(searchParams.get("pwd")) // -> 2
+        opts.cb&&opts.cb(urlObj, searchParams)
+    }
+    showMainWindow()
+})
+
 function createWindow() {
     // Shared.data.lastChoice = 1
     // setupTray()
-    showMainWindow()
+    // 如果打开协议时，没有其他实例，则当前实例当做主实例，处理参数
+    Mitt.emit("boot", {argv: process.argv})
     // Shared.data.mainWindow.webContents.openDevTools({mode: "detach"});
 }
 
@@ -42,17 +62,13 @@ if (!gotTheLock) {
         }
         // Windows 下通过协议URL启动时，URL会作为参数，所以需要在这个事件里处理
         if (process.platform === "win32") {
-            handleArgv(argv, ()=>{
-                console.log("success");
-            })
+            Mitt.emit("boot", {argv: argv})
         }
     })
 
     // macOS 下通过协议URL启动时，主实例会通过 open-url 事件接收这个 URL
     app.on("open-url", (event, urlStr) => {
-        handleUrl(urlStr, ()=>{
-            console.log("success");
-        })
+        Mitt.emit("boot", {argv: urlStr})
     })
 
     app.on("ready", () => setTimeout(createWindow, 500))
