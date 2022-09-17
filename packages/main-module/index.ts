@@ -39,10 +39,7 @@ export function initModules() {
         initBackupJob()
     })
 
-    app.whenReady().then(()=>{
+    app.whenReady().then(() => {
         initProtocol()
-        Settings.n.onChange("system.protocol", c => {
-            initProtocol()
-        })
     })
 }

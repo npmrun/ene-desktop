@@ -140,5 +140,9 @@ builder.build({
                 GenericName: "效率工具，懒人必备",
             },
         },
+        protocols:{
+            name: setting.app_title,
+            schemes: [setting.app_scheme]
+        }
     },
 })

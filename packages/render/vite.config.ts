@@ -116,6 +116,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
                         injectOptions: {
                             data: {
                                 title: setting.app_title,
+                                scheme_file: setting.app_scheme+"-file",
                             },
                         },
                     },
@@ -125,6 +126,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
                         injectOptions: {
                             data: {
                                 title: setting.app_title,
+                                scheme_file: setting.app_scheme+"-file",
                             },
                         },
                     },
@@ -134,6 +136,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
                         injectOptions: {
                             data: {
                                 title: setting.app_title,
+                                scheme_file: setting.app_scheme+"-file",
                             },
                         },
                     },

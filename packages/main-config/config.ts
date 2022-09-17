@@ -80,7 +80,12 @@ class Settings {
      * @param confingPath 配置文件路径
      */
     #syncVar(confingPath?: string) {
-        const config = fs.readJSONSync(this.#configPath(confingPath)) as IConfig
+        const configFile = this.#configPath(confingPath)
+        if(!fs.pathExistsSync(configFile)){
+            fs.ensureFileSync(configFile)
+            fs.writeJSONSync(configFile,{})
+        }
+        const config = fs.readJSONSync(configFile) as IConfig
         confingPath && (config.storagePath = confingPath)
         // 优先取本地的值
         for (const key in config) {

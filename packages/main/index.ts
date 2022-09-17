@@ -1,4 +1,4 @@
-import { isPromise, readCommand } from "@rush/main-tool"
+import { isPromise, platform, readCommand } from "@rush/main-tool"
 import { ipcMain, app, crashReporter, shell } from "electron"
 import { Shared } from "@rush/main-share"
 import { showMainWindow } from "@rush/main-func/window/main"
@@ -8,6 +8,7 @@ import Store from "electron-store"
 import { Settings } from "@rush/main-config/config"
 import { Mitt } from "@rush/main-tool/mitt"
 import { initModules } from "@rush/main-module"
+import setting from "@rush/share/setting"
 
 crashReporter.start({
     uploadToServer: false,
@@ -23,10 +24,9 @@ Mitt.on("app-message", () => {
     // 处理全局消息, 可以自行处理以及发送到前端处理
 })
 
-// rush://?name=1&pwd=2
+// ene://?name=1&pwd=2
 Mitt.on("boot", ({ argv, ...opts })=>{
-    const PROTOCOL = Settings.n.values("system.protocol")
-    const prefix = `${PROTOCOL}:`
+    const prefix = `${setting.app_scheme}:`
     // 开发阶段，跳过前两个参数（`electron.exe .`）
     // 打包后，跳过第一个参数（`myapp.exe`）
     const offset = app.isPackaged ? 1 : 2
@@ -34,9 +34,9 @@ Mitt.on("boot", ({ argv, ...opts })=>{
     if (url) {
         const urlObj = new URL(url)
         const { searchParams } = urlObj
-        console.log(urlObj.search) // -> ?name=1&pwd=2
-        console.log(searchParams.get("name")) // -> 1
-        console.log(searchParams.get("pwd")) // -> 2
+        logger.debug(urlObj.search) // -> ?name=1&pwd=2
+        logger.debug(searchParams.get("name")) // -> 1
+        logger.debug(searchParams.get("pwd")) // -> 2
         opts.cb&&opts.cb(urlObj, searchParams)
     }
     showMainWindow()
@@ -61,13 +61,14 @@ if (!gotTheLock) {
             Shared.data.mainWindow.show()
         }
         // Windows 下通过协议URL启动时，URL会作为参数，所以需要在这个事件里处理
-        if (process.platform === "win32") {
+        if (platform ===  "windows" || platform === "Linux") {
             Mitt.emit("boot", {argv: argv})
         }
     })
 
     // macOS 下通过协议URL启动时，主实例会通过 open-url 事件接收这个 URL
     app.on("open-url", (event, urlStr) => {
+        logger.debug(urlStr)
         Mitt.emit("boot", {argv: urlStr})
     })
 
@@ -90,8 +91,14 @@ if (!gotTheLock) {
 
     // 所有链接的打开方式都由默认程序打开
     app.on('web-contents-created', (e, webContents) => {
+        webContents.on('will-navigate', (e, url) => {
+            e.preventDefault()
+            console.log(url);
+            shell.openExternal(url)
+        })
         webContents.addListener('new-window', (event, url) => {
             event.preventDefault();
+            event.stopPropagation()
             shell.openExternal(url);
         });
     });
