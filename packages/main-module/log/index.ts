@@ -44,6 +44,9 @@ declare module "electron-log" {
         _createLog(name: any): { path: string; log: logger.ElectronLog }
     }
 }
+declare global {
+    var logger: logger.ElectronLog
+}
 
 export function initGlobalLog() {
     const storagePath = Settings.n.values("storagePath")
@@ -53,6 +56,7 @@ export function initGlobalLog() {
     logger.debug("日志路径:" + logFilePath)
     logger.debug("日志路径配置成功")
     logger._createLog = createLog
+    global.logger = logger
     // ;(async () => {
     //     await netLog.stopLogging()
     //     await netLog.startLogging(path.resolve(mainConfig.storagePath, "./logs", "__net__" + ".txt"))
@@ -73,21 +77,4 @@ export function createLog(name: Tname | any) {
             return _log
         },
     }
-}
-
-export function getLog(label: string, text: string) {
-    let now = new Date()
-    let year = now.getFullYear()
-    let month: number | string = now.getMonth() + 1
-    month = month < 10 ? "0" + month : month
-    let day: number | string = now.getDate()
-    day = day < 10 ? "0" + day : day
-    let hour: number | string = now.getHours()
-    hour = hour < 10 ? "0" + hour : hour
-    let minute: number | string = now.getMinutes()
-    minute = minute < 10 ? "0" + minute : minute
-    let second: number | string = now.getSeconds()
-    second = second < 10 ? "0" + second : second
-    let millSecond: number | string = (now.getMilliseconds() + "").slice(0, 3)
-    return `[${year}-${month}-${day} ${hour}:${minute}:${second}.${millSecond}] [${label}] ${text}`
 }

@@ -26,9 +26,9 @@ process
             const AgreementAppName = app.getApplicationNameForProtocol(`${PROTOCOL}://`)
             if (AgreementAppName.includes("Electron")) {
                 app.removeAsDefaultProtocolClient(PROTOCOL, process.execPath, args)
-                console.log(`${PROTOCOL}协议已注销`);
+                logger.debug(`${PROTOCOL}协议已注销`);
             } else {
-                console.log(`${PROTOCOL}协议已被其他程序占用，请确认`)
+                logger.debug(`${PROTOCOL}协议已被其他程序占用`)
             }
         }
     })
@@ -40,9 +40,9 @@ process
             const AgreementAppName = app.getApplicationNameForProtocol(`${PROTOCOL}://`)
             if (AgreementAppName.includes("Electron")) {
                 app.removeAsDefaultProtocolClient(PROTOCOL, process.execPath, args)
-                console.log(`${PROTOCOL}协议已注销`);
+                logger.debug(`${PROTOCOL}协议已注销`);
             } else {
-                console.log(`${PROTOCOL}协议已被其他程序占用，请确认`)
+                logger.debug(`${PROTOCOL}协议已被其他程序占用`)
             }
         }
     })
@@ -58,7 +58,7 @@ function check(PROTOCOL) {
         } else {
             // 通知前端协议被占用
             Mitt.emit("app-message", { event: "app-warnning", msg: `${PROTOCOL}协议已被其他程序占用`})
-            console.log(`${PROTOCOL}协议已被其他程序占用，请确认`)
+            logger.debug(`${PROTOCOL}协议已被其他程序占用，请确认`)
             return false
         }
     }
