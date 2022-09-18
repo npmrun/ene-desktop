@@ -91,16 +91,16 @@ if (!gotTheLock) {
 
     // 所有链接的打开方式都由默认程序打开
     app.on('web-contents-created', (e, webContents) => {
-        webContents.on('will-navigate', (e, url) => {
-            e.preventDefault()
-            console.log(url);
-            shell.openExternal(url)
-        })
-        webContents.addListener('new-window', (event, url) => {
-            event.preventDefault();
-            event.stopPropagation()
-            shell.openExternal(url);
-        });
+        // webContents.on('will-navigate', (e, url) => {
+        //     e.preventDefault()
+        //     console.log(url);
+        //     shell.openExternal(url)
+        // })
+        // webContents.addListener('new-window', (event, url) => {
+        //     event.preventDefault();
+        //     event.stopPropagation()
+        //     shell.openExternal(url);
+        // });
     });
 
     app.on("activate", () => {
