@@ -1,6 +1,6 @@
 <template>
     <div class="h-1/1 flex">
-        <div class="w-120px border-r shadow text-size-16px">
+        <div class="w-120px border-r shadow text-size-14px">
             <Menu></Menu>
         </div>
         <div class="flex-1 w-0 relative">

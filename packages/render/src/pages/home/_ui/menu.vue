@@ -29,10 +29,11 @@ const topList = reactive([
     { key: 1, title: "导航" },
     { key: 2, title: "电视" },
     { key: 3, title: "笔记" },
+    { key: 4, title: "博客" },
 ])
 const activeKey = ref(topList[0].key)
 const bottomList = reactive([
-    { key: 4, title: "设置" },
+    { key: 5, title: "设置" },
 ])
 
 
