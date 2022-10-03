@@ -1,31 +1,51 @@
 <template>
-    <div class="h-1/1 flex">
-        <div class="w-120px border-r shadow text-size-14px">
-            <Menu></Menu>
+    <div class="page">
+        <div class="img-wrapper">
+            <img src="https://w.wallhaven.cc/full/6o/wallhaven-6oxgp6.jpg" alt="">
         </div>
-        <div class="flex-1 w-0 relative">
-            <div class="w-250px h-full border-r shadow">
-                <Menu></Menu>
+        <span @click="showDialog = !showDialog">sadas</span>
+        <input type="text">
+        <rush-dialog v-model:show="showDialog">
+            <div class="bg-light-50">asdad
             </div>
-        </div>
-        <NiuDialog v-model:show="showDialog">
-            <div class="bg-light-50">asdads
-                sd
-                sadds
-                ad
-                da
-            </div>
-        </NiuDialog>
+        </rush-dialog>
     </div>
 </template>
+
+<script lang="ts">
+export default defineComponent({
+    name: "home"
+})
+</script>
+
+<route lang="yaml">
+name: home
+meta:
+    cache: true
+</route>
+
 <script lang="ts" setup>
-import Menu from './_ui/menu.vue';
+import RushDialog from "@rush-ui/rush-dialog";
+console.log(RushDialog);
 const showDialog = ref(false)
 
+onActivated(() => {
+    console.log('asdas');
+})
 </script>
 
 <style lang="less" scoped>
-.home {
-    @apply bg-white;
+.img-wrapper {
+    position: relative;
+    padding-bottom: 100%;
+    width: 100%;
+
+    img {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        left: 0;
+        top: 0;
+    }
 }
 </style>
