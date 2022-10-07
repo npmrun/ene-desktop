@@ -5,8 +5,7 @@ import '@vue/runtime-core'
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
-    NiuDialog: typeof import('./src/componentsAuto/niu-dialog/niu-dialog.vue')['default']
-    NiuMask: typeof import('./src/componentsAuto/niu-mask/niu-mask.vue')['default']
+    NiuImage: typeof import('./src/componentsAuto/niu-image/niu-image.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     SvgIcon: typeof import('./src/componentsAuto/SvgIcon/SvgIcon.vue')['default']

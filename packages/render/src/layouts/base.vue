@@ -51,20 +51,30 @@ function getTransitionName(route: RouteLocationNormalizedLoaded) {
     return 'fade'
 }
 
-
-const activeTab = ref(0)
+const router = useRouter()
+const activeTab = ref(-1)
 const TopMenu = reactive([
-    { key: 0, title: "个人", url: "/" },
+    { key: 0, title: "个人", url: "/home" },
     { key: 1, title: "导航", url: "/nav" },
     { key: 2, title: "电视", url: "/tv" },
     { key: 3, title: "笔记", url: "/note" },
     { key: 4, title: "博客", url: "/blog" },
 ])
 const SysMenu = reactive([
-    { key: 5, title: "设置", url: "/nav" },
-])
-
-
+    { key: 5, title: "设置", url: "/setting" },
+]);
+for (let i = 0; i < TopMenu.length; i++) {
+    const element = TopMenu[i];
+    if(router.currentRoute.value.path == element.url){
+        activeTab.value = element.key
+    }
+}
+for (let i = 0; i < SysMenu.length; i++) {
+    const element = SysMenu[i];
+    if(router.currentRoute.value.path == element.url){
+        activeTab.value = element.key
+    }
+}
 // enum EStatus {
 //     normal,
 //     checking,

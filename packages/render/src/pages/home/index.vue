@@ -1,12 +1,9 @@
 <template>
     <div class="page">
-        <div class="img-wrapper">
-            <img src="https://w.wallhaven.cc/full/6o/wallhaven-6oxgp6.jpg" alt="">
-        </div>
-        <span @click="showDialog = !showDialog">sadas</span>
-        <input type="text">
+        <div @click="showDialog = !showDialog">荣幸</div>
         <rush-dialog v-model:show="showDialog">
-            <div class="bg-light-50">asdad
+            <div class="bg-light-50 p-12px rounded-4px min-w-800px">
+                <div class="text-size-24px text-center">asdsada</div>
             </div>
         </rush-dialog>
     </div>
@@ -25,8 +22,8 @@ meta:
 </route>
 
 <script lang="ts" setup>
-import RushDialog from "@rush-ui/rush-dialog";
-console.log(RushDialog);
+import RushDialog from "@rush-ui/dialog";
+
 const showDialog = ref(false)
 
 onActivated(() => {
@@ -35,17 +32,5 @@ onActivated(() => {
 </script>
 
 <style lang="less" scoped>
-.img-wrapper {
-    position: relative;
-    padding-bottom: 100%;
-    width: 100%;
 
-    img {
-        position: absolute;
-        width: 100%;
-        height: 100%;
-        left: 0;
-        top: 0;
-    }
-}
 </style>
