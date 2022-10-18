@@ -1,8 +1,10 @@
 <template>
     <div class="page">
-        <div @click="showDialog = !showDialog">荣幸</div>
+        <div @click="showDialog = !showDialog">
+            <div @click="$router.push('/setting/test')">荣幸</div>
+        </div>
         <rush-dialog v-model:show="showDialog">
-            <div class="bg-light-50 p-12px rounded-4px min-w-800px">
+            <div class="bg-light-50 p-12px rounded-4px min-w-1/2">
                 <div class="text-size-24px text-center">asdsada</div>
             </div>
         </rush-dialog>

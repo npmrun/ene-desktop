@@ -45,7 +45,7 @@ export async function initBackupJob() {
                 // await backup(mainConfig.storagePath)
                 canBackup = false
             } else {
-                console.log("该文件没有过更新，暂不备份")
+                console.log("该文件没有过更新，暂不备份,其路径为：" + Settings.n.values("storagePath"))
             }
         })
     }

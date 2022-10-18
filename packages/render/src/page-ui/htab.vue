@@ -1,18 +1,19 @@
 <template>
     <div class="flex flex-col relative h-full">
-        <div v-if="modelValue != -1" :class="{ 'transition-transform': modelValue != -1}"
-            class="mx-10px my-8px h-48px cursor-pointer duration-200 rounded-8px flex items-center justify-center absolute top-0 inset-x-0"
+        <div v-if="modelValue != -1" :class="{ 'transition-transform': canAnim, 'duration-200': canAnim }"
+            class="mx-10px my-8px h-48px cursor-pointer rounded-8px flex items-center justify-center absolute top-0 inset-x-0"
             style="background-color: #F4F8FD;color: #2F66FF;" :style="{
                 transform: `translateY(${_top}px)`
             }"></div>
         <div class="flex-1 h-0 relative">
-            <div v-for="(item, index) in list"  @click="clickTab($event, item.key, item)" :key="item.key">
-                <div :ref="(el)=>bingEL(el, item.key)"
-                    class="mx-10px my-8px h-48px cursor-pointer rounded-8px flex items-center justify-center"
-                    :style="{color: modelValue === item.key?'#2F66FF':'#BBBBBB'}">
-                    <span>{{item.title}}</span>
+            <router-link :to="item.url" v-for="(item, index) in list" @click="clickTab($event, item.key, item)"
+                :key="item.key">
+                <div :ref="(el) => bingEL(el, item.key)"
+                    class="mx-10px my-8px h-48px cursor-pointer rounded-8px text-size-14px flex items-center justify-center"
+                    :style="{ color: modelValue === item.key ? '#2F66FF' : '#BBBBBB' }">
+                    <span>{{ item.title }}</span>
                 </div>
-            </div>
+            </router-link>
         </div>
     </div>
 </template>
@@ -40,6 +41,7 @@ function bingEL(e: any, index: number) {
     tabsEl[index] = e
 }
 
+const canAnim = ref(false)
 const _top = ref(0)
 watch(() => props.modelValue, async () => {
     await nextTick()
@@ -48,7 +50,11 @@ watch(() => props.modelValue, async () => {
         const outElOffsetTop = tabsEl[props.modelValue].parentElement.parentElement.offsetTop
         const distance = tabsEl[props.modelValue].offsetTop + outElOffsetTop - 8
         _top.value = distance
+        setTimeout(() => {
+            canAnim.value = true
+        }, 0);
     } else {
+        canAnim.value = false
         _top.value = 0
     }
 }, { immediate: true })

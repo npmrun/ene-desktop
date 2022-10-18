@@ -1,4 +1,5 @@
 import { spawn } from "child_process"
+import * as iconv from "iconv-lite"
 
 export function execa(
     command: string,
@@ -17,7 +18,7 @@ export function execa(
         callback && callback(`${err}`)
     })
     myProcess.stderr.on("data", data => {
-        callback && callback(`${data}`)
+        callback && callback(`${iconv.decode(data, "gbk")}`)
     })
 
     myProcess.on("close", code => {

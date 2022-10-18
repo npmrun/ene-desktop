@@ -9,10 +9,11 @@
                 <Menu v-model="activeTab" :top-list="TopMenu" :sys-list="SysMenu"></Menu>
             </div>
             <div class="flex-1 w-0 relative">
+                <!-- 去除:key="router.fullPath",防止路由变了整个布局会刷新 -->
                 <router-view v-slot="{ Component, route: route }">
                     <transition :name="getTransitionName(route)" mode="out-in" appear>
                         <keep-alive :include="cacheList">
-                            <component :key="route.fullPath" :is="Component" />
+                            <component :is="Component" />
                         </keep-alive>
                     </transition>
                 </router-view>
@@ -63,18 +64,22 @@ const TopMenu = reactive([
 const SysMenu = reactive([
     { key: 5, title: "设置", url: "/setting" },
 ]);
-for (let i = 0; i < TopMenu.length; i++) {
-    const element = TopMenu[i];
-    if(router.currentRoute.value.path == element.url){
-        activeTab.value = element.key
+
+watch(()=>router.currentRoute.value,(route)=>{
+    for (let i = 0; i < TopMenu.length; i++) {
+        const element = TopMenu[i];
+        if(route.path.startsWith(element.url)){
+            activeTab.value = element.key
+        }
     }
-}
-for (let i = 0; i < SysMenu.length; i++) {
-    const element = SysMenu[i];
-    if(router.currentRoute.value.path == element.url){
-        activeTab.value = element.key
+    for (let i = 0; i < SysMenu.length; i++) {
+        const element = SysMenu[i];
+        if(route.path.startsWith(element.url)){
+            activeTab.value = element.key
+        }
     }
-}
+}, { immediate: true })
+
 // enum EStatus {
 //     normal,
 //     checking,
