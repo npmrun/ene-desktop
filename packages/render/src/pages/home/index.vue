@@ -1,7 +1,7 @@
 <template>
     <div class="page">
         <div @click="showDialog = !showDialog">
-            <div @click="$router.push('/setting/test')">荣幸</div>
+            <div @click="$router.push(EPages.SettingTest)">哀伤达大厦</div>
         </div>
         <rush-dialog v-model:show="showDialog">
             <div class="bg-light-50 p-12px rounded-4px min-w-1/2">
@@ -24,6 +24,7 @@ meta:
 </route>
 
 <script lang="ts" setup>
+import { EPages } from "@/enum/page";
 import RushDialog from "@rush-ui/dialog";
 
 const showDialog = ref(false)

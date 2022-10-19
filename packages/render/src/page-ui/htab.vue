@@ -6,9 +6,8 @@
                 transform: `translateY(${_top}px)`
             }"></div>
         <div class="flex-1 h-0 relative">
-            <router-link :to="item.url" v-for="(item, index) in list" @click="clickTab($event, item.key, item)"
-                :key="item.key">
-                <div :ref="(el) => bingEL(el, item.key)"
+            <router-link custom v-slot="{ navigate }" :to="item.url" v-for="(item, index) in list">
+                <div @click="clickTab($event, item.key, item, navigate)" :key="item.key" :ref="(el) => bingEL(el, item.key)"
                     class="mx-10px my-8px h-48px cursor-pointer rounded-8px text-size-14px flex items-center justify-center"
                     :style="{ color: modelValue === item.key ? '#2F66FF' : '#BBBBBB' }">
                     <span>{{ item.title }}</span>
@@ -47,7 +46,7 @@ watch(() => props.modelValue, async () => {
     await nextTick()
     if (props.modelValue != -1) {
         // @ts-ignore
-        const outElOffsetTop = tabsEl[props.modelValue].parentElement.parentElement.offsetTop
+        const outElOffsetTop = tabsEl[props.modelValue].parentElement.offsetTop
         const distance = tabsEl[props.modelValue].offsetTop + outElOffsetTop - 8
         _top.value = distance
         setTimeout(() => {
@@ -59,7 +58,8 @@ watch(() => props.modelValue, async () => {
     }
 }, { immediate: true })
 
-function clickTab(ev: MouseEvent, num: number, item: Item) {
+function clickTab(ev: MouseEvent, num: number, item: Item, navigate: any) {
+    navigate()
     emit("update:modelValue", num)
     emit("click", item)
 }

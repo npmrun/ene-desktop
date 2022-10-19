@@ -4,13 +4,13 @@
         <div class="flex-1 w-0">
             <router-view v-slot="{ Component }">
                 <keep-alive>
-                    <component :key="route.fullPath" :is="Component" />
+                    <component :is="Component" />
                 </keep-alive>
             </router-view>
         </div>
-        <div class="absolute right-1/10 bottom-1/10">
-            保存
-        </div>
+<!--        <div class="absolute right-1/10 bottom-1/10">-->
+<!--            <button class="button is-medium is-info">保存</button>-->
+<!--        </div>-->
     </div>
 </template>
 
