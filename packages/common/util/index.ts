@@ -8,7 +8,7 @@ export function json2str<T extends Object>(obj: T, start: string = '') {
             if (result[curKey] == undefined) {
                 result[curKey] = value
                 if (typeof value === "object" && !Array.isArray(value)) {
-                    result = Object.assign(result, json2str(value, curKey))
+                    result = Object.assign(result, json2str(value as any, curKey))
                 }
             }
         }

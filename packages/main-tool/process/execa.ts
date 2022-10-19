@@ -1,5 +1,6 @@
 // import { spawn } from "cross-spawn"
 import { spawn } from "child_process"
+import * as iconv from "iconv-lite"
 
 export function execa(
     command: string,
@@ -8,7 +9,8 @@ export function execa(
     env?: {},
 ) {
     let myProcess = spawn(command, argu, {
-        shell: true,
+        // https://www.jianshu.com/p/d4d7cf170e79
+        shell: process.platform === 'win32', // 仅在当前运行环境为 Windows 时，才使用 shell
         stdio: "pipe",
         env: env
     })
@@ -19,7 +21,7 @@ export function execa(
         callback && callback(`${err}`)
     })
     myProcess.stderr.on("data", data => {
-        callback && callback(`${data}`)
+        callback && callback(`${iconv.decode(data, "gbk")}`)
     })
 
     myProcess.on("close", code => {

@@ -60,8 +60,7 @@ function bingEL(e: any, index: number) {
 
 const canAnim = ref(false)
 const _top = ref(0)
-watch(() => props.modelValue, async () => {
-    await nextTick()
+function layout() {
     if (props.modelValue != -1) {
         // @ts-ignore
         const outElOffsetTop = tabsEl[props.modelValue].parentElement.parentElement.offsetTop
@@ -74,7 +73,21 @@ watch(() => props.modelValue, async () => {
         canAnim.value = false
         _top.value = 0
     }
-}, { immediate: true })
+}
+watch(() => props.modelValue, async () => {
+    await nextTick()
+    layout()
+}, {immediate: true})
+
+async function onResize() {
+    layout()
+}
+onMounted(()=>{
+    window.addEventListener("resize", onResize)
+})
+onBeforeUnmount(()=>{
+    window.removeEventListener("resize", onResize)
+})
 
 function clickTab(ev: MouseEvent, num: number) {
     emit("update:modelValue", num)
