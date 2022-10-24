@@ -52,8 +52,8 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
             outDir: path.resolve(__dirname, "../../dist/electron"),
         },
         plugins: [
-            isDev && ViteRestart({
-                restart: [
+            isDev && ViteRestart({ 
+                reload: [
                   'vite.config.[jt]s',
                   'windi.config.[jt]s',
                 ]

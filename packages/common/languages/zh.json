@@ -1,5 +1,9 @@
 {
     "title": "搞快点",
+    "language": {
+        "zh": "中文",
+        "en": "英文"
+    },
     "app-menu":{
         "about": "关于"
     }

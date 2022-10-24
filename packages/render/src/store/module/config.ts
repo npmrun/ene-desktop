@@ -25,9 +25,6 @@ export default defineStore("config", {
         setCommonTheme(value: TC["common.theme"]){
             this["common.theme"] = value
         },
-        setSystemProtocol(value: TC["system.protocol"]){
-            this["system.protocol"] = value
-        },
         setUpdateOwner(value: TC["update.owner"]) {
             this['update.owner'] = value
         },
@@ -39,6 +36,10 @@ export default defineStore("config", {
         },
         setStorePath(storagePath: TC["storagePath"]) {
             this.storagePath = storagePath
+        },
+        async restoreConfig(){
+            const o: IConfig = await _agent.call("config.get")
+            this.$state = o
         },
         async saveConfig() {
             const o: IConfig = await _agent.call("config.get")

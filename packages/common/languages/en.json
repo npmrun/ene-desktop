@@ -1,5 +1,9 @@
 {
     "title": "gofase",
+    "language": {
+        "zh": "Chinese",
+        "en": "English"
+    },
     "app-menu": {
         "about": "about"
     }

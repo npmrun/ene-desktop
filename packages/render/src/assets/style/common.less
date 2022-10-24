@@ -51,16 +51,17 @@ svg {
     background: rgba(0, 0, 0, 0);
 
     transition: background linear 1s;
-    border-radius: 5px;
+    // border-radius: 5px;
 }
 .scrollbar::-webkit-scrollbar-corner {
     background: none;
 }
 .scrollbar::-webkit-scrollbar {
-    width: 7px;
-    height: 7px;
-    display: none;
+    width: 10px;
+    // display: none;
+    opacity: 0;
 }
 .scrollbar:hover::-webkit-scrollbar {
-    display: block;
+    // display: block;
+    opacity: 1;
 }

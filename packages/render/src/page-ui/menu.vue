@@ -91,7 +91,7 @@ onBeforeUnmount(()=>{
 
 function clickTab(ev: MouseEvent, num: number, navigate: any) {
     navigate()
-    emit("update:modelValue", num)
+    // emit("update:modelValue", num)
 }
 
 </script>

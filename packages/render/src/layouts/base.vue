@@ -8,7 +8,7 @@
             <div class="w-120px border-r shadow text-size-14px">
                 <Menu v-model="activeTab" :top-list="TopMenu" :sys-list="SysMenu"></Menu>
             </div>
-            <div class="flex-1 w-0 relative overflow-auto">
+            <div class="flex-1 w-0 relative overflow-auto scrollbar">
                 <!-- 去除:key="router.fullPath",防止路由变了整个布局会刷新 -->
                 <router-view v-slot="{ Component, route: route }">
                     <transition :name="getTransitionName(route)" mode="out-in" appear>
