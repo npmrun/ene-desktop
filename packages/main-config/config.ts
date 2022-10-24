@@ -137,9 +137,19 @@ class Settings {
         let oldMainConfig = Object.assign({}, this.#config)
         let isChange = false
         let changeKeys: (keyof IConfig)[] = []
+        let canChangeStorage = (targetPath: string)=> {
+            if(fs.existsSync(oldMainConfig.storagePath) && fs.existsSync(targetPath) && !isEmptyDir(targetPath)){
+                return false
+            }
+            return true
+        }
         if (typeof key === "string") {
             if (value != undefined && value !== this.#config[key]) {
                 if (key === "storagePath") {
+                    if(!canChangeStorage(value)) {
+                        throw "无法改变存储地址"
+                        return
+                    }
                     changeKeys.push("storagePath")
                     this.#change(value)
                     this.#config["storagePath"] = value
@@ -150,6 +160,12 @@ class Settings {
                 isChange = true
             }
         } else {
+            if (key['storagePath'] !== undefined && key['storagePath'] !== this.#config['storagePath']){
+                if(!canChangeStorage(key['storagePath'])) {
+                    throw "无法改变存储地址"
+                    return
+                }
+            }
             for (const _ in key) {
                 if (Object.prototype.hasOwnProperty.call(key, _)) {
                     const v = key[_]
