@@ -8,7 +8,7 @@
             <div class="w-120px border-r shadow text-size-14px">
                 <Menu v-model="activeTab" :top-list="TopMenu" :sys-list="SysMenu"></Menu>
             </div>
-            <div class="flex-1 w-0 relative">
+            <div class="flex-1 w-0 relative overflow-auto">
                 <!-- 去除:key="router.fullPath",防止路由变了整个布局会刷新 -->
                 <router-view v-slot="{ Component, route: route }">
                     <transition :name="getTransitionName(route)" mode="out-in" appear>
@@ -80,46 +80,6 @@ watch(()=>router.currentRoute.value,(route)=>{
     }
 }, { immediate: true })
 
-// enum EStatus {
-//     normal,
-//     checking,
-//     waitForInstall
-// }
-// const updater_text = ref("更新")
-// const status = ref<EStatus>(EStatus.normal)
-// function onCheck() {
-//     if (status.value === EStatus.checking) return
-//     if (status.value === EStatus.normal) {
-//         _agent.send("updater:check")
-//     }
-//     if (status.value === EStatus.waitForInstall) {
-//         _agent.send("updater:quitandinstall")
-//     }
-// }
-// _agent.on("checking-for-update", ((event, res: any) => {
-//     updater_text.value = res.message
-//     status.value = EStatus.checking
-// }))
-// _agent.on("updater:error", ((event, res: any) => {
-//     updater_text.value = res.message
-//     status.value = EStatus.normal
-// }))
-// _agent.on("updater:avaliable", ((event, res: any) => {
-//     updater_text.value = res.message
-//     status.value = EStatus.checking
-// }))
-// _agent.on("updater:notavaliable", ((event, res: any) => {
-//     updater_text.value = res.message
-//     status.value = EStatus.normal
-// }))
-// _agent.on("updater:download_progress", ((event, res: any) => {
-//     updater_text.value = `当前下载进度${(+res.percent).toFixed(2)}%`
-//     status.value = EStatus.checking
-// }))
-// _agent.on("updater:downloaded", ((event, res: any) => {
-//     updater_text.value = res.message
-//     status.value = EStatus.waitForInstall
-// }))
 </script>
 <script lang="ts">
 export default defineComponent({

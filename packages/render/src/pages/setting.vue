@@ -1,22 +1,35 @@
 <template>
     <div class="h-1/1 flex">
         <Htab class="w-220px border-r pt-60px" v-model="activeTab" :list="TopMenu"></Htab>
-        <div class="flex-1 w-0">
+        <div class="flex-1 w-0 overflow-auto">
             <router-view v-slot="{ Component }">
                 <keep-alive>
                     <component :is="Component" />
                 </keep-alive>
             </router-view>
         </div>
-<!--        <div class="absolute right-1/10 bottom-1/10">-->
-<!--            <button class="button is-medium is-info">保存</button>-->
-<!--        </div>-->
+       <div class="absolute right-1/10 bottom-1/10">
+           <button v-if="!isSame" class="button is-medium is-info" :class="[isSame?'':'is-danger']" @click="save">点击保存</button>
+       </div>
     </div>
 </template>
 
 
 <script lang="ts" setup>
 import Htab from '@/page-ui/htab.vue';
+import ConfigStore from "@/store/module/config"
+
+const configStore = ConfigStore()
+
+const isSame = computed(() => configStore.isSame)
+
+async function save() {
+    try {
+        await configStore.saveConfig()
+    } catch (error) {
+        console.error(error)
+    }
+}
 
 const activeTab = ref(0)
 const TopMenu = reactive([

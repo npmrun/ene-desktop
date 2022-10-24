@@ -67,6 +67,9 @@ export function initUpdate(): void {
         })
 
         ipcMain.on("updater:check", () => {
+            broadcast("checking-for-update", {
+                message: "初始化检查更新",
+            })
             autoUpdater.checkForUpdatesAndNotify()
         })
         autoUpdater.checkForUpdatesAndNotify()
