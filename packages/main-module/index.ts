@@ -34,10 +34,10 @@ export function initModules() {
         initUpdate()
     })
     // 初始化数据备份方案
-    initBackupJob()
-    Settings.n.onChange("backup_rule", c => {
-        initBackupJob()
-    })
+    // initBackupJob()
+    // Settings.n.onChange("backup_rule", c => {
+    //     initBackupJob()
+    // })
 
     app.whenReady().then(() => {
         initProtocol()

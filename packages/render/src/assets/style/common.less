@@ -1,7 +1,12 @@
 // @import (inline) "./css/reset.css";
 @import (inline) "bulma/css/bulma.css";
 @import "./theme.less";
-// asda
+
+// @font-face {
+//     font-family: "Std W3"; 
+//     src: url("@/assets/font/华康翩翩体.otf"),
+// }
+
 html,
 body,
 #app {
@@ -11,16 +16,13 @@ body,
     background: #fff;
     overflow-y: auto;
     -webkit-text-size-adjust: 100%;
+    -webkit-font-smoothing: antialiased;
+}
+*{
+//   font-family: "Std W3" !important;
 }
 #app {
     @apply border-t;
-}
-.page {
-    padding: 5px;
-    width: 100%;
-    height: 100%;
-    position: relative;
-    overflow: auto;
 }
 
 // .scrollbar::-webkit-scrollbar {
