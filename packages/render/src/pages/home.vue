@@ -3,9 +3,18 @@
         <div class="border-r w-1/3 md: px-8px py-20px">
             <h2 class="text-size-25px font-bold">个人工具</h2>
             <div class="mt-25px flex flex-wrap">
-                <div @click="$router.push('/home/aa')" class="border inline-block p-12px cursor-pointer mr-8px mb-8px">
-                    图标生成器
-                </div>
+                <router-link custom v-slot="{ navigate, isActive }" to="/home/icons">
+                    <div @click="navigate" class="border inline-block p-12px cursor-pointer mr-8px mb-8px"
+                        :style="{ color: isActive ? '#2F66FF' : '#BBBBBB', borderColor: isActive ? '#2F66FF' : '#BBBBBB' }">
+                        <span>图标生成器</span>
+                    </div>
+                </router-link>
+                <router-link custom v-slot="{ navigate, isActive }" to="/home/bb">
+                    <div @click="navigate" class="border inline-block p-12px cursor-pointer mr-8px mb-8px"
+                        :style="{ color: isActive ? '#2F66FF' : '#BBBBBB', borderColor: isActive ? '#2F66FF' : '#BBBBBB' }">
+                        <span>图标生成器</span>
+                    </div>
+                </router-link>
             </div>
         </div>
         <div class="flex-1 w-0">
