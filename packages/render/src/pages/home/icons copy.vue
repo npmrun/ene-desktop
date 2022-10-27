@@ -13,7 +13,7 @@
         </div>
         <div class="block" style="line-height: 1;">
             <label class="checkbox">
-                <input type="checkbox" style="vertical-align: middle;" v-model="state.isCircle">
+                <input type="checkbox" style="vertical-align: middle;" v-model="isCircle">
                 <span class="ml-6px" style="vertical-align: middle;">圆形</span>
 
             </label>
@@ -21,8 +21,7 @@
         <h2 class="font-bold text-size-25px my-15px">预览</h2>
         <div class="mt-15px flex items-start pt-10px">
             <div class="canvas-wrapper">
-                <canvas class="canvas" id="canvas" width="120" height="120" data-width="120" data-height="120"
-                    @click="click"></canvas>
+                <canvas class="canvas" id="canvas" width="120" height="120" data-width="120" data-height="120" @click="click"></canvas>
             </div>
         </div>
         <h2 class="font-bold text-size-25px my-15px">IOS</h2>
@@ -66,32 +65,34 @@
     margin-left: 8px;
     position: relative;
 }
+
+.flip-list-move {
+    transition: transform 0.5s;
+}
 </style>
 
 <script setup lang="ts">
+import draggable from 'vuedraggable'
 import { toast } from 'vue3-toastify';
 import JSZip from 'jszip';
 import Add from './_ui/add.vue';
 
-const state = reactive<{
-    curFile?: string,
-    isCircle: boolean
-}>({
-    isCircle: false,
-})
-
-const android = ref([
-    {width: 120, height: 120},
-])
-
 const isCircle = ref(false)
+
+const myArray = reactive([
+    { name: "name1" },
+    { name: "name2" },
+    { name: "name3" },
+    { name: "name4" },
+    { name: "name5" },
+])
 
 const isRendered = ref(false)
 const netUrl = ref()
 const curFile = shallowRef<string | File>()
 const iphoneIcons = ref<[number, number][]>([[120, 120], [180, 180], [80, 80], [1024, 1024]])
 const androidIcons = ref<[number, number][]>([[72, 72], [96, 96], [144, 144], [192, 192]])
-const appStoreIcons = ref<[number, number][]>([[1024, 1024]])
+const appStoreIcons = ref<[number, number][]>([[1024,1024]])
 const customIcons = ref<[number, number][]>([])
 const rArray = ref<[number, number][]>([[120, 120], [180, 180], [512, 512], [1024, 1024]])
 const aNum = ref()

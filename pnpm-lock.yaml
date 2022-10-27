@@ -276,6 +276,7 @@ importers:
       vue-router: ^4.1.5
       vue-tsc: ^0.34.17
       vue3-toastify: ^0.0.3
+      vuedraggable: ^4.1.0
       windicss: ^3.5.6
     dependencies:
       '@intlify/vite-plugin-vue-i18n': 3.4.0_vite@2.9.15+vue-i18n@9.2.2
@@ -305,6 +306,7 @@ importers:
       vue-i18n: 9.2.2_vue@3.2.41
       vue-router: 4.1.5_vue@3.2.41
       vue3-toastify: 0.0.3_vue@3.2.41
+      vuedraggable: 4.1.0_vue@3.2.41
     devDependencies:
       '@types/lodash-es': 4.17.6
       '@types/uuid': 8.3.4
@@ -9175,6 +9177,10 @@ packages:
       - supports-color
     dev: false
 
+  /sortablejs/1.14.0:
+    resolution: {integrity: sha512-pBXvQCs5/33fdN1/39pPL0NZF20LeRbLQ5jtnheIPN9JQAaufGjKdWduZn4U7wCtVuzKhmRkI0DFYHYRbB2H1w==}
+    dev: false
+
   /sorted-array-functions/1.3.0:
     resolution: {integrity: sha512-2sqgzeFlid6N4Z2fUQ1cvFmTOLRi/sEDzSQ0OKYchqgoPmQBVyM3959qYx3fpS6Esef80KjmpgPeEr028dP3OA==}
     dev: false
@@ -10522,6 +10528,15 @@ packages:
       vue:
         optional: true
     dependencies:
+      vue: 3.2.41
+    dev: false
+
+  /vuedraggable/4.1.0_vue@3.2.41:
+    resolution: {integrity: sha512-FU5HCWBmsf20GpP3eudURW3WdWTKIbEIQxh9/8GE806hydR9qZqRRxRE3RjqX7PkuLuMQG/A7n3cfj9rCEchww==}
+    peerDependencies:
+      vue: ^3.0.1
+    dependencies:
+      sortablejs: 1.14.0
       vue: 3.2.41
     dev: false
 
