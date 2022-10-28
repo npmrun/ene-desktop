@@ -8,15 +8,14 @@
                 选择文件
                 <input class="absolute block inset-0 opacity-0" type="file" @change="chooseFile">
             </button>
-            <button class="button cursor-pointer is-info" @click="saveAll">保存所有</button>
             <button class="button cursor-pointer is-info" @click="reset">重置</button>
         </div>
-        <div class="block" style="line-height: 1;">
+        <div class="flex items-center">
             <label class="checkbox">
-                <input type="checkbox" style="vertical-align: middle;" v-model="state.isCircle">
+                <input type="checkbox" style="vertical-align: middle;" v-model="isCircle">
                 <span class="ml-6px" style="vertical-align: middle;">圆形</span>
-
             </label>
+            <button class="button cursor-pointer is-info ml-6px" @click="saveAll">保存所有</button>
         </div>
         <h2 class="font-bold text-size-25px my-15px">预览</h2>
         <div class="mt-15px flex items-start pt-10px">
@@ -81,7 +80,7 @@ const state = reactive<{
 })
 
 const android = ref([
-    {width: 120, height: 120},
+    { width: 120, height: 120 },
 ])
 
 const isCircle = ref(false)
