@@ -3,16 +3,10 @@
         <div class="border-r w-1/3 md: px-8px py-20px">
             <h2 class="text-size-25px font-bold">个人工具</h2>
             <div class="mt-25px flex flex-wrap">
-                <router-link custom v-slot="{ navigate, isActive }" to="/home/icons">
-                    <div @click="navigate" class="border inline-block p-12px cursor-pointer mr-8px mb-8px"
-                        :style="{ color: isActive ? '#2F66FF' : '#BBBBBB', borderColor: isActive ? '#2F66FF' : '#BBBBBB' }">
-                        <span>图标生成器</span>
-                    </div>
-                </router-link>
-                <router-link custom v-slot="{ navigate, isActive }" to="/home/bb">
-                    <div @click="navigate" class="border inline-block p-12px cursor-pointer mr-8px mb-8px"
-                        :style="{ color: isActive ? '#2F66FF' : '#BBBBBB', borderColor: isActive ? '#2F66FF' : '#BBBBBB' }">
-                        <span>图标生成器</span>
+                <router-link v-for="item in app" :key="item.path" custom v-slot="{ navigate, isActive }" :to="item.path">
+                    <div @click="navigate" class="border rounded-8px inline-block p-12px cursor-pointer mr-8px mb-8px"
+                        :style="{ color: isActive ? item.activeColor : item.color, borderColor: isActive ? item.activeColor : item.color }">
+                        <span>{{  item.title  }}</span>
                     </div>
                 </router-link>
             </div>
@@ -40,10 +34,14 @@ meta:
 </route>
 
 <script lang="ts" setup>
-onActivated(() => {
-    console.log('asdas');
-})
+
+const app = reactive([
+    { title: "图标生成器", path: "/home/icons", color: "#a9c0ff", activeColor: "#2F66FF" },
+    { title: "v2ray", path: "/home/v2ray", color: "#dfaaca", activeColor: "#ea4aaa" },
+])
+
 </script>
 
 <style lang="less" scoped>
+
 </style>

@@ -8,6 +8,8 @@
 </template>
 
 <script lang="ts" setup>
+import { toast } from 'vue3-toastify';
+
 
 const aNum = ref<number>()
 const bNum = ref<number>()
@@ -17,10 +19,12 @@ const emit = defineEmits<{
 }>()
 
 function add() {
-    if (aNum.value && bNum.value) {
+    if (aNum.value && bNum.value && aNum.value > 0 && bNum.value > 0) {
         emit("add", aNum.value, bNum.value)
         aNum.value = undefined
         bNum.value = undefined
+    } else {
+        toast.error("宽高必须为正数")
     }
 }
 </script>

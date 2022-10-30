@@ -17,10 +17,10 @@ const props = withDefaults(defineProps<{
     height: number,
     src?: string,
     showDel?: boolean,
-    isCircle?: boolean
+    renderType?: "none" | "circle" | "circle-rect"
 }>(), {
     showDel: false,
-    isCircle: false
+    renderType: "none"
 })
 
 const emit = defineEmits<{
@@ -28,11 +28,11 @@ const emit = defineEmits<{
 }>()
 
 const canvasRef = ref()
-watch(()=>[props.src, props.isCircle], async ()=>{
+watch(() => [props.src, props.renderType], async () => {
     if (props.src) {
         await nextTick()
         await clearCanvas(canvasRef.value)
-        await drawCanvas(canvasRef.value, props.src, props.isCircle)
+        await drawCanvas(canvasRef.value, props.src, props.renderType)
     }
-}, {immediate: true})
+}, { immediate: true })
 </script>

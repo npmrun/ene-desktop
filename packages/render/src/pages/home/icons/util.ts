@@ -15,7 +15,11 @@ export type ExtendHTMLCanvasElement = HTMLCanvasElement & {
     name?: string
     _url?: string
 }
-export async function drawCanvas(canvas: ExtendHTMLCanvasElement, image: string, isCircle: boolean) {
+export async function drawCanvas(
+    canvas: ExtendHTMLCanvasElement,
+    image: string,
+    renderType: "none" | "circle" | "circle-rect",
+) {
     const ctx = !!canvas.getContext && canvas.getContext("2d")
     if (ctx) {
         const img = await loadImage(image)
@@ -26,9 +30,29 @@ export async function drawCanvas(canvas: ExtendHTMLCanvasElement, image: string,
         canvas.name = `icon-${canvas.dataset.width}x${canvas.dataset.height}`
         canvas._url = image
         canvas.height = canvas.dataset.height as unknown as number
-        if (isCircle) {
+        if (renderType === "circle") {
             ctx.beginPath()
             ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2)
+            ctx.clip()
+        }
+        if (renderType === "circle-rect") {
+            const x = 0
+            const y = 0
+            const r = canvas.width / 2
+            const w = canvas.width
+            const h = canvas.height
+            ctx.beginPath();
+            ctx.strokeStyle = "#fff";
+            ctx.moveTo(x, y + r);
+            ctx.lineTo(x, y + h - r);
+            ctx.quadraticCurveTo(x, y + h, x + r, y + h);
+            ctx.lineTo(x + w - r, y + h);
+            ctx.quadraticCurveTo(x + w, y + h, x + w, y + h - r);
+            ctx.lineTo(x + w, y + r);
+            ctx.quadraticCurveTo(x + w, y, x + w - r, y);
+            ctx.lineTo(x + r, y);
+            ctx.quadraticCurveTo(x, y, x, y + r);
+            ctx.stroke();
             ctx.clip()
         }
         ctx.drawImage(img, offsetX, offsetY, minValue, minValue, 0, 0, canvas.width, canvas.height)

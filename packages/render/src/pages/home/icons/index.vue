@@ -9,10 +9,21 @@
                 <input class="absolute block inset-0 opacity-0" type="file" @change="chooseFile">
             </button>
         </div>
-        <div class="flex items-center">
-            <label class="checkbox">
-                <input type="checkbox" style="vertical-align: middle;" v-model="state.isCircle">
+        <div class="flex items-center control">
+            <label class="radio">
+                <input type="radio" name="renderType" value="none" style="vertical-align: middle;"
+                    v-model="state.renderType">
+                <span class="ml-6px" style="vertical-align: middle;">无</span>
+            </label>
+            <label class="radio">
+                <input type="radio" name="renderType" value="circle" style="vertical-align: middle;"
+                    v-model="state.renderType">
                 <span class="ml-6px" style="vertical-align: middle;">圆形</span>
+            </label>
+            <label class="radio">
+                <input type="radio" name="renderType" value="circle-rect" style="vertical-align: middle;"
+                    v-model="state.renderType">
+                <span class="ml-6px" style="vertical-align: middle;">圆角矩形</span>
             </label>
             <button class="button cursor-pointer is-info ml-6px" @click="saveAll">保存所有</button>
         </div>
@@ -29,7 +40,7 @@
         </h2>
         <div class="mt-6px tags buttons icon-generate ios">
             <template v-for="(item, index) in iphoneIcons">
-                <Tag :src='state.curFile' :is-circle="state.isCircle" :width="item[0]" :height="item[1]"></Tag>
+                <Tag :src='state.curFile' :render-type="state.renderType" :width="item[0]" :height="item[1]"></Tag>
             </template>
         </div>
         <h2 class="font-bold text-size-25px my-15px">安卓
@@ -37,7 +48,7 @@
         </h2>
         <div class="mt-6px tags buttons icon-generate android">
             <template v-for="(item, index) in androidIcons">
-                <Tag :src='state.curFile' :is-circle="state.isCircle" :width="item[0]" :height="item[1]"></Tag>
+                <Tag :src='state.curFile' :render-type="state.renderType" :width="item[0]" :height="item[1]"></Tag>
             </template>
         </div>
         <h2 class="font-bold text-size-25px my-15px">自定义
@@ -45,7 +56,7 @@
         </h2>
         <div class="mt-6px tags buttons icon-generate custom">
             <template v-for="(item, index) in customIcons">
-                <Tag show-del :is-circle="state.isCircle" @del="customIcons.splice(index, 1)" :src='state.curFile'
+                <Tag show-del :render-type="state.renderType" @del="customIcons.splice(index, 1)" :src='state.curFile'
                     :width="item[0]" :height="item[1]"></Tag>
             </template>
             <Add @add="(w, h) => customIcons.push([w, h])"></Add>
@@ -71,9 +82,9 @@ import { clearCanvas, drawCanvas, ExtendHTMLCanvasElement, saveCanvas } from './
 
 const state = reactive<{
     curFile?: string,
-    isCircle: boolean
+    renderType: "none" | "circle" | "circle-rect"
 }>({
-    isCircle: false,
+    renderType: "none",
 })
 
 const netUrl = ref<string>()
@@ -86,7 +97,7 @@ const customIcons = ref<[number, number][]>([])
 watchEffect(() => {
     if (state.curFile) {
         clearCanvas(previewRef.value)
-        drawCanvas(previewRef.value, state.curFile, state.isCircle)
+        drawCanvas(previewRef.value, state.curFile, state.renderType)
     }
 })
 watch(() => state.curFile, (newValue, oldValue) => {
@@ -112,7 +123,7 @@ function chooseFile(e: Event) {
                 const img = URL.createObjectURL(blob)
                 state.curFile = img
                 clearCanvas(previewRef.value)
-                drawCanvas(previewRef.value, state.curFile, state.isCircle)
+                drawCanvas(previewRef.value, state.curFile, state.renderType)
             }
         }
     }
