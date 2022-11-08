@@ -26,10 +26,17 @@ export async function drawCanvas(
         const minValue = Math.min(img.width, img.height)
         const offsetX = minValue == img.height ? (img.width - img.height) / 2 : 0
         const offsetY = minValue == img.width ? (img.height - img.width) / 2 : 0
-        canvas.width = canvas.dataset.width as unknown as number
+
+        const width = canvas.dataset.width as unknown as number
+        const height = canvas.dataset.height as unknown as number
+
         canvas.name = `icon-${canvas.dataset.width}x${canvas.dataset.height}`
         canvas._url = image
-        canvas.height = canvas.dataset.height as unknown as number
+        canvas.style.width = width + 'px'
+        canvas.style.height = height + 'px'
+        canvas.width = width
+        canvas.height = height
+
         if (renderType === "circle") {
             ctx.beginPath()
             ctx.arc(canvas.width / 2, canvas.height / 2, canvas.width / 2, 0, Math.PI * 2)
@@ -42,7 +49,8 @@ export async function drawCanvas(
             const w = canvas.width
             const h = canvas.height
             ctx.beginPath();
-            ctx.strokeStyle = "#fff";
+            // ctx.strokeStyle = "#fff";
+            ctx.strokeStyle = "transparent";
             ctx.moveTo(x, y + r);
             ctx.lineTo(x, y + h - r);
             ctx.quadraticCurveTo(x, y + h, x + r, y + h);
