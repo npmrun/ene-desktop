@@ -59,7 +59,7 @@
                 <Tag show-del :render-type="state.renderType" @del="customIcons.splice(index, 1)" :src='state.curFile'
                     :width="item[0]" :height="item[1]"></Tag>
             </template>
-            <Add @add="(w, h) => customIcons.push([w, h])"></Add>
+            <Add @add="(w: number, h: number) => customIcons.push([w, h])"></Add>
         </div>
     </div>
 </template>
