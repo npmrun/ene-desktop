@@ -20,6 +20,12 @@ interface IConfig {
 }
 
 type TAgent<T = (event: Electron.IpcRendererEvent, ...args: any[]) => void> = {
+    info: {
+        version: string,
+        chrome: string,
+        node: string,
+        electron: string,
+    },
     preloadPath: string;
     iframePath: string;
     extraPath: string;

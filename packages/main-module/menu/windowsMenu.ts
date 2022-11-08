@@ -150,17 +150,7 @@ export let windowsMenu: IMenuItemOption[] = [
                     // https://www.electronjs.org/docs/api/browser-window#winsetmenubarvisibilityvisible-windows-linux
                     showAboutWindow()
                 }
-            },
-            {
-                label: "关于程序",
-                click(){
-
-                }
             }
         ]
-    },
-    {
-        label: `当前版本:${setting.app_version}`,
-        type: "normal"
     }
 ]

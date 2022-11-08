@@ -253,7 +253,7 @@ importers:
       lodash-es: ^4.17.21
       mockjs: ^1.1.0
       pinia: ^2.0.23
-      princess-ui: 0.0.8-beta.2
+      princess-ui: 0.0.8-beta.14
       rollup: ^2.79.1
       sass: ^1.55.0
       typescript: ^4.8.4
@@ -290,7 +290,7 @@ importers:
       lodash-es: 4.17.21
       mockjs: 1.1.0
       pinia: 2.0.23_l7r24p6nevbtlimqmqcwa3ouhu
-      princess-ui: 0.0.8-beta.2_vue@3.2.41
+      princess-ui: 0.0.8-beta.14
       rollup: 2.79.1
       unplugin-auto-import: 0.8.8_ptfyych67dbbzk3zwx6gnbvmee
       uuid: 8.3.2
@@ -7584,6 +7584,7 @@ packages:
     resolution: {integrity: sha512-x0Vn8spI+wuJ1O6S7gnbaQg8Pxh4NNHb7KSINmEWKiPE4RKOplvijn+NkmYmmRgP68mc70j2EbeTFRsrswaQeg==}
     engines: {node: '>=4'}
     hasBin: true
+    requiresBuild: true
     dev: false
 
   /mime/2.6.0:
@@ -8397,10 +8398,8 @@ packages:
     engines: {node: '>=6'}
     dev: true
 
-  /princess-ui/0.0.8-beta.2_vue@3.2.41:
-    resolution: {integrity: sha512-pJVRjr6k0RYGMmgFo+drnv8w0VzUj5zvs+Mb4X/oGs0S9OF/UhD3QxzMqSLNjr57GO+S1xghKMFUFnYUpyPBpQ==}
-    peerDependencies:
-      vue: '>=3.2.0 <4.0.0'
+  /princess-ui/0.0.8-beta.14:
+    resolution: {integrity: sha512-LgOIxXfK6LoTrGWovF/qPiWRnwCaBPBvqRwmdsIwNDdCNpgmp+p/630RbwI6c4nNAOWtJtl8oEycCnJDYlSN9g==}
     dependencies:
       vue: 3.2.41
     dev: false

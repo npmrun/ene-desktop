@@ -2,6 +2,7 @@ import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron"
 import { callMethod, callMethodLong, callMethodSync } from "./call"
 import path from "path"
 import * as file from "./file"
+import setting from "@rush/share/setting"
 
 let preloadPath = path.join(__dirname, "preload.js")
 let iframePath = `http://localhost:${process.env.PORT}/iframe.html`
@@ -14,6 +15,7 @@ if (__dirname.split(path.sep).indexOf("app.asar") >= 0) {
 
 const _agent = {
     info: {
+        version: setting.app_version,
         chrome: process.versions["chrome"],
         node: process.versions["node"],
         electron: process.versions["electron"],

@@ -20,6 +20,9 @@
         </div>
         <div class="mb-35px">
             <div class="text-size-20px font-bold">检查更新</div>
+            <div class="text-gray-400 pt-8px">
+                当前版本：{{ version }}
+            </div>
             <div class="pt-16px">
                 <button class="button is-medium is-info" @click="onCheck">{{ updater_text }}</button>
             </div>
@@ -32,6 +35,7 @@
 import ConfigStore from "@/store/module/config"
 
 const configStore = ConfigStore()
+const version = _agent.info.version
 
 enum EStatus {
     normal,
