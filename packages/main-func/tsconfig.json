@@ -1,5 +1,5 @@
 {
-    "extends": "../../tsconfig.json",
+    "extends": "@rush/tsconfig/tsconfig.main.json",
     "include": [
         "**/*.ts",
         "../common/**/*.ts",
