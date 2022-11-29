@@ -1,8 +1,9 @@
 import { broadcast, platform } from "@rush/main-tool"
 import { showAboutWindow } from "@rush/main-func/window/about"
 import { setupTray } from "@rush/main-func/window/tray"
+import { alert } from "@rush/main-func/dialog"
 import { Shared } from "@rush/main-share"
-import { BrowserWindow, Menu, app, ipcMain, MenuItem, Settings } from "electron"
+import { BrowserWindow, Menu, app, ipcMain, MenuItem, Settings, dialog } from "electron"
 import { cloneDeep } from "lodash"
 import setting from "@rush/share/setting"
 import autoLaunch from "auto-launch"
@@ -109,11 +110,15 @@ export let windowsMenu: IMenuItemOption[] = [
             {
                 type: "checkbox",
                 label: "开机启动",
-                checked : isAutoRun, 
+                checked : isAutoRun,
                 click : async function () {
+                    // alert("需要进一步测试与修复")
+                    // return
+                    // 考虑如果用户自行修改了配置文件，这里怎么识别，考虑全部变成autoLaunch
                     let isStart = !isAutoRun;
                     try {
                         if (platform === "Linux") {
+                            console.log(isStart, setting.app_title);
                             if(isStart){
                                 const outlineAutoLauncher = new autoLaunch({
                                     name: setting.app_title,
@@ -127,7 +132,7 @@ export let windowsMenu: IMenuItemOption[] = [
                                 });
                                 outlineAutoLauncher.disable();
                                 isAutoRun = isStart
-                            } 
+                            }
                         } else {
                             const opt: Settings = {
                                 openAtLogin: isStart,
@@ -145,7 +150,7 @@ export let windowsMenu: IMenuItemOption[] = [
                     } catch (e) {
                         isAutoRun = !isStart
                         logger.error(`Failed to set up auto-launch: ${e.message}`);
-                    } 
+                    }
                     fs.writeFileSync(auto_run_path, isAutoRun?'1':'0', "utf8")
                 }
             }

@@ -1,5 +1,7 @@
 import { dialog } from 'electron'
 import { Shared } from "@rush/main-share"
+import { appTrayPath } from '@rush/main-tool'
+import setting from '@rush/share/setting'
 /**
  * 选择本地文件夹地址
  */
@@ -21,13 +23,30 @@ export function chooseDir(title: string, defaultPath: string) {
         })
         .catch((err) => {
             reject(err)
-        }) 
+        })
     })
 }
 export function error(title: string, message: string) {
     return new Promise((resolve, reject)=>{
         dialog.showErrorBox(title, message)
         resolve(void 0)
+    })
+}
+
+export function alert(message:string, title:string = setting.app_title) {
+    return new Promise((resolve, reject)=>{
+        dialog
+        .showMessageBox(Shared.data.focusWindow, {
+            title: title,
+            message: message,
+            type: "none"
+        })
+        .then((result) => {
+            resolve(result.response)
+        })
+        .catch((err) => {
+            reject(err)
+        })
     })
 }
 

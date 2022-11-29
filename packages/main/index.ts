@@ -53,7 +53,7 @@ Mitt.on("boot", ({ argv, ...opts })=>{
     }else{
         showMainWindow()
     }
-    
+
 })
 
 function createWindow() {
@@ -61,6 +61,7 @@ function createWindow() {
     // setupTray()
     // 如果打开协议时，没有其他实例，则当前实例当做主实例，处理参数
     Mitt.emit("boot", {argv: process.argv})
+    logger.debug("process.argv启动参数为：", process.argv)
     // Shared.data.mainWindow.webContents.openDevTools({mode: "detach"});
 }
 
@@ -89,6 +90,7 @@ if (!gotTheLock) {
         // Windows 下通过协议URL启动时，URL会作为参数，所以需要在这个事件里处理
         if (platform ===  "windows" || platform === "Linux") {
             Mitt.emit("boot", {argv: argv})
+            logger.debug("second-instance启动参数为：", argv)
         }
     })
 
@@ -96,6 +98,7 @@ if (!gotTheLock) {
     app.on("open-url", (event, urlStr) => {
         logger.debug(urlStr)
         Mitt.emit("boot", {argv: urlStr})
+        logger.debug("open-url启动参数为：", urlStr)
     })
 
     app.on("ready", () => setTimeout(createWindow, 500))
