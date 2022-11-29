@@ -18,10 +18,12 @@ importers:
       '@rush/preload': workspace:*
       '@rush/render': workspace:*
       '@rush/share': workspace:*
+      '@types/auto-launch': ^5.0.2
       '@types/crypto-js': ^4.1.1
       '@types/fs-extra': ^9.0.13
       '@types/lodash': ^4.14.186
       '@types/node': ^16.11.65
+      auto-launch: ^5.0.5
       compressing: ^1.6.2
       cross-spawn: ^7.0.3
       crypto-js: ^4.1.1
@@ -42,6 +44,7 @@ importers:
     dependencies:
       '@commonify/lowdb': 3.0.0
       '@parcel/watcher': 2.0.5
+      auto-launch: 5.0.5
       compressing: 1.6.2
       cross-spawn: 7.0.3
       crypto-js: 4.1.1
@@ -68,6 +71,7 @@ importers:
       '@rush/preload': link:packages/preload
       '@rush/render': link:packages/render
       '@rush/share': link:packages/share
+      '@types/auto-launch': 5.0.2
       '@types/crypto-js': 4.1.1
       '@types/fs-extra': 9.0.13
       '@types/lodash': 4.14.186
@@ -2198,6 +2202,10 @@ packages:
     resolution: {integrity: sha512-v+dxizsFVyXgD3EpFuqT9YjdEjbJmPxNf1QIX9ohZOhxh1ZF2yhqv3vYaeum9lg3VghhxS5S0a6yldN9J9lPEQ==}
     dev: true
 
+  /@types/auto-launch/5.0.2:
+    resolution: {integrity: sha512-b03X09+GCM9t6AUECpwA2gUPYs8s5tJHFJw92sK8EiJ7G4QNbsHmXV7nfCfP6G6ivtm230vi4oNfe8AzRgzxMQ==}
+    dev: true
+
   /@types/chalk/2.2.0:
     resolution: {integrity: sha512-1zzPV9FDe1I/WHhRkf9SNgqtRJWZqrBWgu7JGveuHmmyR9CnAPCie2N/x+iHrgnpYBIcCJWHBoMRv2TRWktsvw==}
     deprecated: This is a stub types definition for chalk (https://github.com/chalk/chalk). chalk provides its own type definitions, so you don't need @types/chalk installed!
@@ -3091,6 +3099,10 @@ packages:
       - supports-color
     dev: false
 
+  /applescript/1.0.0:
+    resolution: {integrity: sha512-yvtNHdWvtbYEiIazXAdp/NY+BBb65/DAseqlNiJQjOx9DynuzOYDbVLBJvuc0ve0VL9x6B3OHF6eH52y9hCBtQ==}
+    dev: false
+
   /archy/1.0.0:
     resolution: {integrity: sha512-Xg+9RwCg/0p32teKdGMPTPnVXKD0w3DfHnFTficozsAgsvq2XenPJq/MYpzzQ/v8zrOyJn6Ds39VA4JIDwFfqw==}
     dev: true
@@ -3202,6 +3214,17 @@ packages:
   /atomically/1.7.0:
     resolution: {integrity: sha512-Xcz9l0z7y9yQ9rdDaxlmaI4uJHf/T8g9hOEzJcsEqX2SjCj4J20uK7+ldkDHMbpJDK76wF7xEIgxc/vSlsfw5w==}
     engines: {node: '>=10.12.0'}
+    dev: false
+
+  /auto-launch/5.0.5:
+    resolution: {integrity: sha512-ppdF4mihhYzMYLuCcx9H/c5TUOCev8uM7en53zWVQhyYAJrurd2bFZx3qQVeJKF2jrc7rsPRNN5cD+i23l6PdA==}
+    engines: {node: '>=4.0.0'}
+    dependencies:
+      applescript: 1.0.0
+      mkdirp: 0.5.6
+      path-is-absolute: 1.0.1
+      untildify: 3.0.3
+      winreg: 1.2.4
     dev: false
 
   /available-typed-arrays/1.0.5:
@@ -10130,6 +10153,11 @@ packages:
       isobject: 3.0.1
     dev: false
 
+  /untildify/3.0.3:
+    resolution: {integrity: sha512-iSk/J8efr8uPT/Z4eSUywnqyrQU7DSdMfdqK4iWEaUVVmcP5JcnpRqmVMwcwcnmI1ATFNgC5V90u09tBynNFKA==}
+    engines: {node: '>=4'}
+    dev: false
+
   /upath/1.2.0:
     resolution: {integrity: sha512-aZwGpamFO61g3OlfT7OQCHqhGnW43ieH9WZeP7QxN/G/jS4jfqUkZxoryvJgVPEcrl5NL/ggHsSmLMHuH64Lhg==}
     engines: {node: '>=4'}
@@ -10720,6 +10748,10 @@ packages:
     dependencies:
       define-property: 1.0.0
       is-number: 3.0.0
+    dev: false
+
+  /winreg/1.2.4:
+    resolution: {integrity: sha512-IHpzORub7kYlb8A43Iig3reOvlcBJGX9gZ0WycHhghHtA65X0LYnMRuJs+aH1abVnMJztQkvQNlltnbPi5aGIA==}
     dev: false
 
   /word-wrap/1.2.3:

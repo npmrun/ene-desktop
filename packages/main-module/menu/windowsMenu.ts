@@ -2,9 +2,10 @@ import { broadcast, platform } from "@rush/main-tool"
 import { showAboutWindow } from "@rush/main-func/window/about"
 import { setupTray } from "@rush/main-func/window/tray"
 import { Shared } from "@rush/main-share"
-import { BrowserWindow, Menu, app, ipcMain, MenuItem } from "electron"
+import { BrowserWindow, Menu, app, ipcMain, MenuItem, Settings } from "electron"
 import { cloneDeep } from "lodash"
 import setting from "@rush/share/setting"
+import autoLaunch from "auto-launch"
 
 function updateMenu(id: string, key: string, value: any) {
     const menus = cloneDeep(windowsMenu)
@@ -92,6 +93,45 @@ export let windowsMenu: IMenuItemOption[] = [
                     }
                 },
             },
+            {
+                type: "checkbox",
+                label: "开机启动",
+                checked : app.getLoginItemSettings().openAtLogin,
+                click : async function () {
+                    try {
+                        const isStart = !app.getLoginItemSettings().openAtLogin
+                        if (platform === "Linux") {
+                            if(isStart){
+                                const outlineAutoLauncher = new autoLaunch({
+                                    name: setting.app_title,
+                                    isHidden: isStart
+                                });
+                                outlineAutoLauncher.enable();
+                            }else{
+                                const outlineAutoLauncher = new autoLaunch({
+                                    name: setting.app_title,
+                                });
+                                outlineAutoLauncher.disable();
+                            }
+                        } else {
+                            
+                            const opt: Settings = {
+                                openAtLogin: isStart,
+                                path: process.execPath
+                            }
+                            if(platform === "MacOS" && isStart){
+                                opt.openAsHidden = true
+                            }
+                            if(platform === "windows" && isStart){
+                                opt.args = ["--openAsHidden"]
+                            }
+                            app.setLoginItemSettings(opt)
+                        }
+                    } catch (e) {
+                        logger.error(`Failed to set up auto-launch: ${e.message}`);
+                    }
+                }
+            }
         ],
     },
     {

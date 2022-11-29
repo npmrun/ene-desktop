@@ -20,7 +20,7 @@ Settings.init()
 // 初始化模块
 initModules()
 
-Mitt.on("app-message", () => {
+Mitt.on("app-message", ({ event, msg, data }) => {
     // 处理全局消息, 可以自行处理以及发送到前端处理
 })
 
@@ -39,7 +39,21 @@ Mitt.on("boot", ({ argv, ...opts })=>{
         logger.debug(searchParams.get("pwd")) // -> 2
         opts.cb&&opts.cb(urlObj, searchParams)
     }
-    showMainWindow()
+    let taryBoot = false
+    if (platform === "MacOS" && app.getLoginItemSettings().wasOpenedAsHidden) {
+        taryBoot = true
+    } else if (platform === "windows" && process.argv.indexOf("--openAsHidden") > 0) {
+        taryBoot = true
+    } else if (platform === "Linux" && process.argv.indexOf("--hidden") > 0) {
+        taryBoot = true
+    }
+    if(taryBoot){
+        Shared.data.lastChoice = 1
+        setupTray()
+    }else{
+        showMainWindow()
+    }
+    
 })
 
 function createWindow() {
@@ -49,6 +63,18 @@ function createWindow() {
     Mitt.emit("boot", {argv: process.argv})
     // Shared.data.mainWindow.webContents.openDevTools({mode: "detach"});
 }
+
+// 开发时程序结束回主动清理默认协议
+process
+    // Handle normal exits
+    .on("exit", code => {
+        Mitt.emit("app-message", { event: "app-exit", data: code })
+    })
+    // Handle CTRL+C
+    .on("SIGINT", () => {
+        Mitt.emit("app-message", { event: "app-exit" })
+    })
+
 
 const gotTheLock = app.requestSingleInstanceLock()
 if (!gotTheLock) {
