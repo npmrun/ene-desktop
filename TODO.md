@@ -8,3 +8,5 @@
 
 https://github.com/Jigsaw-Code/outline-client/blob/master/src/electron/index.ts
 https://github.com/nikteg/caprine
+
+需要一个客户端配置，与通用配置分开，到时同步的时候不需同步客户端配置，这个配置可存放在应用程序目录下。

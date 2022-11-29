@@ -6,6 +6,8 @@ import { BrowserWindow, Menu, app, ipcMain, MenuItem, Settings } from "electron"
 import { cloneDeep } from "lodash"
 import setting from "@rush/share/setting"
 import autoLaunch from "auto-launch"
+import fs from "fs-extra"
+import path from "path"
 
 function updateMenu(id: string, key: string, value: any) {
     const menus = cloneDeep(windowsMenu)
@@ -26,6 +28,17 @@ function updateMenu(id: string, key: string, value: any) {
     const menuTemp = Menu.buildFromTemplate(<any>windowsMenu)
     Menu.setApplicationMenu(menuTemp)
 }
+
+let isAutoRun = false;
+const auto_run_path = path.resolve(__extra, "./auto_run.txt")
+fs.ensureFileSync(auto_run_path)
+const code = fs.readFileSync(auto_run_path, "utf8")
+if(code === "1"){
+    isAutoRun = true
+}else{
+    isAutoRun = false
+}
+
 
 export let windowsMenu: IMenuItemOption[] = [
     {
@@ -96,10 +109,10 @@ export let windowsMenu: IMenuItemOption[] = [
             {
                 type: "checkbox",
                 label: "开机启动",
-                checked : app.getLoginItemSettings().openAtLogin,
+                checked : isAutoRun, 
                 click : async function () {
+                    let isStart = !isAutoRun;
                     try {
-                        const isStart = !app.getLoginItemSettings().openAtLogin
                         if (platform === "Linux") {
                             if(isStart){
                                 const outlineAutoLauncher = new autoLaunch({
@@ -107,14 +120,15 @@ export let windowsMenu: IMenuItemOption[] = [
                                     isHidden: isStart
                                 });
                                 outlineAutoLauncher.enable();
+                                isAutoRun = isStart
                             }else{
                                 const outlineAutoLauncher = new autoLaunch({
                                     name: setting.app_title,
                                 });
                                 outlineAutoLauncher.disable();
-                            }
+                                isAutoRun = isStart
+                            } 
                         } else {
-                            
                             const opt: Settings = {
                                 openAtLogin: isStart,
                                 path: process.execPath
@@ -126,10 +140,13 @@ export let windowsMenu: IMenuItemOption[] = [
                                 opt.args = ["--openAsHidden"]
                             }
                             app.setLoginItemSettings(opt)
+                            isAutoRun = isStart
                         }
                     } catch (e) {
+                        isAutoRun = !isStart
                         logger.error(`Failed to set up auto-launch: ${e.message}`);
-                    }
+                    } 
+                    fs.writeFileSync(auto_run_path, isAutoRun?'1':'0', "utf8")
                 }
             }
         ],
