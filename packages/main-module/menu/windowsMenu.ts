@@ -30,15 +30,35 @@ function updateMenu(id: string, key: string, value: any) {
     Menu.setApplicationMenu(menuTemp)
 }
 
-let isAutoRun = false;
-const auto_run_path = path.resolve(__extra, "./auto_run.txt")
-fs.ensureFileSync(auto_run_path)
-const code = fs.readFileSync(auto_run_path, "utf8")
-if(code === "1"){
-    isAutoRun = true
-}else{
-    isAutoRun = false
+// let isAutoRun = false;
+// const auto_run_path = path.resolve(__extra, "./auto_run.txt")
+// fs.ensureFileSync(auto_run_path)
+// const code = fs.readFileSync(auto_run_path, "utf8")
+// if(code === "1"){
+//     isAutoRun = true
+// }else{
+//     isAutoRun = false
+// }
+let isAutoRun = false
+let isLoadingAuto = true
+const outlineAutoLauncher = new autoLaunch({
+    name: setting.app_title,
+    isHidden: true
+});
+async function checkAutoStatus() {
+    try {
+        const v = await outlineAutoLauncher.isEnabled()
+        if(v!=isAutoRun){
+            isAutoRun = v
+            updateMenu("setupAction", "checked", isAutoRun)
+        }
+        isLoadingAuto = false
+    } catch (error) {
+        logger.error("获取开机自启报错")
+        logger.error(error)
+    }
 }
+checkAutoStatus()
 
 
 export let windowsMenu: IMenuItemOption[] = [
@@ -109,9 +129,28 @@ export let windowsMenu: IMenuItemOption[] = [
             },
             {
                 type: "checkbox",
+                id: "setupAction",
                 label: "开机启动",
-                checked : isAutoRun,
+                checked : false,
                 click : async function () {
+                    if(!isLoadingAuto){
+                        let isStart = !isAutoRun;
+                        if(isStart){
+                            outlineAutoLauncher.enable();
+                        }else{
+                            outlineAutoLauncher.disable();
+                        }
+                        try {
+                            const isStart = await outlineAutoLauncher.isEnabled()
+                            logger.debug("是否开机自启:", isStart)
+                        } catch (error) {
+                            logger.error("设置开机自启报错")
+                            logger.error(error)
+                        }
+                    }else{
+                        checkAutoStatus()
+                    }
+                    return
                     // alert("需要进一步测试与修复")
                     // return
                     // 考虑如果用户自行修改了配置文件，这里怎么识别，考虑全部变成autoLaunch
@@ -151,7 +190,7 @@ export let windowsMenu: IMenuItemOption[] = [
                         isAutoRun = !isStart
                         logger.error(`Failed to set up auto-launch: ${e.message}`);
                     }
-                    fs.writeFileSync(auto_run_path, isAutoRun?'1':'0', "utf8")
+                    // fs.writeFileSync(auto_run_path, isAutoRun?'1':'0', "utf8")
                 }
             }
         ],
