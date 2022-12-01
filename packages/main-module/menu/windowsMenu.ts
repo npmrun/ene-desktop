@@ -133,23 +133,24 @@ export let windowsMenu: IMenuItemOption[] = [
                 checked : false,
                 click : async function () {
                     if(!isLoadingAuto){
-                        let isStart = !isAutoRun;
+                        let ss = !isAutoRun;
                         const outlineAutoLauncher = new autoLaunch({
                             name: setting.app_title,
                             isHidden: true
                         });
-                        if(isStart){
-                            outlineAutoLauncher.enable();
-                        }else{
-                            outlineAutoLauncher.disable();
-                        }
                         try {
-                            const isStart = await outlineAutoLauncher.isEnabled()
-                            logger.debug("是否开机自启:", isStart)
+                            if(ss){
+                                await outlineAutoLauncher.enable();
+                            }else{
+                                await outlineAutoLauncher.disable();
+                            }
                         } catch (error) {
                             logger.error("设置开机自启报错")
                             logger.error(error)
                         }
+                        const isStart = await outlineAutoLauncher.isEnabled()
+                        isAutoRun = isStart
+                        logger.debug("是否开机自启:", isStart, ss)
                     }else{
                         checkAutoStatus()
                     }

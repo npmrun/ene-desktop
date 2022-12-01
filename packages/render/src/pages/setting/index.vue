@@ -42,7 +42,7 @@
                 <button class="button is-info is-medium ml-8px" @click="openDir(configStore.storagePath)">打开目录</button>
             </div>
         </div>
-        <div class="mb-35px">
+        <!-- <div class="mb-35px">
             <div class="text-size-20px font-bold">数据备份频次</div>
             <div class="text-gray-400 pt-8px">采用Cron表达式，主要用于备份本地数据，若文件未修改则不会备份</div>
             <div class="pt-8px">
@@ -50,7 +50,7 @@
                     @change="(e: any) => configStore.setBackupRule(e.target.value)"
                     class="input is-medium !max-w-320px !min-w-320px" type="text" placeholder="Text input">
             </div>
-        </div>
+        </div> -->
     </div>
 </template>
 
