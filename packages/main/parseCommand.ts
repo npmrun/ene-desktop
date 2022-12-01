@@ -3,17 +3,21 @@ import { ipcMain } from "electron"
 
 const modelsFile = require.context("../main-func", true, /\.ts$/)
 const funcs = {}
-modelsFile.keys().forEach(key => {
-    const res = modelsFile(key)
-    const module = res.default || res
-    funcs[
-        key
-            .replace(/(\.\/|\.ts)/g, "")
-            .split("/")
-            .filter(v => v != "index")
-            .join("/")
-    ] = module
-})
+
+export function initPrase() {
+    const modelsFileKeys = modelsFile.keys()
+    modelsFileKeys.forEach(key => {
+        const res = modelsFile(key)
+        const module = res.default || res
+        funcs[
+            key
+                .replace(/(\.\/|\.ts)/g, "")
+                .split("/")
+                .filter(v => v != "index")
+                .join("/")
+        ] = module
+    })
+}
 
 export function parseCommand(command: string): Function | undefined {
     let commands = command.split(".")

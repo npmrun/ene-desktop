@@ -1,7 +1,7 @@
-import { Mitt } from "@rush/main-tool/mitt"
+import { Mitt } from "@rush/main-module/mitt"
 import { globalShortcut } from "electron"
 
-export function init() {
+export function initShortcut() {
     globalShortcut.unregisterAll()
     globalShortcut.register("Alt+CommandOrControl+I", () => {
         console.log("Electron loves global shortcuts!")

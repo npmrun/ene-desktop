@@ -5,6 +5,7 @@ import { quit } from "."
 import { appIconPath } from "@rush/main-tool"
 import windowStateKeeper from "electron-window-state"
 import { Settings } from "@rush/main-config/config"
+import { confrim } from "@rush/main-tool/dialog"
 
 export function hideMainWindow() {
     if (!Shared.data.mainWindow || Shared.data.mainWindow?.isDestroyed()) {
@@ -57,6 +58,14 @@ export function showMainWindow(opts = {}) {
         // });
         Shared.data.mainWindow.on("close", (event: any) => {
             quit(event)
+        })
+        Shared.data.mainWindow.webContents.addListener("crashed", async  (err)=>{
+            const choice = await confrim({
+                title: "错误",
+                message: "应用程序崩溃，是否重载界面",
+                textList: ["重载", "取消"]
+            })
+            if(choice == 0) Shared.data.mainWindow.reload()
         })
     } else {
         Shared.data.mainWindow?.show()

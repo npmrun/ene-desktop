@@ -24,6 +24,9 @@ const _agent = {
     iframePath: iframePath,
     extraPath: extraPath,
     file: file,
+    crash() {
+        process.crash()
+    },
     call: callMethod,
     callLong: callMethodLong,
     callSync: callMethodSync,

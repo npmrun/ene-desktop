@@ -1,27 +1,21 @@
-import { isPromise, platform, readCommand } from "@rush/main-tool"
-import { ipcMain, app, crashReporter, shell } from "electron"
+import "./global"
+import { broadcast, platform } from "@rush/main-tool"
+import { app} from "electron"
 import { Shared } from "@rush/main-share"
-import { showMainWindow } from "@rush/main-func/window/main"
-import { setupTray } from "@rush/main-func/window/tray"
-import { initCommands } from "./parseCommand"
-import Store from "electron-store"
-import { Settings } from "@rush/main-config/config"
-import { Mitt } from "@rush/main-tool/mitt"
-import { initModules } from "@rush/main-module"
+import { showMainWindow } from "@rush/main-module/window/main"
+import { setupTray } from "@rush/main-module/window/tray"
+import { Mitt } from "@rush/main-module/mitt"
 import setting from "@rush/share/setting"
 
-crashReporter.start({
-    uploadToServer: false,
-})
-// 超级命令初始化
-initCommands()
-// 配置文件初始化
-Settings.init()
-// 初始化模块
-initModules()
-
 Mitt.on("app-message", ({ event, msg, data }) => {
-    // 处理全局消息, 可以自行处理以及发送到前端处理
+    if(event === "client"){
+        // 处理全局消息, 可以自行处理以及发送到前端处理
+        broadcast("from-server", msg, data)
+    }
+})
+
+Mitt.on("exit", ({ code })=>{
+    // 应用退出
 })
 
 // ene://?name=1&pwd=2
@@ -66,15 +60,16 @@ function createWindow() {
     // Shared.data.mainWindow.webContents.openDevTools({mode: "detach"});
 }
 
-// 开发时程序结束回主动清理默认协议
 process
     // Handle normal exits
     .on("exit", code => {
-        Mitt.emit("app-message", { event: "app-exit", data: code })
+        logger.debug("exit", code)
+        Mitt.emit("exit", { code })
     })
     // Handle CTRL+C
     .on("SIGINT", () => {
-        Mitt.emit("app-message", { event: "app-exit" })
+        logger.debug("SIGINT exit")
+        Mitt.emit("exit")
     })
 
 

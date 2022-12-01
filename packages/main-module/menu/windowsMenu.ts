@@ -1,7 +1,6 @@
 import { broadcast, platform } from "@rush/main-tool"
-import { showAboutWindow } from "@rush/main-func/window/about"
-import { setupTray } from "@rush/main-func/window/tray"
-import { alert } from "@rush/main-func/dialog"
+import { showAboutWindow } from "../window/about"
+import { setupTray } from "../window/tray"
 import { Shared } from "@rush/main-share"
 import { BrowserWindow, Menu, app, ipcMain, MenuItem, Settings, dialog } from "electron"
 import { cloneDeep } from "lodash"
@@ -41,12 +40,12 @@ function updateMenu(id: string, key: string, value: any) {
 // }
 let isAutoRun = false
 let isLoadingAuto = true
-const outlineAutoLauncher = new autoLaunch({
-    name: setting.app_title,
-    isHidden: true
-});
 async function checkAutoStatus() {
     try {
+        const outlineAutoLauncher = new autoLaunch({
+            name: setting.app_title,
+            isHidden: true
+        });
         const v = await outlineAutoLauncher.isEnabled()
         if(v!=isAutoRun){
             isAutoRun = v
@@ -135,6 +134,10 @@ export let windowsMenu: IMenuItemOption[] = [
                 click : async function () {
                     if(!isLoadingAuto){
                         let isStart = !isAutoRun;
+                        const outlineAutoLauncher = new autoLaunch({
+                            name: setting.app_title,
+                            isHidden: true
+                        });
                         if(isStart){
                             outlineAutoLauncher.enable();
                         }else{

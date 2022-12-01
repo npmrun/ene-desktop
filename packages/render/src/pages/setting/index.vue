@@ -31,10 +31,12 @@
         <div class="mb-35px">
             <div class="text-size-20px font-bold">数据保存路径</div>
             <div class="text-gray-400 pt-8px">本地数据保存地址</div>
-            <div class="pt-8px whitespace-nowrap">
-                <input spellcheck="false" :value="configStore.storagePath" :title="configStore.storagePath"
-                    @change="(e: any) => configStore.setStorePath(e.target.value)"
-                    class="input is-medium !max-w-320px !min-w-320px" disabled type="text" placeholder="Text input">
+            <div class="pt-8px whitespace-nowrap flex">
+                <div class="!min-w-320px !max-w-550px hover:flex-1 hover:w-0" style="transition: flex .5s linear;">
+                    <input spellcheck="false" :value="configStore.storagePath" :title="configStore.storagePath"
+                        @change="(e: any) => configStore.setStorePath(e.target.value)"
+                        class="input is-medium block" disabled type="text" placeholder="Text input">
+                </div>
                 <button class="button is-info is-medium ml-8px"
                     @click="chooseDir(configStore.storagePath)">选择目录</button>
                 <button class="button is-info is-medium ml-8px" @click="openDir(configStore.storagePath)">打开目录</button>

@@ -1,14 +1,16 @@
 import mitt, { Emitter } from "mitt"
 import Msg from "./Msg"
 
-type events = "app-warnning"
-            | "app-exit"
+type events = "client"
 
 type Events = {
     "app-message"?: {
         event: events,
         msg?: string,
         data?: any
+    }
+    exit?: {
+        code?: any
     }
     boot?: {
         argv: any

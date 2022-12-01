@@ -1,6 +1,6 @@
 import { broadcast, platform } from "@rush/main-tool"
-import { showAboutWindow } from "@rush/main-func/window/about"
-import { setupTray } from "@rush/main-func/window/tray"
+import { showAboutWindow } from "../window/about"
+import { setupTray } from "../window/tray"
 import { Shared } from "@rush/main-share"
 import { BrowserWindow, Menu, app, ipcMain, MenuItemConstructorOptions } from "electron"
 import { cloneDeep } from "lodash"

@@ -1,6 +1,6 @@
 import watcher from "@parcel/watcher"
 
-export function init() {
+export function initFileChange() {
     // logger.debug("开始监听")
     // ;(async () => {
     //     // 使用vscode编辑保存会出现两条更新记录，删除创建都只出现一条。

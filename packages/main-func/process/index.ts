@@ -1,3 +1,3 @@
-import process from "@rush/main-tool/process"
+import process from "@rush/main-module/process"
 
 export default process

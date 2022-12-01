@@ -1,5 +1,5 @@
 import { Settings } from "@rush/main-config/config"
-import { Mitt } from "@rush/main-tool/mitt"
+import { Mitt } from "@rush/main-module/mitt"
 import { app, dialog, protocol } from "electron"
 import fs from "fs-extra"
 import path from "path"
@@ -16,34 +16,31 @@ args.push("--open-url", "--")
 let PROTOCOL = setting.app_scheme
 let PROTOCOL_FILE = setting.app_scheme + "-file"
 
-// 开发时程序结束回主动清理默认协议
-process
-    // Handle normal exits
-    .on("exit", code => {
-        if (app.isDefaultProtocolClient(PROTOCOL, process.execPath, args)) {
-            const AgreementAppName = app.getApplicationNameForProtocol(`${PROTOCOL}://`)
-            if ((AgreementAppName.includes("Electron") && !app.isPackaged) || (AgreementAppName.includes(setting.app_title) && app.isPackaged)) {
-                app.removeAsDefaultProtocolClient(PROTOCOL, process.execPath, args)
-                logger.debug(`${PROTOCOL}协议已注销`);
-            } else {
-                logger.debug(`${PROTOCOL}协议已被其他程序占用`)
-            }
+Mitt.on("exit", ({ code })=>{
+    if(app.isPackaged) return; // 打包之后退出不需要注销协议
+    if (app.isDefaultProtocolClient(PROTOCOL, process.execPath, args)) {
+        const AgreementAppName = app.getApplicationNameForProtocol(`${PROTOCOL}://`)
+        if ((AgreementAppName.includes("Electron") && !app.isPackaged) || (AgreementAppName.includes(setting.app_title) && app.isPackaged)) {
+            app.removeAsDefaultProtocolClient(PROTOCOL, process.execPath, args)
+            logger.debug(`${PROTOCOL}协议已注销`);
+        } else {
+            logger.debug(`${PROTOCOL}协议已被其他程序占用`)
         }
-    })
+    }
+})
 
-    // Handle CTRL+C
-    .on("SIGINT", () => {
-        if (app.isDefaultProtocolClient(PROTOCOL, process.execPath, args)) {
-            const AgreementAppName = app.getApplicationNameForProtocol(`${PROTOCOL}://`)
-            if ((AgreementAppName.includes("Electron") && !app.isPackaged) || (AgreementAppName.includes(setting.app_title) && app.isPackaged)) {
-                app.removeAsDefaultProtocolClient(PROTOCOL, process.execPath, args)
-                logger.debug(`${PROTOCOL}协议已注销`);
-            } else {
-                logger.debug(`${PROTOCOL}协议已被其他程序占用`)
-            }
+// 手动清理协议
+export function clearProtocol() {
+    if (app.isDefaultProtocolClient(PROTOCOL, process.execPath, args)) {
+        const AgreementAppName = app.getApplicationNameForProtocol(`${PROTOCOL}://`)
+        if ((AgreementAppName.includes("Electron") && !app.isPackaged) || (AgreementAppName.includes(setting.app_title) && app.isPackaged)) {
+            app.removeAsDefaultProtocolClient(PROTOCOL, process.execPath, args)
+            logger.debug(`${PROTOCOL}协议已注销`);
+        } else {
+            logger.debug(`${PROTOCOL}协议已被其他程序占用`)
         }
-    })
-
+    }
+}
 
 function check(PROTOCOL) {
     console.log(app.isDefaultProtocolClient(PROTOCOL, process.execPath, args));
@@ -56,7 +53,6 @@ function check(PROTOCOL) {
             app.removeAsDefaultProtocolClient(PROTOCOL, process.execPath, args)
         } else {
             // 通知前端协议被占用
-            Mitt.emit("app-message", { event: "app-warnning", msg: `${PROTOCOL}协议已被其他程序占用`})
             logger.debug(`${PROTOCOL}协议已被其他程序占用，请确认`)
             return false
         }
@@ -64,7 +60,7 @@ function check(PROTOCOL) {
     return true
 }
 
-export function init() {
+export function initProtocol() {
     let isSuccess = false
     isSuccess = check(PROTOCOL)
     // 协议被占用时跳过执行

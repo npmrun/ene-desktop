@@ -30,6 +30,7 @@ type TAgent<T = (event: Electron.IpcRendererEvent, ...args: any[]) => void> = {
     iframePath: string;
     extraPath: string;
     file: any,
+    crash: () => void;
     call: (command: string, ...args: any[]) => Promise<any>;
     callLong: (command: string, ...args: any[]) => Promise<any>;
     callSync: (command: string, ...args: any[]) => any;
