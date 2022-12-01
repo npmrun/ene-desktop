@@ -54,6 +54,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
         plugins: [
             isDev && ViteRestart({ 
                 reload: [
+                  "../common/languages/**/*.json",
                   'vite.config.[jt]s',
                   'windi.config.[jt]s',
                 ]

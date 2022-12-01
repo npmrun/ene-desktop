@@ -22,7 +22,7 @@ export function showAboutWindow() {
             nodeIntegration: false,
             contextIsolation: true,
         },
-        parent: Shared.data.focusWindow // win是主窗口
+        // parent: Shared.data.focusWindow // win是主窗口
     })
     // 隐藏菜单
     aboutWindow.setMenuBarVisibility(false)

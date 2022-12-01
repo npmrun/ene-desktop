@@ -1,8 +1,15 @@
 {
-    "title": "搞快点",
-    "language": {
-        "zh": "中文",
-        "en": "英文"
+    "title": "chchchchch",
+    "setting": {
+        "language": {
+            "title": "语言",
+            "desc": "切换语言显示",
+            "options": {
+                "zh": "中文",
+                "en": "英文"
+            }
+        },
+        "storagePath": {}
     },
     "app-menu":{
         "about": "关于"

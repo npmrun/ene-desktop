@@ -1,8 +1,15 @@
 {
-    "title": "gofase",
-    "language": {
-        "zh": "Chinese",
-        "en": "English"
+    "title": "enenenene",
+    "setting": {
+        "language": {
+            "title": "Language",
+            "desc": "Switch Language",
+            "options": {
+                "zh": "Chinese",
+                "en": "English"
+            }
+        },
+        "storagePath": {}
     },
     "app-menu": {
         "about": "about"

@@ -8,7 +8,9 @@
                 </keep-alive>
             </router-view>
         </div>
-        <div class="absolute right-1/10 bottom-1/10">
+        <div class="buttons absolute right-1/10 bottom-1/10">
+             <button v-if="!isSame" class="button is-medium is-info"
+                @click="restore">重置所有</button>
             <button v-if="!isSame" class="button is-medium is-info" :class="[isSame ? '' : 'is-danger']"
                 @click="save">点击保存</button>
         </div>
