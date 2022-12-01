@@ -24,7 +24,7 @@
             <div class="node__text__text">
                 <div
                     class="h-1/1 mx-5px flex items-center"
-                    style="width: 15px; height: 15px"
+                    style="width: 20px; height: 20px"
                     @click.stop="onExpand(data)"
                     @dblclick.stop
                 >
@@ -58,7 +58,7 @@
                         spellcheck="false"
                     />
                 </form>
-                <div class="ml-5px text-size-12px text-gray-400">{{data.children?.length?data.children?.length:''}}</div>
+                <!-- <div class="ml-5px text-size-12px text-gray-400">{{data.children?.length?data.children?.length:''}}</div> -->
                 <svg-icon
                     v-if="openKey === data.key"
                     name="code-active"
@@ -74,9 +74,10 @@
     position: relative;
 
     .node__text {
-        font-size: 12px;
+        font-size: 16px;
         cursor: pointer;
-        line-height: 25px;
+        line-height: 30px;
+        height: 30px;
         .node__text__text {
             padding: 0 10px 0 0;
             display: flex;
@@ -93,7 +94,7 @@
                 left: 0;
                 right: 0;
                 bottom: 0;
-                border: 1px solid #6db6ff;
+                border: 1px solid #cdcdcd6b;
                 pointer-events: none;
             }
         }
@@ -104,7 +105,7 @@
 
             &.focus {
                 color: #333;
-                background-color: #aad5ff;
+                background-color: #cdcdcd6b;
             }
         }
 
@@ -114,7 +115,7 @@
 
             &.focus {
                 color: #333;
-                background-color: #aad5ff86;
+                background-color: #cdcdcd6b;
             }
         }
 
@@ -130,7 +131,7 @@
                 color: #333;
                 border-radius: 5px;
                 outline: 0;
-                border: 1px solid #32aff8b2;
+                border: 1px solid #cdcdcd6b;
             }
         }
 

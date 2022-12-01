@@ -1,6 +1,6 @@
 <template>
     <div class="h-1/1 overflow-hidden flex flex-col relative bg-light-600">
-        <div class="flex-1 pb-8px overflow-auto scrollbar" @contextmenu="onGlobalContextmenu">
+        <div class="flex-1 pb-8px overflow-auto scrollbar py-15px" @contextmenu="onGlobalContextmenu">
             <filetree @clickNode="handleClickNode" :list="state.list" @contextmenu="onContextmenu"
                 v-model:activeKeys="state.activeKeys" v-model:openKey="state.openKey" v-model:focusKey="state.focusKey"
                 v-model:isFocus="state.isFocus" @rename="handleRename" @create-one="handleCreateOne">
