@@ -3,7 +3,7 @@ import { initMenu } from "./menu"
 import { initBackupJob } from "./schedule"
 import { initGlobalLog } from "./log"
 import { init as initShortcut } from "./shortcut"
-import "./filechange"
+import { init as initFileChange } from "./filechange"
 
 import { protocol, app } from "electron"
 import path from "path"
@@ -23,6 +23,7 @@ export function initModules() {
     Settings.n.onChange("storagePath", () => {
         initGlobalLog()
     })
+    initFileChange()
     // 初始化菜单
     initMenu()
     Settings.n.onChange("language", c => {

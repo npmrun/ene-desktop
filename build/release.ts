@@ -4,6 +4,7 @@ import { rootPath } from "@rush/share"
 import path from "path"
 import fs from "fs-extra"
 import { homedir } from "os"
+import { execSync } from "child_process"
 
 const electronLanguages = ["en", "fr", "zh_CN", "de"]
 
@@ -43,11 +44,20 @@ if (process.env.MAKE_FOR === "dev") {
     targets = TARGET_PLATFORMS_configs.all
 }
 
+console.log(`开始安装依赖`);
+
+execSync("npm i", {
+    cwd: "../dist",
+    stdio: 'inherit'
+});
+
+console.log(`安装依赖END`);
+
 builder.build({
     ...targets,
     config: {
         releaseInfo: {
-            releaseNotesFile: path.resolve(rootPath, `changelog/${setting.app_version}.md`)
+            releaseNotesFile: `../changelog/${setting.app_version}.md`
         },
         npmRebuild: true, // 是否在打包应用程序之前rebuild本地依赖
         nodeGypRebuild: false, // 是否在开始打包应用程序之前执行,用electron-builder node-gyp-rebuild 来代替
@@ -58,8 +68,9 @@ builder.build({
         // asarUnpack: ["**/node_modules/live-server/**/*"],
         asarUnpack: ["**/*.node"],
         directories: {
-            output: path.resolve(rootPath, "out"),
-            app: path.resolve(rootPath, "dist"),
+            buildResources: "../build-assets",
+            output: "../out",
+            app: "../dist",
         },
         electronDownload: {
             cache: path.join(homedir(), ".electron"),
@@ -119,17 +130,17 @@ builder.build({
             artifactName: "${productName}_mac_${arch}_${version}.${ext}",
         },
         extraResources: {
-            from: path.resolve(rootPath, "extra"),
+            from: "../extra",
             to: "",
         },
         mac: {
-            icon: path.resolve(rootPath, "extra/icons/512x512.png"),
+            icon: "../build-assets/icons/512x512.png",
         },
         win: {
-            icon: path.resolve(rootPath, "extra/icons/1024x1024.png"),
+            icon: "../build-assets/icons/1024x1024.png",
         },
         linux: {
-            icon: path.resolve(rootPath, "extra/icons/1024x1024.png"),
+            icon: "../build-assets/icons/1024x1024.png",
             artifactName: "${productName}_linux_${arch}_${version}.${ext}",
             category: "Utility",
             synopsis: "效率工具，懒人必备",

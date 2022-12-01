@@ -22,7 +22,7 @@ process
     .on("exit", code => {
         if (app.isDefaultProtocolClient(PROTOCOL, process.execPath, args)) {
             const AgreementAppName = app.getApplicationNameForProtocol(`${PROTOCOL}://`)
-            if (AgreementAppName.includes("Electron")) {
+            if ((AgreementAppName.includes("Electron") && !app.isPackaged) || (AgreementAppName.includes(setting.app_title) && app.isPackaged)) {
                 app.removeAsDefaultProtocolClient(PROTOCOL, process.execPath, args)
                 logger.debug(`${PROTOCOL}协议已注销`);
             } else {
@@ -35,7 +35,7 @@ process
     .on("SIGINT", () => {
         if (app.isDefaultProtocolClient(PROTOCOL, process.execPath, args)) {
             const AgreementAppName = app.getApplicationNameForProtocol(`${PROTOCOL}://`)
-            if (AgreementAppName.includes("Electron")) {
+            if ((AgreementAppName.includes("Electron") && !app.isPackaged) || (AgreementAppName.includes(setting.app_title) && app.isPackaged)) {
                 app.removeAsDefaultProtocolClient(PROTOCOL, process.execPath, args)
                 logger.debug(`${PROTOCOL}协议已注销`);
             } else {
