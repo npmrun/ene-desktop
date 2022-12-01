@@ -40,11 +40,12 @@ Mitt.on("boot", ({ argv, ...opts })=>{
         opts.cb&&opts.cb(urlObj, searchParams)
     }
     let taryBoot = false
-    if (platform === "MacOS" && app.getLoginItemSettings().wasOpenedAsHidden) {
+    let isHidden = process.argv.indexOf("--openAsHidden") > 0
+    if (platform === "MacOS" && isHidden) {
         taryBoot = true
-    } else if (platform === "windows" && process.argv.indexOf("--openAsHidden") > 0) {
+    } else if (platform === "windows" && isHidden) {
         taryBoot = true
-    } else if (platform === "Linux" && process.argv.indexOf("--hidden") > 0) {
+    } else if (platform === "Linux" && isHidden) {
         taryBoot = true
     }
     if(taryBoot){
