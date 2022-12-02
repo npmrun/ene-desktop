@@ -11,8 +11,8 @@
         <div
             class="node__text"
             :class="[
-                activeKeys.includes(data.key) ? 'active' : '',
-                isFocus ? 'focus' : '',
+                activeKeys.includes(data.key) && !isParentDragging ? 'active' : '',
+                isFocus && !isParentDragging ? 'focus' : '',
                 // isInCild ? 'inchild' : '',
                 focusKey === data.key ? 'focus-file' : '',
             ]"
@@ -24,7 +24,7 @@
             <div class="node__text__text">
                 <div
                     class="h-1/1 mx-5px flex items-center"
-                    style="width: 20px; height: 20px"
+                    style="width: 16px; height: 16px"
                     @click.stop="onExpand(data)"
                     @dblclick.stop
                 >
@@ -74,7 +74,7 @@
     position: relative;
 
     .node__text {
-        font-size: 16px;
+        font-size: 14px;
         cursor: pointer;
         line-height: 30px;
         height: 30px;
@@ -125,13 +125,15 @@
             height: 100%;
 
             input {
-                height: 100%;
-                padding: 0;
+                line-height: 30px;
+                height: 24px;
                 width: 100%;
                 color: #333;
                 border-radius: 5px;
                 outline: 0;
                 border: 1px solid #cdcdcd6b;
+                margin-left: -1px;
+                font-family: "Work Sans", Tahoma,Helvetica,Arial,'宋体',sans-serif;
             }
         }
 
@@ -173,6 +175,8 @@ const emits = defineEmits<{
     (e: "itemDrop", ev: DragEvent, active: (status: boolean) => void, data: INiuTreeData): void
 }>()
 
+let isParentDragging = inject("isDragging", ref(false))
+
 const isDragging = ref(false)
 function onDragover(ev: DragEvent) {
     if(props.dataSourceKey) return
@@ -194,6 +198,7 @@ function onDrop(ev: DragEvent) {
 }
 
 function onExpand(data: INiuTreeData) {
+    if(data.isFile) return
     data.isExpand = !data.isExpand
     emits("change")
 }

@@ -1,6 +1,6 @@
 <template>
     <div ref="filetree" style="height: 100%;">
-        <ps-tree sort v-bind="props" @expand="$attrs.onExpand as any" @itemDragstart="onItemDragstart" @itemDragend="onItemDragend" auto-expand>
+        <ps-tree sort v-bind="props" @expand="$attrs.onExpand as any" @itemDragstart="onItemDragstart" @itemDragend="onItemDragend" @itemDrop="onItemDrop" @click="clickItem" auto-expand> 
             <template #default="data">
                 <item
                     @click.stop="clickNode($event, data.data)"
@@ -17,6 +17,12 @@
         </ps-tree>
     </div>
 </template>
+
+<style lang="scss" scoped>
+:deep(.ps-tree){
+    padding: 0 0 15px;
+}
+</style>
 
 <script lang="ts">
 export default defineComponent({
@@ -93,18 +99,35 @@ function usePropsUpdate<T extends any>(propsValue: keyof typeof props, initValue
 const activeKeys = usePropsUpdate<INiuTreeKey[]>("activeKeys", [])
 const focusKey = usePropsUpdate<INiuTreeKey | undefined>("focusKey", undefined)
 const isFocus = usePropsUpdate<boolean>("isFocus", false)
+const isDragging = ref(false)
+
+provide("isDragging", isDragging)
 
 // let oldActiveKeys: INiuTreeKey[] = []
 // let oldFocusKey: INiuTreeKey | undefined = undefined
 function onItemDragstart() {
     isFocus.value = false
+    isDragging.value = true
     // oldActiveKeys = cloneDeep(activeKeys.value)
     // oldFocusKey = focusKey.value
     // activeKeys.value = []
     // focusKey.value = undefined
 }
 
+function onItemDrop() {
+    isDragging.value = false
+}
+
+function resetKeys() {
+    activeKeys.value = activeKeys.value.filter(v=>v === props.openKey)
+}
+
+function clickItem() {
+    resetKeys()
+}
+
 function onItemDragend() {
+    isDragging.value = false
     // activeKeys.value = oldActiveKeys
     // focusKey.value = oldFocusKey
 }

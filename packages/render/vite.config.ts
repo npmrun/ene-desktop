@@ -63,7 +63,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
             OptimizationPersist(),
             vue(),
             vueJsx(),
-            Inspector(),
+            // Inspector(),
             WindiCSS({
                 scan: {
                     dirs: ["."],

@@ -1,7 +1,7 @@
 <template>
     <div class="h-1/1 flex">
         <div class="h-1/1 w-250px min-w-100px relative border-r">
-            <Left></Left>
+            <Left @change="onChange"></Left>
         </div>
         <div class="select-auto flex-1 w-0">
             {{ state.list }}
@@ -22,25 +22,35 @@ meta:
 </route>
 
 <script lang="ts" setup>
+import { stat } from 'fs';
+import { toast } from 'vue3-toastify';
 import { IState, TState } from './token';
 import Left from './_ui/left.vue';
 
 
-const state = reactive<TState>({
+let state = reactive<TState>({
     activeKeys: [],
     openKey: undefined,
-    list: [
-        {
-            "key": "0f681a4e-2004-40cf-ae72-2f7f410cb6c8",
-            "title": "asd",
-            "isNew": false,
-            "isEdit": false,
-            "isFolder": false,
-            "isExpand": false,
-            "isFile": true
-        }
-    ]
+    list: []
 })
+
+onBeforeMount(async ()=>{
+    const data = await _agent.call('db.getData', "urls") ?? {
+        activeKeys: [],
+        openKey: undefined,
+        list: []
+    }
+    state = Object.assign(state, data)
+})
+
+async function onChange() {
+    try {
+        await _agent.call('db.saveData', "urls", toRaw(state))
+    } catch (error) {
+        console.error(error);
+        toast("保存失败")
+    }
+}
 
 provide(IState, state)
 </script>

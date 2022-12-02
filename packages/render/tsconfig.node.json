@@ -9,5 +9,5 @@
         "moduleResolution": "node",
         "allowSyntheticDefaultImports": true
     },
-    "include": ["vite.config.ts", "vite.env.d.ts"]
+    "include": ["vite.config.ts", "vite.env.d.ts", "plugins",]
 }

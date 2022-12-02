@@ -2,20 +2,24 @@ import { isPromise } from "@rush/main-tool"
 import { ipcMain } from "electron"
 
 const modelsFile = require.context("../main-func", true, /\.ts$/)
-const funcs = {}
+let funcs = {}
 
 export function initPrase() {
     const modelsFileKeys = modelsFile.keys()
     modelsFileKeys.forEach(key => {
         const res = modelsFile(key)
         const module = res.default || res
-        funcs[
-            key
-                .replace(/(\.\/|\.ts)/g, "")
-                .split("/")
-                .filter(v => v != "index")
-                .join("/")
-        ] = module
+        if(key === "./index.ts"){
+            funcs = Object.assign(funcs, module)
+        }else{
+            funcs[
+                key
+                    .replace(/(\.\/|\.ts)/g, "")
+                    .split("/")
+                    .filter(v => v != "index")
+                    .join("/")
+            ] = module
+        }
     })
 }
 

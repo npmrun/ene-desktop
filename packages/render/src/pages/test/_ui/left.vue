@@ -1,7 +1,7 @@
 <template>
     <div class="h-1/1 overflow-hidden flex flex-col relative bg-light-600">
-        <div class="flex-1 pb-8px overflow-auto scrollbar py-15px" @contextmenu="onGlobalContextmenu">
-            <filetree @clickNode="handleClickNode" :list="state.list" @contextmenu="onContextmenu"
+        <div class="flex-1 pb-8px overflow-auto scrollbar" @contextmenu="onGlobalContextmenu">
+            <filetree ref="filetreeRef" @change="onChonge" @clickNode="handleClickNode" :list="state.list" @contextmenu="onContextmenu"
                 v-model:activeKeys="state.activeKeys" v-model:openKey="state.openKey" v-model:focusKey="state.focusKey"
                 v-model:isFocus="state.isFocus" @rename="handleRename" @create-one="handleCreateOne">
             </filetree>
@@ -11,10 +11,16 @@
 </template>
 <script lang="ts" setup>
 import { PopupMenu } from "@/bridge/PopupMenu"
-import { convert, INiuTreeData, removeByKey } from "princess-ui";
+import { convert, findByKey, INiuTreeData, removeByKey } from "princess-ui";
 import { v4 } from "uuid";
 import { IState } from "../token"
 import filetree from "../_components/filetree.vue"
+
+const filetreeRef = ref<InstanceType<typeof filetree>>()
+
+function resetKeys() {
+    state.activeKeys = state.activeKeys.filter(v => v === state.openKey)
+}
 
 function onGlobalContextmenu(e: MouseEvent) {
     e.stopPropagation()
@@ -31,6 +37,7 @@ function onGlobalContextmenu(e: MouseEvent) {
                         children: [],
                     }),
                 )
+                resetKeys()
             },
         },
         {
@@ -44,6 +51,7 @@ function onGlobalContextmenu(e: MouseEvent) {
                         isEdit: true,
                     }),
                 )
+                resetKeys()
             },
         }
     ]
@@ -51,14 +59,15 @@ function onGlobalContextmenu(e: MouseEvent) {
     menu.show()
 }
 function onContextmenu(data: INiuTreeData) {
-    const menuList: IMenuItemOption[] = [
-        {
-            label: "重命名",
-            click() {
-                data.isEdit = true
-            },
+    const menuList: IMenuItemOption[] = []
+    menuList.push({
+        label: "重命名",
+        click() {
+            data.isEdit = true
         },
-        {
+    })
+    if (data.isFolder) {
+        menuList.push({
             label: "新建文件夹",
             click() {
                 data.isFolder && (data.isExpand = true)
@@ -71,9 +80,10 @@ function onContextmenu(data: INiuTreeData) {
                         children: [],
                     }),
                 )
+                resetKeys()
             },
-        },
-        {
+        })
+        menuList.push({
             label: "新建文件",
             click() {
                 data.isFolder && (data.isExpand = true)
@@ -85,22 +95,39 @@ function onContextmenu(data: INiuTreeData) {
                         isEdit: true,
                     }),
                 )
+                resetKeys()
             },
-        },
-        {
-            label: "删除",
-            click() {
+        })
+    }
+    menuList.push({
+        label: "删除",
+        click() {
+            if(state.activeKeys.includes(data.key)){
+                filetreeRef.value?.delArray(state.activeKeys)
+            }else{
                 removeByKey(data.key, state.list)
-            },
+            }
+            // if(!!state.activeKeys.length){
+            //     filetreeRef.value?.delArray(state.activeKeys)
+            // }else{
+            //     removeByKey(data.key, state.list)
+            // }
         },
-    ]
+    })
     const menu = new PopupMenu(menuList)
     menu.show()
+}
+const emit = defineEmits<{
+    (ev: "change"): void
+}>()
+function onChonge() {
+    emit("change")
 }
 
 function handleClickNode(data: INiuTreeData) {
     state.openKey = data.key
     state.activeKeys = [data.key]
+    emit("change")
 }
 async function handleRename(data: INiuTreeData, done: (status?: boolean) => void) {
     done(true)
