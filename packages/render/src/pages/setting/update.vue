@@ -4,8 +4,8 @@
             <div class="text-size-20px font-bold">作者</div>
             <div class="text-gray-400 pt-8px">更新的仓库作者</div>
             <div class="pt-8px">
-                <input spellcheck="false" :value="configStore['update.owner']"
-                    @change="(e: any) => configStore.setUpdateOwner(e.target.value)"
+                <input disabled spellcheck="false" :value="configStore['update.owner']"
+                    @change="(e: any) => configStore.setConfig('update.owner',e.target.value)"
                     class="input is-medium !max-w-320px !min-w-320px" type="text" placeholder="请输入作者">
             </div>
         </div>
@@ -13,8 +13,8 @@
             <div class="text-size-20px font-bold">仓库</div>
             <div class="text-gray-400 pt-8px">更新的仓库</div>
             <div class="pt-8px">
-                <input spellcheck="false" :value="configStore['update.repo']"
-                    @change="(e: any) => configStore.setUpdateRepo(e.target.value)"
+                <input disabled spellcheck="false" :value="configStore['update.repo']"
+                    @change="(e: any) => configStore.setConfig('update.repo',e.target.value)"
                     class="input is-medium !max-w-320px !min-w-320px" type="text" placeholder="请输入仓库">
             </div>
         </div>

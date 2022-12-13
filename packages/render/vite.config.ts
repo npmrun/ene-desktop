@@ -38,6 +38,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
         resolve: {
             alias: {
                 "@": path.join(__dirname, "src"),
+                "$Event": path.join(__dirname, "src/event"),
             },
         },
         css: {
@@ -52,7 +53,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
             outDir: path.resolve(__dirname, "../../dist/electron"),
         },
         plugins: [
-            isDev && ViteRestart({ 
+            isDev && ViteRestart({
                 reload: [
                   "../common/languages/**/*.json",
                   'vite.config.[jt]s',

@@ -1,45 +1,36 @@
 import { defineStore } from "pinia"
 import i18n from "@/i18n"
+import { cloneDeep } from "lodash"
 
 const _config: IConfig = _agent.callSync("config.get")
 
-let oldConfig = ref(JSON.stringify(_config))
-
-type TC = IConfig & {
-    notSave: boolean
-}
+let oldConfig = shallowRef(cloneDeep(_config))
 
 export default defineStore("config", {
     state: (): IConfig => _config,
     getters: {
         isSame(state): boolean {
             // @ts-ignore
-            let nowConfig = JSON.stringify(state.$state)
-            return oldConfig.value === nowConfig
+            let nowConfigStr = JSON.stringify(state.$state)
+            let oldConfigStr = JSON.stringify(oldConfig.value)
+            return oldConfigStr === nowConfigStr
         },
     },
     actions: {
-        setBackupRule(value: TC["backup_rule"]){
-            this["backup_rule"] = value
+        setConfig<M extends keyof IConfig>(key: M, value: IConfig[M]){
+            (this as IConfig)[key] = value
+            this.applyConfig()
         },
-        setCommonTheme(value: TC["common.theme"]){
-            this["common.theme"] = value
-        },
-        setUpdateOwner(value: TC["update.owner"]) {
-            this['update.owner'] = value
-        },
-        setUpdateRepo(value: TC["update.repo"]) {
-            this['update.repo'] = value
-        },
-        setLanguage(language: TC["language"]) {
-            this.language = language
-        },
-        setStorePath(storagePath: TC["storagePath"]) {
-            this.storagePath = storagePath
+        isSameOne(key: keyof IConfig){
+            if(oldConfig.value[key] !== (this.$state as IConfig)[key]){
+                return false
+            }
+            return true
         },
         async restoreConfig(){
             const o: IConfig = await _agent.call("config.get")
             this.$state = o
+            this.applyConfig()
         },
         async saveConfig() {
             const o: IConfig = await _agent.call("config.get")
@@ -48,10 +39,12 @@ export default defineStore("config", {
             }
             let rState = toRaw(this.$state)
             await _agent.call("config.save", rState)
-            oldConfig.value = JSON.stringify(rState)
+            oldConfig.value = cloneDeep(rState)
+        },
+        applyConfig(){
             if (this.$state.language) {
                 i18n.global.locale = this.$state.language as string
             }
-        },
+        }
     },
 })

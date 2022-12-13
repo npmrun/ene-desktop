@@ -19,20 +19,32 @@
                 </router-view>
             </div>
         </div>
+        <div class="app-footer h-35px leading-35px border-t px-12px box-content text-size-12px flex" v-html="MsgHtml">
+        </div>
     </div>
 </template>
 
 <style lang="less" scoped>
-
+.app-footer :deep(.tip) {
+    color: rgba(156, 163, 175, 1);
+}
 </style>
 
 <script lang="ts" setup>
+import { useAppMessage } from '$Event/AppMessage';
 import Menu from '@/page-ui/menu.vue';
 import pageStore from '@/store/module/page'
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 
 const route = useRoute()
 const store = pageStore()
+
+const MsgHtml = ref()
+useAppMessage(function (ev) {
+    if (ev.type === "tip") {
+        MsgHtml.value = `<div class="tip">${ev.msg}</div>`
+    }
+})
 
 const cacheList = store.cache
 watch(
@@ -56,7 +68,7 @@ const router = useRouter()
 const activeTab = ref(-1)
 const TopMenu = reactive([
     { key: 0, title: "个人", url: "/home" },
-    { key: 1, title: "测试", url: "/test" },
+    // { key: 1, title: "测试", url: "/test" },
     // { key: 1, title: "导航", url: "/nav" },
     // { key: 2, title: "电视", url: "/tv" },
     // { key: 3, title: "笔记", url: "/note" },
@@ -66,16 +78,16 @@ const SysMenu = reactive([
     { key: 5, title: "设置", url: "/setting" },
 ]);
 
-watch(()=>router.currentRoute.value,(route)=>{
+watch(() => router.currentRoute.value, (route) => {
     for (let i = 0; i < TopMenu.length; i++) {
         const element = TopMenu[i];
-        if(route.path.startsWith(element.url)){
+        if (route.path.startsWith(element.url)) {
             activeTab.value = element.key
         }
     }
     for (let i = 0; i < SysMenu.length; i++) {
         const element = SysMenu[i];
-        if(route.path.startsWith(element.url)){
+        if (route.path.startsWith(element.url)) {
             activeTab.value = element.key
         }
     }

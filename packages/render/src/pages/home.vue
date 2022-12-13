@@ -13,9 +13,7 @@
         </div>
         <div class="flex-1 w-0">
             <router-view v-slot="{ Component }">
-                <keep-alive>
-                    <component :is="Component" />
-                </keep-alive>
+                <component :is="Component" />
             </router-view>
         </div>
     </div>

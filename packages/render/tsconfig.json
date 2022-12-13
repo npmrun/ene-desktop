@@ -14,7 +14,9 @@
         "skipLibCheck": true,
         "baseUrl": ".",
         "paths": {
-            "@/*": ["src/*"]
+            "@/*": ["src/*"],
+            "#/*": ["typings/*"],
+            "$Event/*": ["src/event/*"],
         }
     },
     "include": [
