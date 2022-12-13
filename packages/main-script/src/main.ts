@@ -1,5 +1,5 @@
 import * as fs from "fs-extra"
 
-console.log(fs.readJSONSync("C:\\Users\\Administrator\\Documents\\aa\\locale\\zh-hans.json"));
+console.log(fs.readFileSync("/home/topuser/下载/最新激活码.txt", "utf-8"));
 console.log(123);
 

@@ -4,6 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "devaa": "tsc --watch",
+    "dev": "tsc",
     "build": "tsc"
   },
   "keywords": [],
