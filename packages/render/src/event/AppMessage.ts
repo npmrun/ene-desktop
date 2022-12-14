@@ -2,12 +2,25 @@ import { EventType } from "$Event/enumEvent"
 import { useEvent } from "@/event/useEvent"
 
 interface IRes {
-    type: "tip"
+    type: "tip" | "error"
     msg: string
 }
 
-export function useAppMessage(cb: (ev: IRes) => void) {
+interface IOpts {
+    tip?: (str: string) => void
+    error?: (errMsg: string) => void
+}
+
+export function useAppMessage(opts: IOpts) {
     const { on, off } = useEvent()
+    function cb(ev: IRes) {
+        if (ev.type === "tip") {
+            opts.tip?.(ev.msg)
+        }
+        if (ev.type === "error") {
+            opts.error?.(ev.msg)
+        }
+    }
     on(EventType.AppMessage, cb)
     onBeforeUnmount(() => {
         off(EventType.AppMessage, cb)

@@ -25,8 +25,14 @@
 </template>
 
 <style lang="less" scoped>
-.app-footer :deep(.tip) {
-    color: rgba(156, 163, 175, 1);
+.app-footer {
+    overflow: hidden;
+    :deep(.tip) {
+        color: rgba(156, 163, 175, 1);
+    }
+    :deep(.error) {
+        color: red;
+    }
 }
 </style>
 
@@ -40,9 +46,12 @@ const route = useRoute()
 const store = pageStore()
 
 const MsgHtml = ref()
-useAppMessage(function (ev) {
-    if (ev.type === "tip") {
-        MsgHtml.value = `<div class="tip">${ev.msg}</div>`
+useAppMessage({
+    tip(msg) {
+        MsgHtml.value = `<div class="tip animate__animated animate__fadeIn">${msg}</div>`
+    },
+    error(errMsg) {
+        MsgHtml.value = `<div class="error">${errMsg}</div>`
     }
 })
 
@@ -68,7 +77,7 @@ const router = useRouter()
 const activeTab = ref(-1)
 const TopMenu = reactive([
     { key: 0, title: "个人", url: "/home" },
-    // { key: 1, title: "测试", url: "/test" },
+    { key: 1, title: "壁纸", url: `/web?url=${encodeURIComponent("https://wallhaven.cc")}` },
     // { key: 1, title: "导航", url: "/nav" },
     // { key: 2, title: "电视", url: "/tv" },
     // { key: 3, title: "笔记", url: "/note" },
@@ -79,15 +88,17 @@ const SysMenu = reactive([
 ]);
 
 watch(() => router.currentRoute.value, (route) => {
+    console.log(route.path);
+    
     for (let i = 0; i < TopMenu.length; i++) {
         const element = TopMenu[i];
-        if (route.path.startsWith(element.url)) {
+        if (element.url.startsWith(route.path)) {
             activeTab.value = element.key
         }
     }
     for (let i = 0; i < SysMenu.length; i++) {
         const element = SysMenu[i];
-        if (route.path.startsWith(element.url)) {
+        if (element.url.startsWith(route.path)) {
             activeTab.value = element.key
         }
     }

@@ -62,7 +62,13 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
             }),
             PkgConfig(),
             OptimizationPersist(),
-            vue(),
+            vue({
+                template: {
+                    compilerOptions: {
+                        isCustomElement: tag => ['webview'].includes(tag)
+                      }
+                }
+            }),
             vueJsx(),
             // Inspector(),
             WindiCSS({
