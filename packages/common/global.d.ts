@@ -45,3 +45,4 @@ type TAgent<T = (event: Electron.IpcRendererEvent, ...args: any[]) => void> = {
 
 declare const _agent: TAgent
 
+type WebviewTag = Electron.WebviewTag
