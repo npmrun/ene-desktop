@@ -28,13 +28,16 @@ export function parseCommand(command: string): Function | undefined {
     const modulePath = commands.slice(0, -1).join("/")
     let funcName = commands[commands.length - 1]
     const module = funcs[modulePath]
+    let func
     if (module) {
-        const func = module[funcName]
-        if (func) {
-            const result = func.bind(module)
-            if (typeof result === "function") {
-                return result
-            }
+        func = module[funcName]
+    }else{
+        func = funcs[funcName]
+    }
+    if (func) {
+        const result = func.bind(module)
+        if (typeof result === "function") {
+            return result
         }
     }
 }

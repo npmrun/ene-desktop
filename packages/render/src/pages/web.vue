@@ -12,18 +12,12 @@ onMounted(() => {
     if(!webviewRef.value) return
     const we = webviewRef.value
     we.addEventListener('dom-ready', function () {
-        console.log('dom-ready3asd3');
         state.curUrl = we.getURL()
         console.log(we.getWebContentsId());
-        we.addEventListener('new-window', () => {
-            console.log('222');
-        // event.preventDefault();
-        // webview.loadURL(url);
-        });
     })
     we.addEventListener('console-message', function (e) {
         console.log(e);
-        console.log('Guest page logged a message:', e.message)
+        console.log(`%c[Guest page logged a message]:\n`, 'color: green;', e.message)
     })
 })
 
@@ -48,7 +42,7 @@ meta:
             <div class="h-40px px-15px text-size-16px border-b box-content flex">
                 <input spellcheck="false" class="block w-1/1 outline-none m-auto" type="text" :value="state.curUrl" @blur="handleInputBlur">
             </div>
-            <webview ref="webviewRef" class="flex-1 h-0" :src="url"></webview>
+            <webview allowpopups ref="webviewRef" class="flex-1 h-0" :src="url"></webview>
         </div>
     </div>
 </template>
