@@ -6,6 +6,7 @@ import { initGlobalLog } from "@rush/main-module/log"
 import { initFileChange } from "@rush/main-module/filechange"
 import { initMenu } from "@rush/main-module/menu"
 import { initUpdate } from "@rush/main-module/updater"
+import { initFolder } from "@rush/main-module/folder"
 import { initProtocol } from "@rush/main-module/protocol"
 
 // 配置文件初始化

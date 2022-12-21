@@ -197,16 +197,16 @@ function clickNode(e: Event, data: INiuTreeData) {
     e.stopPropagation()
     isFocus.value = true
     focusKey.value = undefined
-    if (isPressCtrl.value) {
-        let index = activeKeys.value.indexOf(data.key)
-        if (index != -1) {
-            activeKeys.value.splice(index, 1)
-        } else {
-            activeKeys.value.push(data.key)
-        }
-        e.stopPropagation()
-        return
-    }
+    // if (isPressCtrl.value) {
+    //     let index = activeKeys.value.indexOf(data.key)
+    //     if (index != -1) {
+    //         activeKeys.value.splice(index, 1)
+    //     } else {
+    //         activeKeys.value.push(data.key)
+    //     }
+    //     e.stopPropagation()
+    //     return
+    // }
     emit("clickNode", data)
 }
 </script>

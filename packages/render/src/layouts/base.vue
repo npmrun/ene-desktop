@@ -78,7 +78,7 @@ const activeTab = ref(-1)
 const TopMenu = reactive([
     { key: 0, title: "个人", url: "/home" },
     { key: 1, title: "壁纸", url: `/web?url=${encodeURIComponent("https://wallhaven.cc")}` },
-    // { key: 1, title: "导航", url: "/nav" },
+    { key: 2, title: "导航", url: "/test" },
     // { key: 2, title: "电视", url: "/tv" },
     // { key: 3, title: "笔记", url: "/note" },
     // { key: 4, title: "博客", url: "/blog" },
