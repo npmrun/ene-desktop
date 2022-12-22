@@ -1,6 +1,7 @@
 {
     "extends": "@rush/tsconfig/tsconfig.main.json",
     "compilerOptions": {
+        "lib": ["DOM", "ES2018", "DOM.Iterable"],
         "baseUrl": ".",
         "paths": {
             "@/*": ["./*"]

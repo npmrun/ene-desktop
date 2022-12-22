@@ -11,6 +11,10 @@ export function openDir(path: string){
     shell.openPath(path)
 }
 
+export function showItemInFolder(fullPath: string){
+    return shell.showItemInFolder(fullPath)
+}
+
 export function copyText(text: string) {
     clipboard.writeText(text, "clipboard")
     // const n = new Notification({title: "片段复制", body: "复制成功，请在您需要的地方粘贴", icon: appTrayPath})

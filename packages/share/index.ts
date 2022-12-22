@@ -19,7 +19,8 @@ export const mainWebpackOutput = resolve(rootPath, "dist/electron")
 export const mainTsConfig = resolve(pkgPath, "main/tsconfig.json")
 
 export const preloadWebpackEntry = {
-    preload: resolve(pkgPath, "preload/preload.ts")
+    preload: resolve(pkgPath, "preload/preload.ts"),
+    webview: resolve(pkgPath, "preload/webview.ts"),
 }
 export const preloadWebpackName = "[name].js"
 export const preloadWebpackOutput = resolve(rootPath, "dist/electron")

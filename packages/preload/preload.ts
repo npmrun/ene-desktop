@@ -4,10 +4,12 @@ import path from "path"
 import * as file from "./file"
 import setting from "@rush/share/setting"
 
+let webviewPreloadPath = path.join(__dirname, "webview.js")
 let preloadPath = path.join(__dirname, "preload.js")
 let iframePath = `http://localhost:${process.env.PORT}/iframe.html`
 let extraPath = path.join(__dirname, "../../extra")
 if (__dirname.split(path.sep).indexOf("app.asar") >= 0) {
+    webviewPreloadPath = path.join(__dirname, "webview.js")
     preloadPath = path.join(__dirname, "preload.js")
     iframePath = path.join(__dirname, "iframe.html")
     extraPath = path.join(__dirname, "../..")
@@ -20,6 +22,7 @@ const _agent = {
         node: process.versions["node"],
         electron: process.versions["electron"],
     },
+    webviewPreloadPath: webviewPreloadPath,
     preloadPath: preloadPath,
     iframePath: iframePath,
     extraPath: extraPath,

@@ -27,9 +27,11 @@
 <style lang="less" scoped>
 .app-footer {
     overflow: hidden;
+
     :deep(.tip) {
         color: rgba(156, 163, 175, 1);
     }
+
     :deep(.error) {
         color: red;
     }
@@ -77,7 +79,7 @@ const router = useRouter()
 const activeTab = ref(-1)
 const TopMenu = reactive([
     { key: 0, title: "个人", url: "/home" },
-    { key: 1, title: "壁纸", url: `/web?url=${encodeURIComponent("https://wallhaven.cc")}` },
+    { key: 1, title: "壁纸", url: `/web` },
     { key: 2, title: "导航", url: "/test" },
     // { key: 2, title: "电视", url: "/tv" },
     // { key: 3, title: "笔记", url: "/note" },
@@ -89,7 +91,7 @@ const SysMenu = reactive([
 
 watch(() => router.currentRoute.value, (route) => {
     console.log(route.path);
-    
+
     for (let i = 0; i < TopMenu.length; i++) {
         const element = TopMenu[i];
         if (element.url.startsWith(route.path)) {
