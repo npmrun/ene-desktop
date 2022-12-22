@@ -2,6 +2,7 @@
 import browser from "./browser.vue";
 import URL from "url-parse"
 
+const browserRef = ref<InstanceType<typeof browser>>()
 // const route = useRoute()
 // const url = route.query.url as string
 interface ITab {
@@ -28,6 +29,9 @@ const isCollect = computed(() => {
 function handleDomReady(curPath: string) {
     curPathRef.value = curPath
 }
+function handleFirstDomReady() {
+    browserRef.value?.toPage(curUrl.value.url)
+}
 function handleCollect(curPath: string) {
     if (!tabs.value.find(v => v.url === curPath)) {
         tabs.value.push({
@@ -45,7 +49,6 @@ function handleCancelCollect(curPath: string) {
 onBeforeMount(async () => {
     const data = await _agent.call('db.getData', "website") ?? []
     console.log(data);
-
     // state = Object.assign(state, data)
 })
 
@@ -57,6 +60,12 @@ onBeforeMount(async () => {
 //         toast("保存失败")
 //     }
 // }
+
+function clickURL(item: ITab) {
+    console.log(item);
+    curUrl.value = item
+    browserRef.value?.toPage(curUrl.value.url)
+}
 
 </script>
 
@@ -74,10 +83,10 @@ meta:
     <div class="h-1/1 flex">
         <div class="w-250px border-r">
             <div class="border-b h-40px flex">
-                
+
             </div>
             <div class="m-12px border rounded-md cursor-pointer flex flex-col" v-for="(item, index) in tabs"
-                @click="curUrl = item" :key="index" :title="item.title">
+                @click="clickURL(item)" :key="index" :title="item.title">
                 <div class="font-bold h-28px leading-14px border-b p-6px ell">
                     {{ item.title }}
                 </div>
@@ -86,8 +95,8 @@ meta:
                 </div>
             </div>
         </div>
-        <browser :collect="isCollect" class="h-1/1 flex-1 w-0" :url="curUrl.url" :home="'https://baidu.com'"
-            @dom-ready="handleDomReady" @collect="handleCollect" @cancel-collect="handleCancelCollect"></browser>
+        <browser ref="browserRef" :collect="isCollect" class="h-1/1 flex-1 w-0" :url="curUrl.url" :home="'https://baidu.com'"
+            @dom-ready="handleDomReady" @first-dom-ready="handleFirstDomReady" @collect="handleCollect" @cancel-collect="handleCancelCollect"></browser>
     </div>
 </template>
 <style lang="less" scoped>

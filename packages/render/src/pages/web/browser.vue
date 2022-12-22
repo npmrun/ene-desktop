@@ -5,8 +5,7 @@ import { toast } from 'vue3-toastify';
 
 const props = withDefaults(defineProps<{
     collect?: boolean,
-    home?: string,
-    url: string
+    home?: string
 }>(), {
     collect: false
 })
@@ -14,14 +13,15 @@ const props = withDefaults(defineProps<{
 const emits = defineEmits<{
     (ev: "new-window", path: string): void,
     (ev: "dom-ready", curUrl: string): void,
+    (ev: "first-dom-ready"): void,
     (ev: "collect", url: string): void,
     (ev: "cancel-collect", url: string): void,
 }>()
 
 const webviewRef = ref<WebviewTag>()
 const state = reactive({
-    tempUrl: props.url,
-    curUrl: props.url
+    tempUrl: '',
+    curUrl: ''
 })
 
 function toPage(page: string) {
@@ -32,8 +32,8 @@ function toPage(page: string) {
 }
 
 let websiteInfo = ref()
-let isFirst = ref(true)
 let webContentsId = ref(-1)
+let isFirst = ref(true)
 let isLoading = ref(false)
 let isLoadingWebsiteInfo = ref(false)
 let canGoBack = ref(false)
@@ -44,26 +44,28 @@ watchEffect(async () => {
         await _agent.call("preventWebview", webContentsId.value)
     }
 })
+
+defineExpose({
+    toPage(page: string){
+        state.tempUrl = state.curUrl = page
+        toPage(page)
+    }
+})
+
 onMounted(() => {
     if (!webviewRef.value) return
     const we = webviewRef.value
     we.addEventListener("dom-ready", async function () {
-        if (isFirst.value) {
-            console.log(`首次运行:`, we.getTitle());
+        if(isFirst.value){
             isFirst.value = false
-            state.tempUrl = state.curUrl = props.url
-            toPage(state.curUrl)
-            watch(() => props.url, async (newValue) => {
-                state.tempUrl = state.curUrl = newValue
-                toPage(state.curUrl)
-            })
-            return
+            emits("first-dom-ready")
+        }else{
+            state.tempUrl = state.curUrl = we.getURL()
+            emits("dom-ready", state.curUrl)
         }
-        state.tempUrl = state.curUrl = we.getURL()
         webContentsId.value = we.getWebContentsId()
         canGoBack.value = we.canGoBack()
         canGoForward.value = we.canGoForward()
-        emits("dom-ready", state.curUrl)
     })
     we.addEventListener('ipc-message', function (event) {
         console.log(event)

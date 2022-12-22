@@ -1,6 +1,7 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron"
 import { callMethod, callMethodLong, callMethodSync } from "./call"
 import path from "path"
+import url from "url"
 import * as file from "./file"
 import setting from "@rush/share/setting"
 
@@ -14,6 +15,8 @@ if (__dirname.split(path.sep).indexOf("app.asar") >= 0) {
     iframePath = path.join(__dirname, "iframe.html")
     extraPath = path.join(__dirname, "../..")
 }
+webviewPreloadPath = url.pathToFileURL(webviewPreloadPath).href
+preloadPath = url.pathToFileURL(preloadPath).href
 
 const _agent = {
     info: {
