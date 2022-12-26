@@ -7,6 +7,10 @@ import fs from "fs"
 import path from "path"
 import CryptoJS from "crypto-js"
 
+export function openExternal(url:string) {
+    shell.openExternal(url)
+}
+
 export function openDir(path: string){
     shell.openPath(path)
 }
@@ -20,7 +24,7 @@ export function copyText(text: string) {
     // const n = new Notification({title: "片段复制", body: "复制成功，请在您需要的地方粘贴", icon: appTrayPath})
     // n.show()
 }
- 
+
 export function copyImageToFile() {
     // const output = [];
 	// const formats = clipboard.availableFormats();
@@ -47,7 +51,7 @@ export function copyImageToFile() {
     // if(!image.isEmpty()){
     //     const buffer = image.getBitmap();
     //     const timestramp = Date.now()
-        
+
     //     fs.writeFile(path.resolve(mainConfig.storagePath, "./file/"+CryptoJS.MD5(String(timestramp)).toString()+''), buffer, function (err: Error | null) {
     //         if(err) throw err;
     //         console.log("保存成功");

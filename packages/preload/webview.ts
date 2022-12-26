@@ -1,11 +1,14 @@
 import { contextBridge, ipcRenderer, webContents } from "electron"
 
-console.log('222');
 ipcRenderer.sendToHost("start-load-info")
 window.addEventListener('load', ()=>{
-    const faviconEl = document.querySelector("link[rel='shortcut icon']") ?? document.querySelector("link[rel='icon']")
+    let faviconEl = document.querySelector("link[rel='shortcut icon']") ?? document.querySelector("link[rel='icon']")
+    let favicon = faviconEl.getAttribute("href")
+    if(!favicon.startsWith('http')){
+        favicon = location.origin+'/'+faviconEl.getAttribute("href");
+    }
     ipcRenderer.sendToHost("stop-load-info", {
         title: document.title,
-        favicon: faviconEl.getAttribute("href")
+        favicon
     })
 })

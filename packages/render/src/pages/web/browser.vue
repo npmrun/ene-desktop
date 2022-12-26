@@ -47,6 +47,7 @@ watchEffect(async () => {
 
 defineExpose({
     toPage(page: string){
+        if(page === state.curUrl) return
         state.tempUrl = state.curUrl = page
         toPage(page)
     }
@@ -73,8 +74,8 @@ onMounted(() => {
             isLoadingWebsiteInfo.value = true
         }
         if (event.channel === "stop-load-info") {
-            isLoadingWebsiteInfo.value = false
             websiteInfo.value = event.args[0]
+            isLoadingWebsiteInfo.value = false
         }
     })
     we.addEventListener('new-window', function (e) {
@@ -207,6 +208,12 @@ function clear() {
     canGoForward.value = we.canGoForward()
 }
 
+function openBrowser() {
+    if (!webviewRef.value) return
+    const we = webviewRef.value
+    _agent.call('func.openExternal', state.curUrl)
+}
+
 const webviewPreloadPath = _agent.webviewPreloadPath
 </script>
 
@@ -239,10 +246,13 @@ const webviewPreloadPath = _agent.webviewPreloadPath
             </div>
             <form @submit="handleSubmit"
                 class="border box-border w-1/1 ml-6px mr-6px px-6px h-28px rounded-md flex items-center p-3px">
-                <div
-                    class="w-22px h-22px p-2px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer">
-                    <img v-if="websiteInfo?.favicon" :src="websiteInfo.favicon">
-                    <SvgIcon v-else name="browser-star-full"></SvgIcon>
+                <div v-if="websiteInfo?.favicon"
+                    class="w-22px h-22px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer">
+                    <img :src="websiteInfo.favicon">
+                </div>
+                <div v-else
+                    class="w-22px h-22px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer">
+                    <SvgIcon class="loading" name="browser-loading"></SvgIcon>
                 </div>
                 <input spellcheck="false" class="mx-6px inline-block w-0 flex-1 outline-none" type="text"
                     v-model="state.tempUrl" @blur="handleInputBlur" @focus="handleInputFocus">
@@ -252,15 +262,30 @@ const webviewPreloadPath = _agent.webviewPreloadPath
                 </div>
             </form>
             <div class="w-30px h-30px p-5px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer"
-                :class="[devtoolsIsOpen ? 'bg-red-100' : '']" @click="toggleDevTools" title="开发者工具">
-                <SvgIcon name="browser-develop"></SvgIcon>
-            </div>
-            <div class="w-30px h-30px ml-5px p-5px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer"
                 @click="clear" title="清除历史">
                 <SvgIcon name="browser-clear"></SvgIcon>
+            </div>
+            <div class="w-30px h-30px p-5px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer"
+                :class="[devtoolsIsOpen ? 'bg-red-100' : '']" @click="openBrowser" title="外部浏览器打开">
+                <SvgIcon name="browser-browser"></SvgIcon>
+            </div>
+            <div class="w-30px h-30px p-5px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer"
+                :class="[devtoolsIsOpen ? 'bg-red-100' : '']" @click="toggleDevTools" title="开发者工具">
+                <SvgIcon name="browser-develop"></SvgIcon>
             </div>
         </div>
         <webview allowpopups ref="webviewRef" class="flex-1 h-0" :preload="webviewPreloadPath" src="data:text/plain,">
         </webview>
     </div>
 </template>
+
+<style lang="less" scoped>
+.loading{
+    animation:rotate 3s infinite linear;
+}
+@keyframes rotate{
+    100% {
+        transform: rotate(360deg);
+    }
+}
+</style>
