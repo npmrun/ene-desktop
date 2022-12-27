@@ -6,8 +6,10 @@ import { toast } from 'vue3-toastify';
 const props = withDefaults(defineProps<{
     collect?: boolean,
     home?: string
+    url?: string
 }>(), {
-    collect: false
+    collect: false,
+    url: ''
 })
 
 const emits = defineEmits<{
@@ -20,8 +22,8 @@ const emits = defineEmits<{
 
 const webviewRef = ref<WebviewTag>()
 const state = reactive({
-    tempUrl: '',
-    curUrl: ''
+    tempUrl: props.url,
+    curUrl: props.url
 })
 
 function toPage(page: string) {
@@ -60,6 +62,9 @@ onMounted(() => {
         if(isFirst.value){
             isFirst.value = false
             emits("first-dom-ready")
+            if(state.curUrl){
+                toPage(state.curUrl)
+            }
         }else{
             state.tempUrl = state.curUrl = we.getURL()
             emits("dom-ready", state.curUrl)
@@ -144,7 +149,8 @@ function stopLoad() {
     const we = webviewRef.value
     we.stop()
 }
-function handleSubmit() {
+function handleSubmit(e: Event) {
+    e.preventDefault()
     if (state.tempUrl && state.curUrl !== state.tempUrl && state.tempUrl.startsWith('http')) {
         state.curUrl = state.tempUrl
         toPage(state.curUrl)
@@ -246,11 +252,11 @@ const webviewPreloadPath = _agent.webviewPreloadPath
             </div>
             <form @submit="handleSubmit"
                 class="border box-border w-1/1 ml-6px mr-6px px-6px h-28px rounded-md flex items-center p-3px">
-                <div v-if="websiteInfo?.favicon"
+                <div v-if="!isLoadingWebsiteInfo && websiteInfo?.favicon"
                     class="w-22px h-22px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer">
                     <img :src="websiteInfo.favicon">
                 </div>
-                <div v-else
+                <div v-if="isLoadingWebsiteInfo"
                     class="w-22px h-22px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer">
                     <SvgIcon class="loading" name="browser-loading"></SvgIcon>
                 </div>
@@ -265,8 +271,7 @@ const webviewPreloadPath = _agent.webviewPreloadPath
                 @click="clear" title="清除历史">
                 <SvgIcon name="browser-clear"></SvgIcon>
             </div>
-            <div class="w-30px h-30px p-5px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer"
-                :class="[devtoolsIsOpen ? 'bg-red-100' : '']" @click="openBrowser" title="外部浏览器打开">
+            <div class="w-30px h-30px p-5px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer" @click="openBrowser" title="外部浏览器打开">
                 <SvgIcon name="browser-browser"></SvgIcon>
             </div>
             <div class="w-30px h-30px p-5px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer"

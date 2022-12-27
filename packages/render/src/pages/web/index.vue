@@ -30,7 +30,7 @@ function handleDomReady(curPath: string) {
     curPathRef.value = curPath
 }
 function handleFirstDomReady() {
-    browserRef.value?.toPage(curUrl.value.url)
+    // browserRef.value?.toPage(curUrl.value.url)
 }
 function handleCollect(curPath: string) {
     if (!tabs.value.find(v => v.url === curPath)) {
@@ -82,10 +82,15 @@ meta:
 <template>
     <div class="h-1/1 flex">
         <div class="w-250px border-r">
-            <div class="border-b h-40px flex">
-
+            aaaAA
+        </div>
+        <div class="w-250px border-r">
+            <div class="border-b h-40px flex items-center p-6px">
+                <form class="border py-3px px-6px w-1/1 rounded-lg flex items-center">
+                    <input placeholder="输入搜索" class="outline-none flex-1 w-0" type="text">
+                </form>
             </div>
-            <div class="m-12px border rounded-md cursor-pointer flex flex-col" v-for="(item, index) in tabs"
+            <div class="m-6px border rounded-md cursor-pointer flex flex-col" v-for="(item, index) in tabs"
                 @click="clickURL(item)" :key="index" :title="item.title">
                 <div class="font-bold h-28px leading-14px border-b p-6px ell">
                     {{ item.title }}
@@ -95,8 +100,9 @@ meta:
                 </div>
             </div>
         </div>
-        <browser ref="browserRef" :collect="isCollect" class="h-1/1 flex-1 w-0" :url="curUrl.url" :home="'https://baidu.com'"
-            @dom-ready="handleDomReady" @first-dom-ready="handleFirstDomReady" @collect="handleCollect" @cancel-collect="handleCancelCollect"></browser>
+        <browser ref="browserRef" :collect="isCollect" class="h-1/1 flex-1 w-0" :url="curUrl.url"
+            @dom-ready="handleDomReady" @first-dom-ready="handleFirstDomReady" @collect="handleCollect"
+            @cancel-collect="handleCancelCollect"></browser>
     </div>
 </template>
 <style lang="less" scoped>
