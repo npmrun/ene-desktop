@@ -1,6 +1,15 @@
 <script lang="ts" setup>
+import Left from "./left.vue"
 import browser from "./browser.vue";
 import URL from "url-parse"
+import { TState, IState } from "./token";
+
+let state = reactive<TState>({
+    activeKeys: [],
+    openKey: undefined,
+    list: []
+})
+provide(IState, state)
 
 const browserRef = ref<InstanceType<typeof browser>>()
 // const route = useRoute()
@@ -82,7 +91,7 @@ meta:
 <template>
     <div class="h-1/1 flex">
         <div class="w-250px border-r">
-            aaaAA
+            <Left></Left>
         </div>
         <div class="w-250px border-r">
             <div class="border-b h-40px flex items-center p-6px">
