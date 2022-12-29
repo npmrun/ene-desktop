@@ -1,12 +1,13 @@
 <script lang="ts" setup>
 import { PopupMenu } from "@/bridge/PopupMenu";
 import FileTree from "@/page-ui/FileTree/filetree.vue";
-import { convert, INiuTreeData, removeByKey } from 'princess-ui';
+import { convert, INiuTreeData, INiuTreeKey, removeByKey } from 'princess-ui';
 import { v4 } from "uuid";
 import { IState, TState } from "./token"
 
 const emit = defineEmits<{
     (ev: "change"): void
+    (ev: "delete", data: INiuTreeKey): void
 }>()
 
 const state = inject(IState) as TState
@@ -72,6 +73,7 @@ function onContextmenu(data: INiuTreeData) {
             } else {
                 removeByKey(data.key, state.list)
             }
+            emit("delete", data.key)
             // if(!!state.activeKeys.length){
             //     filetreeRef.value?.delArray(state.activeKeys)
             // }else{
@@ -110,11 +112,11 @@ function log(e: any) {
                 @contextmenu="onContextmenu" v-model:activeKeys="state.activeKeys" v-model:openKey="state.openKey"
                 v-model:focusKey="state.focusKey" v-model:isFocus="state.isFocus" @rename="handleRename"
                 @create-one="handleCreateOne">
-                <template #default="{data}">
+                <!-- <template #default="{data}">
                     <div
                         class="text-size-12px group-hover:block hidden p-6px hover:bg-gray-200 active:bg-gray-300 rounded-sm" @click="log(data)">
                         编辑</div>
-                </template>
+                </template> -->
             </FileTree>
         </div>
         <slot></slot>

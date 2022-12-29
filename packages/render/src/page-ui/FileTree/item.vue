@@ -206,7 +206,7 @@ function onExpand(data: INiuTreeData) {
 }
 
 function clickTitle(e: Event, data: INiuTreeData) {
-    onExpand(data)
+    // onExpand(data)
     emits('click', e)
     return undefined
 }

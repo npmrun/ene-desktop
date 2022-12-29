@@ -16,8 +16,8 @@ const emits = defineEmits<{
     (ev: "new-window", path: string): void,
     (ev: "dom-ready", curUrl: string): void,
     (ev: "first-dom-ready"): void,
-    (ev: "collect", url: string): void,
-    (ev: "cancel-collect", url: string): void,
+    (ev: "collect", url: string, websiteInfo: any): void,
+    (ev: "cancel-collect", url: string, websiteInfo: any): void,
 }>()
 
 const webviewRef = ref<WebviewTag>()
@@ -65,16 +65,14 @@ onMounted(() => {
             if(state.curUrl){
                 toPage(state.curUrl)
             }
-        }else{
-            state.tempUrl = state.curUrl = we.getURL()
-            emits("dom-ready", state.curUrl)
         }
+        state.tempUrl = state.curUrl = we.getURL()
+        emits("dom-ready", state.curUrl)
         webContentsId.value = we.getWebContentsId()
         canGoBack.value = we.canGoBack()
         canGoForward.value = we.canGoForward()
     })
     we.addEventListener('ipc-message', function (event) {
-        console.log(event)
         if (event.channel === "start-load-info") {
             isLoadingWebsiteInfo.value = true
         }
@@ -194,9 +192,9 @@ function clickHome() {
 
 function handleCollect() {
     if (props.collect) {
-        emits("cancel-collect", state.curUrl)
+        emits("cancel-collect", state.curUrl, websiteInfo.value)
     } else {
-        emits("collect", state.curUrl)
+        emits("collect", state.curUrl, websiteInfo.value)
     }
 }
 
