@@ -7,6 +7,7 @@ import { IState, TState } from "./token"
 
 const emit = defineEmits<{
     (ev: "change"): void
+    (ev: "new-url", data: INiuTreeData): void
     (ev: "delete", data: INiuTreeKey): void
 }>()
 
@@ -45,6 +46,12 @@ function onContextmenu(data: INiuTreeData) {
         label: "重命名",
         click() {
             data.isEdit = true
+        },
+    })
+    menuList.push({
+        label: "新建网站",
+        click() {
+            emit('new-url', data)
         },
     })
     if (data.isFolder) {
