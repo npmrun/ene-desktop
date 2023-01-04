@@ -26,6 +26,10 @@ const state = reactive({
     curUrl: props.url
 })
 
+watch(()=>props.url, ()=>{
+    state.tempUrl = state.curUrl = props.url
+})
+
 function toPage(page: string) {
     if (webviewRef.value?.isLoading()) {
         webviewRef.value?.stop()
@@ -66,11 +70,11 @@ onMounted(() => {
                 toPage(state.curUrl)
             }
         }
-        state.tempUrl = state.curUrl = we.getURL()
-        emits("dom-ready", state.curUrl)
         webContentsId.value = we.getWebContentsId()
         canGoBack.value = we.canGoBack()
         canGoForward.value = we.canGoForward()
+        state.tempUrl = state.curUrl = we.getURL()
+        emits("dom-ready", state.curUrl)
     })
     we.addEventListener('ipc-message', function (event) {
         if (event.channel === "start-load-info") {
@@ -277,7 +281,7 @@ const webviewPreloadPath = _agent.webviewPreloadPath
                 <SvgIcon name="browser-develop"></SvgIcon>
             </div>
         </div>
-        <webview allowpopups ref="webviewRef" class="flex-1 h-0" :preload="webviewPreloadPath" src="data:text/plain,">
+        <webview allowpopups ref="webviewRef" class="flex-1 h-0" :preload="webviewPreloadPath" src="about:blank">
         </webview>
     </div>
 </template>

@@ -41,6 +41,8 @@ onBeforeMount(async () => {
     if(list.length) treeState.openKey = list[0].key
     const web = await _agent.call("db.getData", "web/website") ?? []
     tabs.value = web
+    await nextTick()
+    if(showUrlList.value) curUrl.value = showUrlList.value[0]
 })
 
 const saveTreeFn = useThrottleFn(async () => {
