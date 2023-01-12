@@ -79,6 +79,13 @@ function handleDomReady(curPath: string) {
 
 function handleCollect(curPath: string, websiteInfo: any) {
     dialogState.data = { title: websiteInfo.title, url: curPath, desc: '' }
+    if(treeState.openKey){
+        const data = findByKey(treeState.openKey, treeState.list)
+        if(data && data.key){
+            dialogState.fromId = data.key as any
+            dialogState.fromTitle = data.title
+        }
+    }
     dialogState.isShow = true
 }
 function handleCancelCollect(curPath: string, websiteInfo: any) {
@@ -155,6 +162,8 @@ function handleContextMenu(item: ITab, index: number) {
             dialogState.data.title =  tabs.value[index].title
             dialogState.data.url =  tabs.value[index].url
             dialogState.data.desc =  tabs.value[index].desc
+            dialogState.fromId =  tabs.value[index].fromId as any
+            dialogState.fromTitle =  tabs.value[index].fromTitle as string
             dialogState.editKey = item.key
             dialogState.isShow = true
         },

@@ -36,7 +36,7 @@ import { onBeforeRouteLeave, useRouter } from 'vue-router';
 
 const app = reactive([
     { title: "图标生成器", path: "/home/icons", color: "#a9c0ff", activeColor: "#2F66FF" },
-    { title: "v2ray", path: "/home/v2ray", color: "#dfaaca", activeColor: "#ea4aaa" },
+    { title: "test", path: "/home/test", color: "#dfaaca", activeColor: "#ea4aaa" },
 ])
 
 const lastRoute = ref()
