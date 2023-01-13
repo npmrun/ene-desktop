@@ -1,65 +1,42 @@
 <template>
-    <fieldset>
-        <legend>Add new friend</legend>
-        <label>
-            id:
-            <input v-model="idd" type="text" />
-        </label>
-        <br />
-        <label>
-            Name:
-            <input v-model="friendName" type="text" />
-        </label>
-        <br />
-        <label>
-            Age:
-            <input v-model="friendAge" type="number" />
-        </label>
-        <br />
-        <button @click="addFriend">Add Friend</button>
-        <button @click="getData">getData</button>
-        <p>{{ status }}</p>
-    </fieldset>
+    <div>
+        <input v-model="state.key" class="input" type="text" placeholder="Text key">
+        <input v-model="state.parentKey" class="input" type="text" placeholder="Text parentKey">
+        <input v-model="state.title" class="input" type="text" placeholder="Text title">
+        <button class="button" @click="addData">增</button>
+        <button class="button" @click="getData">删</button>
+        <button class="button" @click="getData">该</button>
+        <button class="button" @click="getData">查</button>
+    </div>
 </template>
 
-<script lang="ts">
+<script lang="ts" setup>
 import { addCollect, getCollectTree, searchCollectByKey } from '@/api/collect';
+import { convertTreeData } from 'princess-ui';
 
-export default defineComponent({
-    name: 'FriendAdder',
-    props: {
-        defaultAge: {
-            type: Number,
-            default: 21,
-        },
-    },
-    data() {
-        return {
-            status: '',
-            idd: 0,
-            friendName: '',
-            friendAge: this.defaultAge,
-        };
-    },
-    async mounted(){
-        console.log(await searchCollectByKey("aaaa"));
-    },
-    methods: {
-        async getData() {
-            const data = await getCollectTree()
-            console.log(JSON.stringify(data, null, 2));
-        },
-        async addFriend() {
-            try {
-                const id = await addCollect({
-                    key: "dddd",
-                    parentKey: "bbbb",
-                    title: "asdadas"
-                });
-            } catch (error) {
-                console.error(error);
-            }
-        },
-    },
+let state = reactive({
+    key: "",
+    parentKey: undefined,
+    title: ''
 })
+
+async function getData() {
+    const data = await getCollectTree()
+    console.log(convertTreeData(data));
+}
+
+async function addData() {
+    addCollect({
+        key: state.key,
+        parentKey: state.parentKey,
+        title: state.title
+    })
+    state = Object.assign(state, {
+        key: "",
+        parentKey: '',
+        title: ''
+    })
+}
+
+
 </script>

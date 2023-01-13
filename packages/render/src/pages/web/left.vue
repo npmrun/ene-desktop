@@ -103,12 +103,13 @@ async function handleCreateOne(data: INiuTreeData, parent: INiuTreeData | undefi
     state.isFocus = true
     state.openKey = data.key
     state.activeKeys = [data.key]
+    console.log('rr');
     done(true)
 }
 
 function log(e: any) {
     console.log(e);
-    
+
 }
 </script>
 
