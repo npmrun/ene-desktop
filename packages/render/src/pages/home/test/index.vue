@@ -23,7 +23,7 @@
 </template>
 
 <script lang="ts">
-import { db } from '@/api/db';
+import { addCollect, getCollectTree, searchCollectByKey } from '@/api/collect';
 
 export default defineComponent({
     name: 'FriendAdder',
@@ -41,19 +41,23 @@ export default defineComponent({
             friendAge: this.defaultAge,
         };
     },
+    async mounted(){
+        console.log(await searchCollectByKey("aaaa"));
+    },
     methods: {
         async getData() {
-            // const data = await db.folder.get(1)
-            // console.log(data);
+            const data = await getCollectTree()
+            console.log(JSON.stringify(data, null, 2));
         },
         async addFriend() {
             try {
-                // const id = await db.folder.add({
-                //     key: "aaaaas",
-                //     title: "ffffff",
-                // });
+                const id = await addCollect({
+                    key: "dddd",
+                    parentKey: "bbbb",
+                    title: "asdadas"
+                });
             } catch (error) {
-                this.status = `Failed to add ${this.friendName}: ${error}`;
+                console.error(error);
             }
         },
     },
