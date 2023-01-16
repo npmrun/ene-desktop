@@ -79,8 +79,9 @@ const router = useRouter()
 const activeTab = ref(-1)
 const TopMenu = reactive([
     { key: 0, title: "个人", url: "/home" },
-    { key: 1, title: "壁纸", url: `/web` },
-    { key: 2, title: "导航", url: "/test" },
+    { key: 1, title: "收藏", url: `/collect` },
+    { key: 2, title: "壁纸", url: `/web` },
+    { key: 3, title: "导航", url: "/test" },
     // { key: 2, title: "电视", url: "/tv" },
     // { key: 3, title: "笔记", url: "/note" },
     // { key: 4, title: "博客", url: "/blog" },
@@ -94,13 +95,13 @@ watch(() => router.currentRoute.value, (route) => {
 
     for (let i = 0; i < TopMenu.length; i++) {
         const element = TopMenu[i];
-        if (element.url.startsWith(route.path)) {
+        if (route.path.startsWith(element.url)) {
             activeTab.value = element.key
         }
     }
     for (let i = 0; i < SysMenu.length; i++) {
         const element = SysMenu[i];
-        if (element.url.startsWith(route.path)) {
+        if (route.path.startsWith(element.url)) {
             activeTab.value = element.key
         }
     }

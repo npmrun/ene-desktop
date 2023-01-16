@@ -1,4 +1,5 @@
 import { IndexableType, PromiseExtended } from "dexie"
+import { INiuTreeKey } from "princess-ui"
 import { v4 } from "uuid"
 import { CollectFolder, db } from "../db"
 
@@ -6,15 +7,15 @@ export function addCollect(one: CollectFolder): PromiseExtended<IndexableType> {
     return db.collect_folder.add(one)
 }
 
-export function removeCollect(key: string) {
+export function removeCollect(key: string | INiuTreeKey) {
     return db.collect_folder.delete(key)
 }
 
-export function updateCollect(key: string, change: { [propsName: string]: any }) {
+export function updateCollect(key: string | INiuTreeKey, change: { [propsName: string]: any }) {
     return db.collect_folder.update(key, change)
 }
 
-export function searchCollectByKey(key: string) {
+export function searchCollectByKey(key: string | INiuTreeKey) {
     return db.collect_folder.get(key)
 }
 
