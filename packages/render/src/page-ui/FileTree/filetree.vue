@@ -1,6 +1,6 @@
 <template>
     <div ref="filetree" style="height: 100%;">
-        <ps-tree v-bind="props" @expand="$attrs.onExpand as any" @itemDragstart="onItemDragstart"
+        <ps-tree v-bind="props" :dropFn="dropFn" @expand="$attrs.onExpand as any" @itemDragstart="onItemDragstart"
             @itemDragend="onItemDragend" @itemDrop="onItemDrop" @click="clickItem" auto-expand>
             <template #default="data">
                 <item @click.stop="clickNode($event, data.data)" @change="() => emit('change')"
@@ -40,7 +40,7 @@ const props = withDefaults(
         isFocus?: boolean
         justOpen?: boolean
         justOpenOne?: boolean
-        dropFn?: any
+        dropFn?: Function
     }>(),
     {
         justOpen: false,

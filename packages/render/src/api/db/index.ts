@@ -12,6 +12,7 @@ export interface CollectFolder {
     key: INiuTreeKey
     parentKey: INiuTreeKey | void
     title: string
+    isExpand?: boolean
     isDel?: boolean
     isCollect?: boolean
 }
@@ -34,8 +35,8 @@ export class MySubClassedDexie extends Dexie {
 
     constructor() {
         super("ene-desktop")
-        this.version(1).stores({
-            collect_folder: "key, parentKey, title, isDel, isCollect",
+        this.version(1.2).stores({
+            collect_folder: "key, parentKey, title, sort, isExpand, isDel, isCollect",
             collect_urls: "key, fromId, fromTitle, title, urls, desc, isDel, isCollect",
             collect_data: "key, value, desc",
         })

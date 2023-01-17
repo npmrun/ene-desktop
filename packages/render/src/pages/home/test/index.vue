@@ -4,14 +4,14 @@
         <input v-model="state.parentKey" class="input" type="text" placeholder="Text parentKey">
         <input v-model="state.title" class="input" type="text" placeholder="Text title">
         <button class="button" @click="addData">增</button>
-        <button class="button" @click="getData">删</button>
+        <button class="button" @click="handleRemove">删</button>
         <button class="button" @click="getData">该</button>
         <button class="button" @click="getData">查</button>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { addCollect, getCollectTree, searchCollectByKey } from '@/api/collect';
+import { addCollect, getCollectTree, removeColletTree } from '@/api/collect';
 import { convertTreeData } from 'princess-ui';
 
 let state = reactive({
@@ -23,6 +23,11 @@ let state = reactive({
 async function getData() {
     const data = await getCollectTree()
     console.log(convertTreeData(data));
+}
+
+function handleRemove() {
+    removeColletTree(state.key)
+    state.key = ''
 }
 
 async function addData() {
