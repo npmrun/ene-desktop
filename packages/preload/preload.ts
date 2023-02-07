@@ -1,6 +1,6 @@
 import { contextBridge, ipcRenderer, IpcRendererEvent } from "electron"
 import { callMethod, callMethodLong, callMethodSync } from "./call"
-import path from "path"
+import path, { normalize } from "path"
 import url from "url"
 import * as file from "./file"
 import setting from "@rush/share/setting"
@@ -24,6 +24,10 @@ const _agent = {
         chrome: process.versions["chrome"],
         node: process.versions["node"],
         electron: process.versions["electron"],
+    },
+    getStaticHtml(type: any){
+        let html = url.pathToFileURL(normalize(path.join(extraPath, `./${type}.html`))).toString()
+        return html
     },
     webviewPreloadPath: webviewPreloadPath,
     preloadPath: preloadPath,

@@ -26,6 +26,7 @@ type TAgent<T = (event: Electron.IpcRendererEvent, ...args: any[]) => void> = {
         node: string,
         electron: string,
     },
+    getStaticHtml(type: any):string
     webviewPreloadPath: string;
     preloadPath: string;
     iframePath: string;
