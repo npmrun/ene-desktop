@@ -34,7 +34,7 @@ export function showMainWindow(opts = {}) {
             y: mainWindowState.y,
             show: true,
             resizable: true,
-            minWidth: 800,
+            minWidth: 900,
             minHeight: 600,
             icon: appIconPath,
             frame: true, // 去除原生的菜单

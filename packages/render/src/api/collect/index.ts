@@ -1,7 +1,9 @@
 import { IndexableType, PromiseExtended } from "dexie"
 import { INiuTreeKey } from "princess-ui"
 import { v4 } from "uuid"
+import { treeMap } from "@common/util/treeHelper"
 import { CollectFolder, db } from "../db"
+import { searchDataByKey } from "./data"
 
 export function addCollect(one: CollectFolder): PromiseExtended<IndexableType> {
     return db.collect_folder.add(one)
@@ -87,5 +89,18 @@ function transTree(data: CollectTree[]) {
 
 export async function getCollectTree() {
     const array = (await db.collect_folder.toArray()) as CollectTree[]
-    return transTree(array)
+    const data = await searchDataByKey("tree_order")
+    if(data?.value){
+        const list = JSON.parse(data.value)
+        return treeMap(list, {
+            conversion(node: CollectTree){
+                let n = array.find((v)=>node.key===v.key)
+                if(n && !n.children){
+                    n.children = []
+                }
+                return n
+            }
+        })
+    }
+    return []
 }

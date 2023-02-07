@@ -38,6 +38,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
         resolve: {
             alias: {
                 "@": path.join(__dirname, "src"),
+                "@common": path.join(__dirname, "../common"),
                 "$Event": path.join(__dirname, "src/event"),
             },
         },
