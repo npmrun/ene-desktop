@@ -1,257 +1,62 @@
 <template>
     <div class="h-1/1 relative flex">
-        <aside class="w-250px border-r flex flex-col">
-            <form class="h-45px flex items-center border-b px-12px">
-                <input class="flex-1 w-0 mr-6px input" type="text" placeholder="输入搜索">
-                <button type="submit" class="button is-info">搜索</button>
-            </form>
-            <div class="flex-1 h-0" @contextmenu="handleGlobalContextmenu">
-                <FileTree :dropFn="handleDropFn" ref="filetreeRef" :list="treeList"
-                    v-model:activeKeys="state.activeKeys" v-model:openKey="state.openKey"
-                    v-model:focusKey="state.focusKey" v-model:isFocus="state.isFocus" @clickNode="handleClickNode"
-                    @contextmenu="handleContextmenu" @rename="handleRename" @createOne="handleCreateOne"
-                    @expand="handleExpand">
-                </FileTree>
+        <aside class="w-300px border-r flex flex-col">
+            <Left></Left>
+        </aside>
+        <aside class="w-300px border-r flex flex-col">
+            <div class="flex flex-col h-1/1">
+                <form class="h-45px flex items-center border-b px-12px">
+                    <input class="flex-1 w-0 mr-6px input" type="text" placeholder="输入搜索">
+                    <button type="submit" class="button is-info">搜索</button>
+                    <div class="select ml-6px">
+                        <select>
+                            <option>时间排序</option>
+                            <option>标题排序</option>
+                        </select>
+                    </div>
+                </form>
+                <div class="px-12px py-8px border-b flex justify-between items-center group">
+                    <div>文档文件</div>
+                    <button type="submit" class="button is-small is-info opacity-0 group-hover:opacity-100">新建</button>
+                </div>
+                <div class="flex-1 h-0 overflow-auto">
+                    <div class="list">
+                        <div class="card m-12px" v-for="i in 2" :key="i">
+                            <div class="card-content">
+                                <p class="subtitle text-center">
+                                    百度
+                                </p>
+                            </div>
+                            <footer class="card-footer">
+                                <a href="https://baidu.com" class="card-footer-item">
+                                    <span>
+                                        View on Twitter
+                                    </span>
+                                </a>
+                                <a href="https://baidu.com" class="card-footer-item">
+                                    <span>
+                                        View on Twitter
+                                    </span>
+                                </a>
+                                <!-- <p class="card-footer-item">
+                                    <span>
+                                        Share on <a href="#">Facebook</a>
+                                    </span>
+                                </p> -->
+                            </footer>
+                        </div>
+                    </div>
+                </div>
             </div>
         </aside>
         <main class="flex-1 w-0">
-            {{ treeList }}
+            <div>
+                da
+            </div>
         </main>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { addCollect, removeColletTree, updateCollect } from "@/api/collect";
-import { addData, searchDataByKey, updateData } from "@/api/collect/data";
-import { PopupMenu } from "@/bridge/PopupMenu";
-import FileTree from "@/page-ui/FileTree/filetree.vue";
-import { CollectStore } from '@/store/module/collect';
-import { storeToRefs } from 'pinia';
-import { convert, ENiuTreeStatus, INiuTreeData, INiuTreeKey } from "princess-ui";
-import { v4 } from "uuid";
-import { toast } from "vue3-toastify";
-import { findPath, treeMap } from "@common/util/treeHelper";
-
-/**
- * 删除时需要删除子项，需要保证原子性
- */
-
-const collectStore = CollectStore()
-const filetreeRef = ref<InstanceType<typeof FileTree>>()
-
-const { treeList } = storeToRefs(collectStore)
-type TState = {
-    activeKeys: INiuTreeKey[],
-    openKey?: INiuTreeKey,
-    focusKey?: INiuTreeKey,
-    isFocus?: boolean,
-}
-let state = reactive<TState>({
-    activeKeys: [],
-})
-
-function handleClickNode(data: INiuTreeData) {
-    state.openKey = data.key
-    state.activeKeys = [data.key]
-}
-
-async function saveTreeState() {
-    try {
-        const isHave = await searchDataByKey("tree_state")
-        if(isHave){
-            updateData("tree_state", {
-                value: JSON.stringify(toRaw(state)),
-                desc: "保存树形状态"
-            }) 
-        }else{
-            addData({
-                key: "tree_state",
-                value: JSON.stringify(toRaw(state)),
-                desc: "保存树形状态"
-            }) 
-        }
-    } catch (error) {
-        toast.error("保存树形状态失败！！！")
-        console.error(error);
-    }
-}
-async function saveTreeStruct() {
-    const json = treeMap(treeList.value, {
-        conversion(node: INiuTreeData) {
-            return { key: node.key }
-        }
-    })
-    try {
-        const isHave = await searchDataByKey("tree_order")
-        if(isHave){
-            updateData("tree_order", {
-                value: JSON.stringify(json),
-                desc: "保存树形结构"
-            }) 
-        }else{
-            addData({
-                key: "tree_order",
-                value: JSON.stringify(json),
-                desc: "保存树形结构"
-            }) 
-        }
-    } catch (error) {
-        toast.error("保存树形结构失败！！！")
-        console.error(error);
-    }
-}
-
-function handleGlobalContextmenu() {
-    const menuList: IMenuItemOption[] = []
-    menuList.push({
-        label: "新建文件夹",
-        click() {
-            treeList.value.push(
-                convert({
-                    key: v4(),
-                    title: "",
-                    isNew: true,
-                    isEdit: true,
-                    isExpand: true,
-                    children: [],
-                }),
-            )
-        },
-    })
-    const menu = new PopupMenu(menuList)
-    menu.show()
-}
-
-function handleContextmenu(data: INiuTreeData) {
-    const menuList: IMenuItemOption[] = []
-    menuList.push({
-        label: "重命名",
-        click() {
-            data.isEdit = true
-        },
-    })
-    if (data.isFolder) {
-        menuList.push({
-            label: "新建文件夹",
-            click() {
-                data.isFolder && (data.isExpand = true)
-                data.children?.push(
-                    convert({
-                        key: v4(),
-                        title: "",
-                        order: 0,
-                        isNew: true,
-                        isEdit: true,
-                        children: [],
-                    }),
-                )
-            },
-        })
-    }
-    menuList.push({
-        label: "删除",
-        async click() {
-            // 删除数据库中的数据
-            const array = await removeColletTree(data.key)
-            // 更新视图中的数据
-            filetreeRef.value?.delArray(array)
-            saveTreeStruct()
-        },
-    })
-    const menu = new PopupMenu(menuList)
-    menu.show()
-}
-
-async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData: INiuTreeData) {
-    if (type === ENiuTreeStatus.DragDown) {
-        // await updateCollect(data.key, {
-        //     parentKey: targetData?.parentKey
-        // })
-        setTimeout(() => {
-            saveTreeStruct()
-        }, 0);
-        return true
-    }
-    if (type === ENiuTreeStatus.DragIn && targetData.key) {
-        await updateCollect(data.key, {
-            parentKey: targetData.key
-        })
-        setTimeout(() => {
-            saveTreeStruct()
-        }, 0);
-        return true
-    }
-    if (type === ENiuTreeStatus.DragUp) {
-        // await updateCollect(data.key, {
-        //     // @ts-ignore
-        //     parentKey: targetData?.parentKey
-        // })
-        setTimeout(() => {
-            saveTreeStruct()
-        }, 0);
-        return true
-    }
-    return false
-}
-
-async function handleCreateOne(data: INiuTreeData, parent: INiuTreeData, done: (status?: boolean) => void) {
-    try {
-        await addCollect({
-            key: data.key,
-            parentKey: parent?.key,
-            title: data.title,
-            isExpand: true
-        })
-        saveTreeStruct()
-        done(true)
-    } catch (error) {
-        console.error(error);
-        done(false)
-    }
-}
-
-async function handleExpand(data: INiuTreeData) {
-    try {
-        await updateCollect(data.key, {
-            isExpand: data.isExpand
-        })
-    } catch (error) {
-        console.error(error);
-        data.isExpand = !data.isExpand
-    }
-}
-
-async function handleRename(data: INiuTreeData, done: (status?: boolean) => void) {
-    try {
-        await updateCollect(data.key, {
-            title: data.title
-        })
-        done(true)
-    } catch (error) {
-        console.error(error);
-        done(false)
-    }
-}
-
-onBeforeMount(async () => {
-    await collectStore.initCollestTree()
-    console.log(toRaw(unref(treeList)));
-    const data = await searchDataByKey("tree_state")
-    if(data && data.value){
-        const _data = JSON.parse(data.value)
-        state = Object.assign(state, _data)
-        const array = findPath(treeList.value, (node: INiuTreeData)=>{
-            return node.key === state.openKey
-        })
-        array.slice(0, -1).forEach((node: INiuTreeData) => {
-            node.isExpand = true
-        });
-        watch(()=>state, ()=>{
-            saveTreeState()
-        }, {deep: true})
-    }
-    console.log(state);
-    
-})
-
+import Left from "./left.vue"
 </script>

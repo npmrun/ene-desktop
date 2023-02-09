@@ -1,11 +1,27 @@
-import { addCollect, getCollectTree } from "@/api/collect"
+import { getCollectTree } from "@/api/collect"
 import { CollectFolder } from "@/api/db"
 import { defineStore } from "pinia"
-import { convertTreeData, INiuTreeData } from "princess-ui"
+import { convertTreeData, INiuTreeData, INiuTreeKey } from "princess-ui"
+
+interface IState {
+    treeList: INiuTreeData[] // 文件夹
+    treeState: {
+        openKey?: INiuTreeKey
+        activeKeys?: INiuTreeKey[]
+        focusKey?: INiuTreeKey
+        isFocus?: boolean
+    }
+}
 
 export const CollectStore = defineStore("collect", {
-    state: (): { treeList: INiuTreeData[] } => ({
+    state: (): IState => ({
         treeList: [],
+        treeState: {
+            openKey: undefined,
+            focusKey: undefined,
+            activeKeys: [],
+            isFocus: undefined,
+        }
     }),
     getters: {
 
@@ -15,14 +31,6 @@ export const CollectStore = defineStore("collect", {
             const data = await getCollectTree() ?? []
             this.treeList = convertTreeData(data)
             return this.treeList
-        },
-        async addCollect(){
-            try {
-                // await addCollect({})
-            } catch (error) {
-                console.error(error);
-                
-            }
-        },
+        }
     },
 })
