@@ -7,9 +7,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <!-- img-src 'self' data: blob: base64 raw.githubusercontent.com github.com w.wallhaven.cc <%- scheme_file %>:; -->
   <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self' https: 'unsafe-inline'; style-src * 'unsafe-inline'; font-src * data:; img-src * blob:;">
+    content="default-src 'self' https: 'unsafe-inline'; style-src * 'unsafe-inline'; font-src * data:; img-src * 'self' data: blob: base64 <%- scheme_file %>;">
   <meta http-equiv="X-Content-Security-Policy"
-    content="default-src 'self' https: 'unsafe-inline'; style-src * 'unsafe-inline'; font-src * data:; img-src * blob:;">
+    content="default-src 'self' https: 'unsafe-inline'; style-src * 'unsafe-inline'; font-src * data:; img-src * 'self' data: blob: base64 <%- scheme_file %>;">
   <title><%- title %></title>
   <style>
     body {

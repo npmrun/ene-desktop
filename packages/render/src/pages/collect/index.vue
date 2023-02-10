@@ -50,13 +50,25 @@
             </div>
         </aside>
         <main class="flex-1 w-0">
-            <div>
-                da
-            </div>
+            <Editor :data="data"></Editor>
         </main>
     </div>
 </template>
 
 <script lang="ts" setup>
 import Left from "./left.vue"
+import Editor from "./editor.vue"
+
+const data = reactive({
+    key: "1111",
+    title: "22",
+    desc: "",
+    from: "1111",
+    fromText: "111",
+    files: [{
+        title: "aa.ts",
+        desc: "",
+        content: ""
+    }],
+})
 </script>

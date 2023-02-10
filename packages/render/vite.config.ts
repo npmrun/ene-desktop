@@ -15,6 +15,7 @@ import OptimizationPersist from "vite-plugin-optimize-persist"
 import PkgConfig from "vite-plugin-package-config"
 import ViteRestart from 'vite-plugin-restart'
 import WindiCSS from "vite-plugin-windicss"
+import monacoEditorPlugin from 'vite-plugin-monaco-editor';
 
 import PrincessResolver from "princess-ui/PrincessResolver"
 // @ts-ignore
@@ -60,6 +61,11 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
                   'vite.config.[jt]s',
                   'windi.config.[jt]s',
                 ]
+            }),
+            monacoEditorPlugin({
+                customDistPath(){
+                    return "."
+                }
             }),
             PkgConfig(),
             OptimizationPersist(),
