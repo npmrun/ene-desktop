@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { PopupMenu } from "@/bridge/PopupMenu";
 import CodeEditor from "@/components/CodeEditor/code-editor.vue"
-import { CollectStore, ISnip, ISnipCode } from "@/store/module/collect";
+import { ISnip, ISnipCode } from "@/store/module/collect";
 import { judgeFile } from "@common/util/file";
 import { cloneDeep } from "lodash";
 import { v4 } from "uuid";
@@ -12,20 +12,13 @@ const props = defineProps<{
 }>()
 
 const emit = defineEmits<{
-    (ev: "save", data: ISnip, ok: () => void): void
+    (ev: "save", data: ISnip): void
 }>()
 
 let curData = ref<ISnip>(cloneDeep(props.data))
-const collectStore = CollectStore()
-watch(() => props.data, async (value, oldValue) => {
-    if (!isSame.value) {
-        const answer = await _agent.call("dialog.confrim", { title: "是否保存", message: "取消之后无法找回" })
-        if (answer) {
-            collectStore.modifySnip(cloneDeep(toRaw(curData.value)), oldValue.files)
-        }
-    }
+
+watch(()=>props.data, ()=>{
     curData.value = cloneDeep(props.data)
-    curFileIndex.value = curData.value.files.length ? 0 : -1
 })
 
 const curEditFileTitleIndex = ref()
@@ -33,7 +26,7 @@ const curFileIndex = ref(curData.value.files.length ? 0 : -1)
 const curFile = ref<ISnipCode>()
 
 const isSame = ref(true)
-watch(() => curData.value, () => {
+watch(() => [curData.value, props.data], () => {
     isSame.value = JSON.stringify(toRaw(props.data)) === JSON.stringify(toRaw(curData.value))
 }, { deep: true })
 
@@ -118,24 +111,12 @@ function handleContextFile(file: ISnipCode, index: number) {
     menus.show()
 }
 
-const { Ctrl_S } = useMagicKeys()
-
-watch(Ctrl_S, (v) => {
-  if (v) handleSubmit()
-})
-
-function handleSubmit() {
-    if (!curData.value.title) {
+function handleSave() {
+    if(!curData.value.title){
         toast.error("请输入标题")
         return
     }
-    if (isSame.value) {
-        toast.error("一样不需要保存")
-        return
-    }
-    emit("save", cloneDeep(toRaw(curData.value)), () => {
-        isSame.value = true
-    })
+    emit("save", cloneDeep(toRaw(curData.value)))
 }
 </script>
 <template>
@@ -150,16 +131,16 @@ function handleSubmit() {
         <div class="flex-1 h-0 flex flex-col" v-if="!!curData.files.length">
             <div class="border-b flex items-center overflow-auto noscrollbar h-25px">
                 <template v-for="(file, index) in curData.files">
-                    <form v-is="curEditFileTitleIndex !== index ? 'div' : 'form'" @click="handleClickFile(file, index)"
-                        class="px-8px cursor-pointer py-4px h-25px leading-16px flex bg-gray-200 items-center border-r flex-shrink-0 w-180px group"
-                        @submit.prevent="curEditFileTitleIndex = undefined" :class="curFileIndex === index ? 'active': ''">
+                    <form v-is="curEditFileTitleIndex !== index ? 'div' : 'form'"
+                        class="px-8px py-4px h-25px leading-16px flex items-center border-r flex-shrink-0 w-180px group"
+                        @submit.prevent="curEditFileTitleIndex = undefined">
                         <template v-if="curEditFileTitleIndex === index">
                             <input v-focus="file" v-model="file.title" @blur.prevent="curEditFileTitleIndex = undefined"
                                 class="w-1/1 outline-0 border" type="text" placeholder="输入标题">
                         </template>
                         <template v-else>
-                            <div class="w-1/1 h-1/1" @dblclick="curEditFileTitleIndex = index"
-                                @contextmenu="handleContextFile(file, index)">
+                            <div @click="handleClickFile(file, index)" class="w-1/1 h-1/1"
+                                @dblclick="curEditFileTitleIndex = index" @contextmenu="handleContextFile(file, index)">
                                 {{ file.title }}
                             </div>
                         </template>
@@ -172,7 +153,7 @@ function handleSubmit() {
                 <div class="px-12px py-6px border-b">
                     <input v-model="curFile!.desc" class="input" placeholder="输入内部描述" />
                 </div>
-                <CodeEditor :key="curFile.key" v-model="curFile!.content" :name="curFile!.title"></CodeEditor>
+                <CodeEditor v-model="curFile!.content" :name="curFile!.title"></CodeEditor>
             </div>
         </div>
         <div class="flex-1 h-0 flex flex-col" v-else>
@@ -180,14 +161,7 @@ function handleSubmit() {
         </div>
         <div class="border-t flex items-center justify-end px-12px py-6px">
             <div class="flex-1 w-0">{{ curFileType }}</div>
-            <button type="submit" :class="isSame ? '' : 'is-danger'" class="button float-right"
-                @click="handleSubmit">保存</button>
+            <button :class="isSame?'':'is-danger'" class="button float-right" @click="handleSave">保存</button>
         </div>
     </form>
 </template>
-
-<style lang="less" scoped>
-.active{
-    background-color: #fff;
-}
-</style>

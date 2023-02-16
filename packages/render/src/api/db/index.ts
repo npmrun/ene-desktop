@@ -17,6 +17,22 @@ export interface CollectFolder {
     isCollect?: boolean
 }
 
+export interface CollectSnip {
+    key: string
+    title: string
+    desc?: string
+    from: INiuTreeKey
+    fromText: string
+}
+
+export interface CollectSnipCode {
+    key: string
+    from: string
+    title: string
+    desc?: string
+    content: string
+}
+
 export interface CollectUrls {
     key: string
     fromId: INiuTreeKey
@@ -30,13 +46,17 @@ export interface CollectUrls {
 
 export class MySubClassedDexie extends Dexie {
     collect_folder!: Table<CollectFolder>
+    collect_snip!: Table<CollectSnip>
+    collect_snipcode!: Table<CollectSnipCode>
     collect_urls!: Table<CollectUrls>
     collect_data!: Table<CollectData>
 
     constructor() {
         super("ene-desktop")
-        this.version(1.2).stores({
+        this.version(1.3).stores({
             collect_folder: "key, parentKey, title, sort, isExpand, isDel, isCollect",
+            collect_snip: "key, title, desc, from, fromText",
+            collect_snipcode: "key, from, title, desc, content",
             collect_urls: "key, fromId, fromTitle, title, urls, desc, isDel, isCollect",
             collect_data: "key, value, desc",
         })

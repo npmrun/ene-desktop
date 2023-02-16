@@ -2,7 +2,7 @@ import { IndexableType, PromiseExtended } from "dexie"
 import { INiuTreeKey } from "princess-ui"
 import { v4 } from "uuid"
 import { treeMap } from "@common/util/treeHelper"
-import { CollectFolder, db } from "../db"
+import { CollectFolder, CollectSnip, CollectSnipCode, db } from "../db"
 import { searchDataByKey } from "./data"
 
 export function addCollect(one: CollectFolder): PromiseExtended<IndexableType> {
@@ -37,8 +37,29 @@ export async function removeColletTree(key: string | INiuTreeKey) {
         })
     }
     readTree(array)
-    await db.transaction('rw', db.collect_folder, async () => {
+    await db.transaction('rw', db.collect_folder, db.collect_snip, db.collect_snipcode, async () => {
+        // 删除tree
         await db.collect_folder.bulkDelete(result as string[])
+        // 删除snip
+        let allSnipKey: string[] = []
+        for (let i = 0; i < result.length; i++) {
+            const key = result[i];
+            let r = (await db.collect_snip.where("from").equals(key).toArray()) as CollectSnip[]
+            allSnipKey = allSnipKey.concat(r.map(v=>v.key))
+        }
+        console.log(allSnipKey);
+        
+        if(allSnipKey.length){
+            await db.collect_snip.bulkDelete(allSnipKey)
+            // 删除code
+            let allCodeKey: string[] = []
+            for (let i = 0; i < allSnipKey.length; i++) {
+                const key = allSnipKey[i];
+                let r = (await db.collect_snipcode.where("from").equals(key).toArray()) as CollectSnipCode[]
+                r && (allCodeKey = allCodeKey.concat(r.map(v=>v.key)))
+            }
+            allCodeKey.length && await db.collect_snipcode.bulkDelete(allCodeKey)
+        }
     }).then(() => {
         console.log("Delete Transaction committed");
     })

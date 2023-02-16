@@ -21,6 +21,7 @@ export function initPrase() {
             ] = module
         }
     })
+    console.log(funcs);
 }
 
 export function parseCommand(command: string): Function | undefined {

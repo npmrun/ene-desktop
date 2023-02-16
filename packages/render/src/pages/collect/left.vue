@@ -4,9 +4,9 @@
             <input class="flex-1 w-0 mr-6px input" type="text" placeholder="输入搜索">
             <button type="submit" class="button is-info">搜索</button>
         </form>
-        <div class="px-12px py-8px border-b flex justify-between items-center group">
+        <div class="px-12px py-8px border-b flex justify-between items-center">
             <div>树文件夹</div>
-            <button type="submit" class="button is-small is-info opacity-0 group-hover:opacity-100"
+            <button type="submit" class="button is-small is-info"
                 @click="handleNewFolder">新建</button>
         </div>
         <div class="flex-1 h-0" @contextmenu="handleGlobalContextmenu">
@@ -156,6 +156,7 @@ function handleContextmenu(data: INiuTreeData) {
         label: "删除",
         async click() {
             // 删除数据库中的数据
+            // TODO 需删除对应的snip,code
             const array = await removeColletTree(data.key)
             // 更新视图中的数据
             filetreeRef.value?.delArray(array)
@@ -241,7 +242,6 @@ async function handleRename(data: INiuTreeData, done: (status?: boolean) => void
 
 onBeforeMount(async () => {
     await collectStore.initCollestTree()
-    console.log(toRaw(unref(treeList)));
     const data = await searchDataByKey("tree_state")
     if (data && data.value) {
         const _data = JSON.parse(data.value)
@@ -255,6 +255,7 @@ onBeforeMount(async () => {
             });
         }
     }
+    collectStore.afterTree()
     watch(() => collectStore.treeState, () => {
         saveTreeState()
     }, { deep: true })
