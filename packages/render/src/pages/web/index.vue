@@ -224,7 +224,7 @@ meta:
                 <div class="font-bold h-28px leading-14px p-6px ell">
                     {{ item.title }}
                 </div>
-                <div v-if="!!item.desc" class="h-24px text-gray-400 leading-12px border-t p-6px flex-1 h-0 ell">
+                <div class="px-8px py-6px h-42px overflow-hidden text-gray-400 border-t p-6px">
                     {{ item.desc }}
                 </div>
             </div>
@@ -243,8 +243,8 @@ meta:
                 <div class="text-size-16px p-12px min-h-80px">
                     <input v-model="dialogState.data.title" spellcheck="false" type="text" class="input is-medium block"
                         placeholder="请输入标题">
-                    <input v-model="dialogState.data.desc" spellcheck="false" type="text" class="input is-medium block"
-                        placeholder="请输入描述">
+                    <textarea v-model="dialogState.data.desc" spellcheck="false" type="text" class="textarea is-medium block"
+                        placeholder="请输入描述"/>
                     <input v-model="dialogState.data.url" spellcheck="false" type="text" class="input is-medium block"
                         placeholder="请输入网址">
                 </div>

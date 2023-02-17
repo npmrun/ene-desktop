@@ -63,9 +63,10 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
                 ]
             }),
             monacoEditorPlugin({
+                publicPath: "monacoeditorwork",
                 customDistPath(){
-                    return "."
-                }
+                    return path.resolve(__dirname, "../../dist/electron/monacoeditorwork")
+                },
             }),
             PkgConfig(),
             OptimizationPersist(),

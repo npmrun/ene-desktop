@@ -14,6 +14,7 @@ export interface ISnip {
     desc?: string
     from: INiuTreeKey
     fromText: string
+    activeCodeIndex: number
     files: ISnipCode[]
 }
 
@@ -76,7 +77,6 @@ export const CollectStore = defineStore("collect", {
                 assign(cur, snip)
                 cur.files = files
             }
-            console.log(cur);
         },
         setActiveSnip(key: string){
             this.dataState.openKey = key
@@ -97,6 +97,7 @@ export const CollectStore = defineStore("collect", {
                     desc: "",
                     from: openTree.key,
                     fromText: openTree.title,
+                    activeCodeIndex: -1,
                 }
                 await addSnip(node)
                 this.dataState.openKey = node.key

@@ -28,7 +28,7 @@ const { activeData } = storeToRefs(collectStore)
 async function handleSave(snip: ISnip, ok?:()=>void) {
     try {
         await collectStore.modifySnip(snip, collectStore.activeData!.files)
-        toast.success("保存成功")
+        // toast.success("保存成功")
         ok?.()
     } catch (error) {
         toast.success("保存失败")

@@ -23,6 +23,7 @@ export interface CollectSnip {
     desc?: string
     from: INiuTreeKey
     fromText: string
+    activeCodeIndex: number
 }
 
 export interface CollectSnipCode {
@@ -31,6 +32,7 @@ export interface CollectSnipCode {
     title: string
     desc?: string
     content: string
+    order: number
 }
 
 export interface CollectUrls {
@@ -53,10 +55,10 @@ export class MySubClassedDexie extends Dexie {
 
     constructor() {
         super("ene-desktop")
-        this.version(1.3).stores({
+        this.version(1.5).stores({
             collect_folder: "key, parentKey, title, sort, isExpand, isDel, isCollect",
-            collect_snip: "key, title, desc, from, fromText",
-            collect_snipcode: "key, from, title, desc, content",
+            collect_snip: "key, title, desc, from, fromText, activeCodeIndex",
+            collect_snipcode: "key, from, title, desc, content, order",
             collect_urls: "key, fromId, fromTitle, title, urls, desc, isDel, isCollect",
             collect_data: "key, value, desc",
         })

@@ -47,8 +47,6 @@ export async function removeColletTree(key: string | INiuTreeKey) {
             let r = (await db.collect_snip.where("from").equals(key).toArray()) as CollectSnip[]
             allSnipKey = allSnipKey.concat(r.map(v=>v.key))
         }
-        console.log(allSnipKey);
-        
         if(allSnipKey.length){
             await db.collect_snip.bulkDelete(allSnipKey)
             // 删除code
@@ -60,8 +58,6 @@ export async function removeColletTree(key: string | INiuTreeKey) {
             }
             allCodeKey.length && await db.collect_snipcode.bulkDelete(allCodeKey)
         }
-    }).then(() => {
-        console.log("Delete Transaction committed");
     })
     return result
 }

@@ -1,16 +1,17 @@
 <template>
     <div class="flex flex-col h-1/1">
-        <form class="h-45px flex items-center border-b px-12px">
+        <!-- <form class="h-45px flex items-center border-b px-12px">
             <input class="flex-1 w-0 mr-6px input" type="text" placeholder="输入搜索">
             <button type="submit" class="button is-info">搜索</button>
-        </form>
+        </form> -->
         <div class="px-12px py-8px border-b flex justify-between items-center">
             <div>树文件夹</div>
             <button type="submit" class="button is-small is-info"
                 @click="handleNewFolder">新建</button>
         </div>
         <div class="flex-1 h-0" @contextmenu="handleGlobalContextmenu">
-            <FileTree :dropFn="handleDropFn" ref="filetreeRef" :list="treeList"
+            <FileTree @itemDragover="onDragover" @itemDragleave="onDragleave"
+                @itemDrop="onDrop" :dropFn="handleDropFn" ref="filetreeRef" :list="treeList"
                 v-model:activeKeys="collectStore.treeState.activeKeys" v-model:openKey="collectStore.treeState.openKey"
                 v-model:focusKey="collectStore.treeState.focusKey" v-model:isFocus="collectStore.treeState.isFocus"
                 @clickNode="handleClickNode" @contextmenu="handleContextmenu" @rename="handleRename"
@@ -25,7 +26,7 @@ import { addCollect, removeColletTree, updateCollect } from "@/api/collect";
 import { addData, searchDataByKey, updateData } from "@/api/collect/data";
 import { PopupMenu } from "@/bridge/PopupMenu";
 import FileTree from "@/page-ui/FileTree/filetree.vue";
-import { CollectStore } from '@/store/module/collect';
+import { CollectStore, ISnip } from '@/store/module/collect';
 import { storeToRefs } from 'pinia';
 import { convert, ENiuTreeStatus, INiuTreeData, INiuTreeKey } from "princess-ui";
 import { v4 } from "uuid";
@@ -38,6 +39,31 @@ import { findPath, treeMap } from "@common/util/treeHelper";
 
 const collectStore = CollectStore()
 const filetreeRef = ref<InstanceType<typeof FileTree>>()
+
+function onDragover(ev: DragEvent, active: (status: boolean) => void, data: INiuTreeData) {
+    active(true)
+}
+
+function onDragleave(ev: DragEvent, active: (status: boolean) => void, data: INiuTreeData) {
+    active(false)
+}
+
+async function onDrop(ev: DragEvent, active: (status: boolean) => void, data: INiuTreeData) {
+    console.log("onDrop")
+    let _data = ev.dataTransfer?.getData("data")
+    if(_data) {
+        let aa = JSON.parse(_data) as ISnip
+        aa.from = data.key
+        aa.fromText = data.title
+        await collectStore.modifySnip(aa, aa.files)
+        if (collectStore.treeState.openKey) {
+            collectStore.getSnips(collectStore.treeState.openKey)
+        } else {
+            collectStore.getSnips()
+        }
+    }
+    active(false)
+}
 
 function handleNewFolder() {
     treeList.value.push(
