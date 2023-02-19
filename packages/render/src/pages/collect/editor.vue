@@ -168,7 +168,7 @@ async function copyText() {
             <input v-model="curData.title" class="flex-1 w-0 mr-6px input" type="text" placeholder="输入标题">
             <button class="button is-info" @click="handleAddFile">新建片段</button>
         </div>
-        <div class="px-12px py-6px text-size-12px text-gray-400">代码修改后直接保存，保存失败请注意备份</div>
+        <div class="px-12px py-6px text-size-12px text-gray-400">代码修改后直接保存，若保存失败请注意备份</div>
         <div class="px-12px pb-6px border-b">
             <textarea v-model="curData.desc" class="textarea has-fixed-size" placeholder="输入描述"></textarea>
         </div>

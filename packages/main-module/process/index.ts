@@ -81,6 +81,8 @@ class ProcessManager {
                 })
             }))
         })()
+        console.log(logs);
+        
         return logs.join('\n')
     }
 

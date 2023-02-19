@@ -1,7 +1,7 @@
 <script lang="ts" setup>
-import { PopupMenu } from '@/bridge/PopupMenu';
-import URL from "url-parse"
 import { toast } from 'vue3-toastify';
+import parse from 'url-parse';
+import { PopupMenu } from '@/bridge/PopupMenu';
 
 const props = withDefaults(defineProps<{
     collect?: boolean,
@@ -9,219 +9,244 @@ const props = withDefaults(defineProps<{
     url?: string
 }>(), {
     collect: false,
-    url: ''
+    url: '我的首页'
 })
 
-const emits = defineEmits<{
-    (ev: "new-window", path: string): void,
-    (ev: "dom-ready", curUrl: string): void,
-    (ev: "first-dom-ready"): void,
-    (ev: "collect", url: string, websiteInfo: any): void,
-    (ev: "cancel-collect", url: string, websiteInfo: any): void,
-}>()
+const matchCustomUrl = {
+    "我的首页": "https://blog.xieyaxin.top/"//_agent.getStaticHtml("home")
+}
+
+const matchInternalUrl = {
+    "403": _agent.getStaticHtml("403"),
+    "404": _agent.getStaticHtml("404")
+}
+
+function getURL(url: string) {
+    if (matchCustomUrl[url as "我的首页"]) {
+        url = matchCustomUrl[url as "我的首页"]
+    }
+    return url
+}
+
+// 这个内部加载会有问题，点击刷新的时候刷新的不是顶部的网址而是这个内部链接了。因此内部链接可能弃用，暂时放这里
+function internalLoad(page: keyof typeof matchInternalUrl) {
+    let realUrl = matchInternalUrl[page]
+    state.curUrl = realUrl
+    state.curWebviewUrl = realUrl
+    webviewRef.value?.loadURL(realUrl)
+}
 
 const webviewRef = ref<WebviewTag>()
-const state = reactive({
+const state = reactive<{
+    tempUrl: string,
+    curUrl: string,
+    curWebviewUrl: string,
+    canGoBack: boolean,
+    canGoForward: boolean,
+    isLoading: boolean,
+    isLoadingWebsiteInfo: boolean,
+    devtoolsIsOpen: boolean,
+    webContentsId: number,
+    websiteInfo?: any,
+}>({
     tempUrl: props.url,
-    curUrl: props.url
+    curUrl: getURL(props.url),
+    curWebviewUrl: getURL(props.url),
+    canGoBack: false,
+    canGoForward: false,
+    isLoading: false,
+    isLoadingWebsiteInfo: false,
+    devtoolsIsOpen: false,
+    webContentsId: -1,
+    websiteInfo: undefined,
 })
 
-watch(()=>props.url, ()=>{
-    state.tempUrl = state.curUrl = props.url
-})
-
-function toPage(page: string) {
+function toPage(url: string) {
+    let page = getURL(url)
     if (webviewRef.value?.isLoading()) {
         webviewRef.value?.stop()
     }
-    webviewRef.value?.loadURL(page)
+    if (parse(state.curUrl).toString() !== parse(page).toString()) {
+        state.curUrl = page
+    }else if (parse(page).toString() !== parse(state.curWebviewUrl).toString()) {
+        webviewRef.value?.loadURL(page)
+    }
 }
-
-let websiteInfo = ref()
-let webContentsId = ref(-1)
-let isFirst = ref(true)
-let isLoading = ref(false)
-let isLoadingWebsiteInfo = ref(false)
-let canGoBack = ref(false)
-let canGoForward = ref(false)
-let devtoolsIsOpen = ref(false)
-watchEffect(async () => {
-    if (webContentsId.value !== -1) {
-        await _agent.call("preventWebview", webContentsId.value)
-    }
-})
-
-defineExpose({
-    toPage(page: string){
-        if(page === state.curUrl) return
-        state.tempUrl = state.curUrl = page
-        toPage(page)
-    }
-})
 
 onMounted(() => {
-    if (!webviewRef.value) return
     const we = webviewRef.value
-    we.addEventListener("dom-ready", async function () {
-        if(isFirst.value){
-            isFirst.value = false
-            emits("first-dom-ready")
-            if(state.curUrl){
-                toPage(state.curUrl)
-            }else if(props.home) {
-                toPage(props.home)
+    if (we) {
+        // let isFirstLoad = true
+        we.addEventListener("dom-ready", (ev) => {
+            console.log(`耗时:${ev.timeStamp}ms`);
+            let curWebContentsId = we.getWebContentsId()
+            if (curWebContentsId !== state.webContentsId) {
+                state.webContentsId = curWebContentsId
+                _agent.call("preventWebview", state.webContentsId)
+            }
+        })
+        function updateInfo() {
+            if(we){
+                state.canGoBack = we.canGoBack()
+                state.canGoForward = we.canGoForward()
+                let url = decodeURIComponent(we.getURL())
+                state.curWebviewUrl = decodeURIComponent(we.getURL())
+                let have = false
+                // 路径相同时只展示对应的文字路径，主要看跳转以及前进返回的顶部路径是否正确，这是比较妥协的办法。
+                for (const key in matchCustomUrl) {
+                    if (Object.prototype.hasOwnProperty.call(matchCustomUrl, key)) {
+                        const element = matchCustomUrl[key as keyof typeof matchCustomUrl];
+                        if(element === url){
+                            state.tempUrl = key
+                            have = true
+                        }
+                    }
+                }
+                if(!have){
+                    state.tempUrl = url
+                }
             }
         }
-        webContentsId.value = we.getWebContentsId()
-        canGoBack.value = we.canGoBack()
-        canGoForward.value = we.canGoForward()
-        state.tempUrl = state.curUrl = we.getURL()
-        emits("dom-ready", state.curUrl)
-    })
-    we.addEventListener('ipc-message', function (event) {
-        if (event.channel === "start-load-info") {
-            isLoadingWebsiteInfo.value = true
-        }
-        if (event.channel === "stop-load-info") {
-            websiteInfo.value = event.args[0]
-            isLoadingWebsiteInfo.value = false
-        }
-    })
-    we.addEventListener('new-window', function (e) {
-        // emits('new-window', e.url)
-        console.log(e);
-    })
-    we.addEventListener('will-navigate', function (e) {
-        console.log(e);
+        we.addEventListener("did-navigate", (ev) => {
+            updateInfo()
+        })
+        we.addEventListener('did-fail-load', function (e) {
+            console.error(e);
+            console.error(e?.errorDescription);
+            // TODO 此处执行js代码不知有没有风险，只用于展示错误
+            if(e.errorCode === -300){
+                we.executeJavaScript(`document.open();document.write(\`${_agent.getStaticHtmlSource("404")}\`);document.close();`)
+            }
+            if(e.errorCode === -105){
+                we.executeJavaScript(`document.open();document.write(\`${_agent.getStaticHtmlSource("403")}\`);document.close();`)
+                // internalLoad("404")
+            }
+            // if(e.errorCode === -337){
+            //     internalLoad("403")
+            // }
+            updateInfo()
+        })
+        we.addEventListener('ipc-message', function (event) {
+            if (event.channel === "start-load-info") {
+                state.isLoadingWebsiteInfo = true
+            }
+            if (event.channel === "stop-load-info") {
+                state.websiteInfo = event.args[0]
+                state.isLoadingWebsiteInfo = false
+            }
+        })
+        we.addEventListener('did-start-loading', function (e) {
+            state.isLoading = true
+        })
+        we.addEventListener('did-stop-loading', function (e) {
+            state.isLoading = false
+        })
+        we.addEventListener('context-menu', function (e: any) {
+            console.log(e);
+            console.log('右键菜单');
+            const contextMenu = []
+            if (e.params.linkURL) {
+                contextMenu.push({
+                    label: "前往",
+                    click() {
+                        toPage(e.params.linkURL)
+                    }
+                })
+            }
+            if (e.params.srcURL && e.params.mediaType === "image") {
+                contextMenu.push({
+                    label: "图片另存为",
+                    async click() {
+                        const url = e.params.srcURL
+                        console.log(url);
+                        we.downloadURL(url)
+                    }
+                })
+            }
 
-    })
-    // we.addEventListener('console-message', function (e) {
-    //     console.log(`%c[Guest page logged a message]:\n`, 'color: green;', e.message)
-    // })
-    we.addEventListener('did-start-loading', function (e) {
-        isLoading.value = true
-        // console.log('加载开始');
-    })
-    we.addEventListener('did-stop-loading', function (e) {
-        isLoading.value = false
-        // console.log('加载结束');
-    })
-    we.addEventListener('context-menu', function (e: any) {
-        // console.log(e);
-        // console.log('右键菜单');
-        const contextMenu = []
-        if (e.params.linkURL) {
-            contextMenu.push({
-                label: "前往",
-                click() {
-                    toPage(e.params.linkURL)
-                }
-            })
-        }
-        if (e.params.srcURL && e.params.mediaType === "image") {
-            contextMenu.push({
-                label: "图片另存为",
-                async click() {
-                    const url = e.params.srcURL
-                    console.log(url);
-                    we.downloadURL(url)
-                }
-            })
-        }
-
-        if (contextMenu.length) {
-            new PopupMenu(contextMenu).show()
-        }
-    })
-    we.addEventListener('did-finish-load', function (e) {
-        console.log('加载完成');
-    })
-    we.addEventListener('did-fail-load', function (e) {
-        console.error(e);
-        console.error(e?.errorDescription);
-    })
-    we.addEventListener('devtools-opened', (e) => {
-        devtoolsIsOpen.value = true
-    })
-    we.addEventListener('devtools-closed', (e) => {
-        devtoolsIsOpen.value = false
-    })
+            if (contextMenu.length) {
+                new PopupMenu(contextMenu).show()
+            }
+        })
+        we.addEventListener('devtools-opened', (e) => {
+            state.devtoolsIsOpen = true
+        })
+        we.addEventListener('devtools-closed', (e) => {
+            state.devtoolsIsOpen = false
+        })
+    }
 })
 
-function stopLoad() {
-    if (!webviewRef.value) return
-    const we = webviewRef.value
-    we.stop()
-}
-function handleSubmit(e: Event) {
-    e.preventDefault()
-    if (state.tempUrl && state.curUrl !== state.tempUrl && state.tempUrl.startsWith('http')) {
-        state.curUrl = state.tempUrl
-        toPage(state.curUrl)
+function clickHome() {
+    if (props.home) {
+        toPage(state.tempUrl = props.home)
     }
 }
-function handleInputFocus() {
-    // console.log(state.curUrl, state.tempUrl);
 
-    // state.curUrl = state.tempUrl
+function clickBack() {
+    if (!webviewRef.value) return
+    if (!state.canGoBack) return
+    webviewRef.value.goBack()
 }
+
+function clickForward() {
+    if (!webviewRef.value) return
+    if (!state.canGoForward) return
+    webviewRef.value.goForward()
+}
+
+function clickRefresh() {
+    if (!webviewRef.value) return
+    
+    let url = webviewRef.value.getURL()
+    let isInternalUrl = Object.values(matchInternalUrl).includes(url)
+    if(isInternalUrl){
+        webviewRef.value.goBack()
+    }else{
+        webviewRef.value.reload()
+    }
+}
+
+function clickStopLoad() {
+    if (!webviewRef.value) return
+    webviewRef.value.stop()
+}
+
+function handleSubmit(e: Event) {
+    e.preventDefault()
+    if (state.tempUrl) {
+        toPage(state.tempUrl)
+    }
+}
+
 function handleInputBlur() {
 
 }
-function refresh() {
-    if (!webviewRef.value) return
-    const we = webviewRef.value
-    we.reload()
-}
-function forward() {
-    if (!canGoForward.value) return
-    if (!webviewRef.value) return
-    const we = webviewRef.value
-    we.goForward()
-}
-function back() {
-    if (!canGoBack.value) return
-    if (!webviewRef.value) return
-    const we = webviewRef.value
-    we.goBack()
-}
-function clickHome() {
-    if (!state.curUrl) return
-    if (props.home) {
-        toPage(props.home)
-    }
-    // else{
-    //     const url = new URL(state.curUrl)
-    //     we.loadURL(url.origin)
-    // }
+
+function handleInputFocus() {
+
 }
 
 function handleCollect() {
-    if (props.collect) {
-        emits("cancel-collect", state.curUrl, websiteInfo.value)
-    } else {
-        emits("collect", state.curUrl, websiteInfo.value)
-    }
+
 }
 
-function toggleDevTools() {
-    if (webContentsId.value === -1) return
-    _agent.call("toggleDevTools", webContentsId.value)
-}
-
-function clear() {
+function clickOpenBrowser() {
     if (!webviewRef.value) return
-    const we = webviewRef.value
-    we.clearHistory()
+    _agent.call('func.openExternal', state.curWebviewUrl)
+}
+
+function clickToggleDevTools() {
+    if (state.webContentsId === -1) return
+    _agent.call("toggleDevTools", state.webContentsId)
+}
+
+function clickClear() {
+    if (!webviewRef.value) return
+    webviewRef.value.clearHistory()
     toast.success('历史记录已清除')
-    canGoBack.value = we.canGoBack()
-    canGoForward.value = we.canGoForward()
-}
-
-function openBrowser() {
-    if (!webviewRef.value) return
-    const we = webviewRef.value
-    _agent.call('func.openExternal', state.curUrl)
+    state.canGoBack = false
+    state.canGoForward = false
 }
 
 const webviewPreloadPath = _agent.webviewPreloadPath
@@ -235,32 +260,33 @@ const webviewPreloadPath = _agent.webviewPreloadPath
                 @click="clickHome" title="主页">
                 <SvgIcon name="browser-home"></SvgIcon>
             </div>
-            <div class="w-30px h-30px p-8px box-border flex items-center justify-center rounded-lg" @click="back"
-                title="后退" :class="[canGoBack ? 'hover:bg-light-700 cursor-pointer' : 'opacity-60']">
+            <div class="w-30px h-30px p-8px box-border flex items-center justify-center rounded-lg" @click="clickBack"
+                title="后退" :class="[state.canGoBack ? 'hover:bg-light-700 cursor-pointer' : 'opacity-60']">
                 <SvgIcon name="browser-back"></SvgIcon>
             </div>
-            <div v-if="canGoForward" class="w-30px h-30px p-8px box-border flex items-center justify-center rounded-lg"
-                :class="[canGoForward ? 'hover:bg-light-700 cursor-pointer' : 'opacity-60']" @click="forward"
+            <div v-if="state.canGoForward"
+                class="w-30px h-30px p-8px box-border flex items-center justify-center rounded-lg"
+                :class="[state.canGoForward ? 'hover:bg-light-700 cursor-pointer' : 'opacity-60']" @click="clickForward"
                 title="前进">
                 <SvgIcon name="browser-forward"></SvgIcon>
             </div>
-            <div v-if="!isLoading"
+            <div v-if="!state.isLoading"
                 class="w-30px h-30px p-8px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer"
-                @click="refresh" title="刷新">
+                @click="clickRefresh" title="刷新">
                 <SvgIcon name="browser-refresh"></SvgIcon>
             </div>
             <div v-else
                 class="w-30px h-30px p-5px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer"
-                @click="stopLoad" title="结束刷新">
+                @click="clickStopLoad" title="结束刷新">
                 <SvgIcon name="close"></SvgIcon>
             </div>
             <form @submit="handleSubmit"
                 class="border box-border w-1/1 ml-6px mr-6px px-6px h-28px rounded-md flex items-center p-3px">
-                <div v-if="!isLoadingWebsiteInfo && websiteInfo?.favicon"
+                <div v-if="!state.isLoadingWebsiteInfo && state.websiteInfo?.favicon"
                     class="w-22px h-22px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer">
-                    <img :src="websiteInfo.favicon">
+                    <img :src="state.websiteInfo.favicon">
                 </div>
-                <div v-if="isLoadingWebsiteInfo"
+                <div v-if="state.isLoadingWebsiteInfo"
                     class="w-22px h-22px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer">
                     <SvgIcon class="loading" name="browser-loading"></SvgIcon>
                 </div>
@@ -272,27 +298,29 @@ const webviewPreloadPath = _agent.webviewPreloadPath
                 </div>
             </form>
             <div class="w-30px h-30px p-5px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer"
-                @click="clear" title="清除历史">
+                @click="clickClear" title="清除历史">
                 <SvgIcon name="browser-clear"></SvgIcon>
             </div>
-            <div class="w-30px h-30px p-5px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer" @click="openBrowser" title="外部浏览器打开">
+            <div class="w-30px h-30px p-5px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer"
+                @click="clickOpenBrowser" title="外部浏览器打开">
                 <SvgIcon name="browser-browser"></SvgIcon>
             </div>
             <div class="w-30px h-30px p-5px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer"
-                :class="[devtoolsIsOpen ? 'bg-red-100' : '']" @click="toggleDevTools" title="开发者工具">
+                :class="[state.devtoolsIsOpen ? 'bg-red-100' : '']" @click="clickToggleDevTools" title="开发者工具">
                 <SvgIcon name="browser-develop"></SvgIcon>
             </div>
         </div>
-        <webview allowpopups ref="webviewRef" class="flex-1 h-0" :preload="webviewPreloadPath" src="about:blank">
+        <webview allowpopups ref="webviewRef" class="flex-1 h-0" :preload="webviewPreloadPath" :src="state.curUrl">
         </webview>
     </div>
 </template>
 
 <style lang="less" scoped>
-.loading{
-    animation:rotate 3s infinite linear;
+.loading {
+    animation: rotate 3s infinite linear;
 }
-@keyframes rotate{
+
+@keyframes rotate {
     100% {
         transform: rotate(360deg);
     }

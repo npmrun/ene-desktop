@@ -1,5 +1,5 @@
 import { getCollectTree } from "@/api/collect"
-import { addSnip, getSnipCodes, getSnips, removeSnip, updateOneSnip, updateSnip } from "@/api/collect/snip"
+import { addSnip, getSnipCodes, getSnips, removeSnip, removeSnips, updateOneSnip, updateSnip } from "@/api/collect/snip"
 import { CollectFolder } from "@/api/db"
 import { findNode } from "@common/util/treeHelper"
 import { assign } from "lodash"
@@ -110,11 +110,13 @@ export const CollectStore = defineStore("collect", {
             }
         },
         async removeOneSnip(key: string, index?: number){
-            // TODO 需删除对应的code
             await removeSnip(key)
             if(index != undefined){
                 this.dataList.splice(index, 1)
             }
+        },
+        async removeOneSnips(keys: string[]){
+            await removeSnips(keys)
         },
         async getSnips(key?: INiuTreeKey){
             const list = await getSnips(key)
@@ -128,6 +130,19 @@ export const CollectStore = defineStore("collect", {
                 })
             }
             this.dataList = snips
+        },
+        async getSnipsArray(key?: INiuTreeKey){
+            const list = await getSnips(key)
+            let snips = []
+            for (let i = 0; i < list.length; i++) {
+                const node = list[i];
+                let codes = await getSnipCodes(node.key)
+                snips.push({
+                    ...node,
+                    files: codes
+                })
+            }
+            return snips
         },
         async initCollestTree() {
             const data = await getCollectTree() ?? []

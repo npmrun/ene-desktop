@@ -62,8 +62,10 @@ function getIcons() {
 ipcRenderer.sendToHost("start-load-info")
 window.addEventListener('load', () => {
     const favicons = getIcons()
-    ipcRenderer.sendToHost("stop-load-info", {
+    const decodeInfo = {
         title: document.title,
         favicon: favicons[0]
-    })
+    }
+    console.log("解析信息：", decodeInfo)
+    ipcRenderer.sendToHost("stop-load-info", decodeInfo)
 })

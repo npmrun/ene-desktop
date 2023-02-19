@@ -20,6 +20,17 @@ export async function removeSnip(key: string) {
     })
 }
 
+export async function removeSnips(keys: string[]) {
+    return await db.transaction('rw', db.collect_snip, db.collect_snipcode, async () => {
+        db.collect_snip.bulkDelete(keys)
+        // 删除code
+        let allCodeKey: string[] = []
+        let r = (await db.collect_snipcode.where("from").anyOf(keys).toArray()) as CollectSnipCode[]
+        allCodeKey = allCodeKey.concat(r.map(v=>v.key))
+        allCodeKey.length && await db.collect_snipcode.bulkDelete(allCodeKey)
+    })
+}
+
 export async function getSnips(key?: any) {
     if (key) {
         const array = (await db.collect_snip.where("from").equals(key).toArray()) as CollectSnip[] ?? []

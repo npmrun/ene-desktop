@@ -1,8 +1,15 @@
 <template>
-    <browser ref="browserRef" :home="home" class="h-1/1"></browser>
+    <browser ref="browserRef" :url="home" :home="home" class="h-1/1"></browser>
 </template>
 
 <script lang="ts" setup>
 import browser from "./browser.vue"
-const home = _agent.getStaticHtml("home")
+const home = "我的首页"
+// const home = "https://blog.xieyaxin.top"
 </script>
+
+<route lang="yaml">
+name: browser
+meta:
+    cache: true
+</route>

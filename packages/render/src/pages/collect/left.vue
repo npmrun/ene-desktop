@@ -1,21 +1,20 @@
 <template>
     <div class="flex flex-col h-1/1">
         <!-- <form class="h-45px flex items-center border-b px-12px">
-            <input class="flex-1 w-0 mr-6px input" type="text" placeholder="输入搜索">
-            <button type="submit" class="button is-info">搜索</button>
-        </form> -->
-        <div class="px-12px py-8px border-b flex justify-between items-center">
-            <div>树文件夹</div>
-            <button type="submit" class="button is-small is-info"
-                @click="handleNewFolder">新建</button>
+                <input class="flex-1 w-0 mr-6px input" type="text" placeholder="输入搜索">
+                <button type="submit" class="button is-info">搜索</button>
+            </form> -->
+        <div class="px-12px py-8px border-b flex items-center">
+            <div class="flex-1 w-0">树文件夹</div>
+            <slot></slot>
+            <button class="button is-small is-info" @click="handleNewFolder">新建</button>
         </div>
         <div class="flex-1 h-0" @contextmenu="handleGlobalContextmenu">
-            <FileTree @itemDragover="onDragover" @itemDragleave="onDragleave"
-                @itemDrop="onDrop" :dropFn="handleDropFn" ref="filetreeRef" :list="treeList"
-                v-model:activeKeys="collectStore.treeState.activeKeys" v-model:openKey="collectStore.treeState.openKey"
-                v-model:focusKey="collectStore.treeState.focusKey" v-model:isFocus="collectStore.treeState.isFocus"
-                @clickNode="handleClickNode" @contextmenu="handleContextmenu" @rename="handleRename"
-                @createOne="handleCreateOne" @expand="handleExpand">
+            <FileTree @itemDragover="onDragover" @itemDragleave="onDragleave" @itemDrop="onDrop" :dropFn="handleDropFn"
+                ref="filetreeRef" :list="treeList" v-model:activeKeys="collectStore.treeState.activeKeys"
+                v-model:openKey="collectStore.treeState.openKey" v-model:focusKey="collectStore.treeState.focusKey"
+                v-model:isFocus="collectStore.treeState.isFocus" @clickNode="handleClickNode"
+                @contextmenu="handleContextmenu" @rename="handleRename" @createOne="handleCreateOne" @expand="handleExpand">
             </FileTree>
         </div>
     </div>
@@ -51,7 +50,7 @@ function onDragleave(ev: DragEvent, active: (status: boolean) => void, data: INi
 async function onDrop(ev: DragEvent, active: (status: boolean) => void, data: INiuTreeData) {
     console.log("onDrop")
     let _data = ev.dataTransfer?.getData("data")
-    if(_data) {
+    if (_data) {
         let aa = JSON.parse(_data) as ISnip
         aa.from = data.key
         aa.fromText = data.title
@@ -160,33 +159,52 @@ function handleContextmenu(data: INiuTreeData) {
             data.isEdit = true
         },
     })
-    if (data.isFolder) {
-        menuList.push({
-            label: "新建文件夹",
-            click() {
-                data.isFolder && (data.isExpand = true)
-                data.children?.push(
-                    convert({
-                        key: v4(),
-                        title: "",
-                        order: 0,
-                        isNew: true,
-                        isEdit: true,
-                        children: [],
-                    }),
-                )
-            },
-        })
-    }
+    menuList.push({
+        label: "新建文件夹",
+        click() {
+            data.isFolder && (data.isExpand = true)
+            data.children?.push(
+                convert({
+                    key: v4(),
+                    title: "",
+                    order: 0,
+                    isNew: true,
+                    isEdit: true,
+                    children: [],
+                }),
+            )
+        },
+    })
+    menuList.push({
+        label: "清空",
+        async click() {
+            const list = await collectStore.getSnipsArray(data.key)
+            if (!list.length) {
+                toast("无东西清空")
+                return
+            }
+            const answer = await _agent.call("dialog.confrim", { title: "是否清空该文档", message: "是否清空该文档" })
+            if (answer) {
+                const keys = list.map(v => v.key)
+                await collectStore.removeOneSnips(keys)
+                if (data.key === collectStore.treeState.openKey) {
+                    collectStore.dataList = []
+                }
+                toast.success("清除成功")
+            }
+        },
+    })
     menuList.push({
         label: "删除",
         async click() {
-            // 删除数据库中的数据
-            // TODO 需删除对应的snip,code
-            const array = await removeColletTree(data.key)
-            // 更新视图中的数据
-            filetreeRef.value?.delArray(array)
-            saveTreeStruct()
+            const answer = await _agent.call("dialog.confrim", { title: "是否删除", message: "是否删除" })
+            if (answer) {
+                // 删除数据库中的数据
+                const array = await removeColletTree(data.key)
+                // 更新视图中的数据
+                filetreeRef.value?.delArray(array)
+                saveTreeStruct()
+            }
         },
     })
     const menu = new PopupMenu(menuList)

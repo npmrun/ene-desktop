@@ -29,6 +29,10 @@ const _agent = {
         let html = url.pathToFileURL(normalize(path.join(extraPath, `./${type}.html`))).toString()
         return html
     },
+    getStaticHtmlSource(type: any){
+        let html = normalize(path.join(extraPath, `./${type}.html`))
+        return file.readFileSync(html)
+    },
     webviewPreloadPath: webviewPreloadPath,
     preloadPath: preloadPath,
     iframePath: iframePath,
