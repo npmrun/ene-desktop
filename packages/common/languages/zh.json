@@ -1,6 +1,10 @@
 {
     "title": "chchchchch",
     "setting": {
+        "tabs": {
+            "common": "通用",
+            "update": "更新"
+        },
         "language": {
             "title": "语言",
             "desc": "切换语言显示",
@@ -9,7 +13,14 @@
                 "en": "英文"
             }
         },
-        "storagePath": {}
+        "storagePath": {
+            "title": "数据保存路径",
+            "desc": "本地数据保存地址",
+            "buttons": {
+                "select": "选择目录",
+                "open": "打开目录"
+            }
+        }
     },
     "app-menu":{
         "about": "关于"

@@ -22,7 +22,7 @@
                 </select>
             </div>
         </SettingItem>
-        <SettingItem title="数据保存路径" desc="本地数据保存地址" :red-border="!configStore.isSameOne('storagePath')">
+        <SettingItem :title="$t('setting.storagePath.title')" :desc="$t('setting.storagePath.desc')" :red-border="!configStore.isSameOne('storagePath')">
             <div class="whitespace-nowrap flex">
                 <div class="!min-w-320px !max-w-550px hover:flex-1 hover:w-0" style="transition: flex .5s linear;">
                     <input spellcheck="false" :value="configStore.storagePath" :title="configStore.storagePath"
@@ -30,8 +30,8 @@
                         class="input is-medium block" disabled type="text" placeholder="Text input">
                 </div>
                 <button class="button is-info is-medium ml-8px"
-                    @click="chooseDir(configStore.storagePath)">选择目录</button>
-                <button class="button is-info is-medium ml-8px" @click="openDir(configStore.storagePath)">打开目录</button>
+                    @click="chooseDir(configStore.storagePath)">{{ $t('setting.storagePath.buttons.select') }}</button>
+                <button class="button is-info is-medium ml-8px" @click="openDir(configStore.storagePath)">{{ $t('setting.storagePath.buttons.open') }}</button>
             </div>
         </SettingItem>
         <!-- <SettingItem title="数据备份频次" desc="采用Cron表达式，主要用于备份本地数据，若文件未修改则不会备份"

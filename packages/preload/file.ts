@@ -5,6 +5,10 @@ export async function readFile(path: string): Promise<any> {
     const data = await fs.readFile(path, "utf8")
     return data
 }
+export function readFileSync(path: string): string {
+    const data = fs.readFileSync(path, "utf8")
+    return data
+}
 export async function readDir(path: string): Promise<any> {
     const files = await fs.readdir(path, { encoding: "utf8" })
     return files

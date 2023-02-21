@@ -19,8 +19,8 @@
                 </router-view>
             </div>
         </div>
-        <div class="app-footer h-35px leading-35px border-t px-12px box-content text-size-12px flex" v-html="MsgHtml">
-        </div>
+        <!-- <div class="app-footer h-35px leading-35px border-t px-12px box-content text-size-12px flex" v-html="MsgHtml">
+        </div> -->
     </div>
 </template>
 
@@ -78,10 +78,11 @@ function getTransitionName(route: RouteLocationNormalizedLoaded) {
 const router = useRouter()
 const activeTab = ref(-1)
 const TopMenu = reactive([
-    { key: 0, title: "个人", url: "/home" },
-    { key: 1, title: "收藏", url: `/collect` },
-    { key: 2, title: "壁纸", url: `/web` },
-    { key: 3, title: "导航", url: "/test" },
+    { key: 0, title: "浏览器", url: "/browser" },
+    { key: 1, title: "工具", url: "/home" },
+    { key: 2, title: "代码", url: `/collect` },
+    // { key: 3, title: "壁纸", url: `/web` },
+    // { key: 4, title: "导航", url: "/test" },
     // { key: 2, title: "电视", url: "/tv" },
     // { key: 3, title: "笔记", url: "/note" },
     // { key: 4, title: "博客", url: "/blog" },

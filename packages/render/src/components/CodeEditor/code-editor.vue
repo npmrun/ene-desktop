@@ -33,8 +33,6 @@ function updateModel(name: string, content: string) {
     if (editor) {
         var oldModel = editor.getModel() //获取旧模型
         let file = judgeFile(name)
-        console.log(file?.language);
-        
         let model: monaco.editor.ITextModel = monaco.editor.createModel(content ?? "", file?.language ?? "txt")
         if (oldModel) {
             oldModel.dispose()

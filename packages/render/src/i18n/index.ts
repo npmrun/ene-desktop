@@ -10,6 +10,7 @@ console.log(messages);
 
 const i18n = createI18n({
     legacy: true,
+    allowComposition: true,
     locale: locale,
     messages: messages,
 })

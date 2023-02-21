@@ -2,7 +2,7 @@
     <div class="h-1/1 flex">
         <Htab class="w-220px border-r pt-60px" v-model="activeTab" :list="TopMenu"></Htab>
         <div class="flex-1 w-0 overflow-auto scrollbar">
-            <button @click="sendTip('assa')">aaaa</button>
+            <!-- <button @click="sendTip('assa')">aaaa</button> -->
             <router-view v-slot="{ Component }">
                 <keep-alive>
                     <component :is="Component" />
@@ -86,14 +86,21 @@ async function save() {
 }
 
 const activeTab = ref(0)
-const TopMenu = reactive([
-    { key: 0, title: "通用", url: "/setting" },
-    { key: 1, title: "更新", url: "/setting/update" },
-])
+const { t } = useI18n()
+
+console.log('i18n', t('setting.tabs.common'))
+
+const TopMenu = computed<any[]>(()=>{
+    return [
+        { key: 0, title: t("setting.tabs.common"), url: "/setting" },
+        { key: 1, title: t("setting.tabs.update"), url: "/setting/update" },
+    ]
+})
+
 const route = useRoute()
 watch(() => route, (route) => {
-    for (let i = 0; i < TopMenu.length; i++) {
-        const element = TopMenu[i];
+    for (let i = 0; i < TopMenu.value.length; i++) {
+        const element = TopMenu.value[i];
         if (route.path.startsWith(element.url)) {
             activeTab.value = element.key
         }
