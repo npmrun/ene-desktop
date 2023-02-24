@@ -64,6 +64,7 @@ window.addEventListener('load', () => {
     const favicons = getIcons()
     const decodeInfo = {
         title: document.title,
+        description: document.querySelector('meta[name="description"]')?.getAttribute("content"),
         favicon: favicons[0]
     }
     console.log("解析信息：", decodeInfo)

@@ -88,6 +88,12 @@ async function handleClear() {
 function handleItemContext(item: ISnip, index: number) {
     const menus = new PopupMenu([
         {
+            label: "查看",
+            click(){
+                collectStore.setActiveSnip(item.key)
+            }
+        },
+        {
             label: "删除",
             async click() {
                 if (item.title == '未命名' && item.desc == '' && item.files.length == 0) {

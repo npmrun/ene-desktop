@@ -13,6 +13,7 @@ const defaultConfig: IConfig = {
     "common.theme": "auto",
     "update.repo": "electron-template",
     "update.owner": "npmrun",
+    "editor.bg": "",
     storagePath: path.join(app.getPath("documents"), setting.app_title),
 }
 

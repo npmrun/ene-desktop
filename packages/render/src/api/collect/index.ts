@@ -2,7 +2,7 @@ import { IndexableType, PromiseExtended } from "dexie"
 import { INiuTreeKey } from "princess-ui"
 import { v4 } from "uuid"
 import { treeMap } from "@common/util/treeHelper"
-import { CollectFolder, CollectSnip, CollectSnipCode, db } from "../db"
+import { CollectData, CollectFolder, CollectSnip, CollectSnipCode, db } from "../db"
 import { searchDataByKey } from "./data"
 
 export function addCollect(one: CollectFolder): PromiseExtended<IndexableType> {
@@ -120,4 +120,24 @@ export async function getCollectTree() {
         })
     }
     return []
+}
+
+export async function getAllData() {
+    let folders: CollectFolder[] = []
+    let snips: CollectSnip[] = []
+    let snipcodes: CollectSnipCode[] = []
+    let data: CollectData[] = []
+    await db.transaction('rw', db.collect_data, db.collect_folder, db.collect_snip, db.collect_snipcode, async () => {
+        // 删除tree
+        data = await db.collect_data.toArray()
+        folders = await db.collect_folder.toArray()
+        snips = await db.collect_snip.toArray()
+        snipcodes = await db.collect_snipcode.toArray()
+    })
+    return {
+        data,
+        folders,
+        snips,
+        snipcodes,
+    }
 }

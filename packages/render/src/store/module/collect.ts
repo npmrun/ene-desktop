@@ -1,4 +1,4 @@
-import { getCollectTree } from "@/api/collect"
+import { getAllData, getCollectTree } from "@/api/collect"
 import { addSnip, getSnipCodes, getSnips, removeSnip, removeSnips, updateOneSnip, updateSnip } from "@/api/collect/snip"
 import { CollectFolder } from "@/api/db"
 import { findNode } from "@common/util/treeHelper"
@@ -68,6 +68,10 @@ export const CollectStore = defineStore("collect", {
         },
     },
     actions: {
+        async exportAllData(){
+            const allData = await getAllData()
+            return allData
+        },
         async modifySnip(snip: any, originFiles: any){
             let files = snip.files
             delete snip.files

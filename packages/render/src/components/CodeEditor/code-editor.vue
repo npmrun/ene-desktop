@@ -21,6 +21,7 @@ const props = withDefaults(
 )
 const emit = defineEmits<{
     (e: "update:modelValue", code: string): void
+    (e: "cursor:position", position: [number, number]): void
 }>()
 defineExpose({
     setContent(content: string) {
@@ -57,6 +58,9 @@ onMounted(() => {
                 emit("update:modelValue", code)
             }
         })
+        editor.onDidChangeCursorPosition((e)=>{
+            emit('cursor:position', [e.position.lineNumber, e.position.column])
+        })
         editorRef.value.addEventListener('resize', resizeLayout)
     }
     watch(
@@ -83,6 +87,8 @@ onBeforeUnmount(() => {
     }
 })
 const style = computed(() => {
+    console.log(props);
+    
     if (props.logo && props.logoType === "bg") {
         return {
             backgroundImage: `url(${props.logo})`,
@@ -93,6 +99,12 @@ const style = computed(() => {
     }
     return {}
 })
+
+const getLogo = computed(()=>{
+    if(props.logo) return props.logo
+    return DefaultLogo
+})
+
 function useResizeObserver(callback: ResizeObserverCallback,) {
     const isSupported = window && 'ResizeObserver' in window
     let observer: ResizeObserver | undefined
@@ -139,7 +151,7 @@ useResizeObserver(() => {
     <div class="monaco-wrapper">
         <div class="monaco-editor" ref="editorRef"></div>
         <div class="monaco-bg" :style="style">
-            <img v-if="logoType === 'logo' && logo" class="monaco-logo" :src="logo" alt="">
+            <img v-if="logoType === 'logo' && getLogo" class="monaco-logo" :src="getLogo" alt="">
         </div>
     </div>
 </template>

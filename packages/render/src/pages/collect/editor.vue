@@ -6,6 +6,7 @@ import { judgeFile } from "@common/util/file";
 import { cloneDeep, throttle } from "lodash";
 import { v4 } from "uuid";
 import { toast } from "vue3-toastify";
+import ConfigStore from "@/store/module/config"
 
 const props = defineProps<{
     data: ISnip
@@ -16,7 +17,7 @@ const emit = defineEmits<{
 }>()
 
 let curData = ref<ISnip>(cloneDeep(props.data))
-const collectStore = CollectStore()
+const configStore = ConfigStore()
 
 watch(() => props.data, async (value, oldValue) => {
     // if (!isSame.value) {
@@ -36,10 +37,9 @@ const isSame = ref(true)
 watch(() => curData.value, () => {
     isSame.value = JSON.stringify(toRaw(props.data)) === JSON.stringify(toRaw(curData.value))
     save()
-    console.log("save success");
 }, { deep: true })
 
-const save = throttle(handleSubmit, 500)
+const save = throttle(handleSubmit, 200)
 
 watchEffect(() => {
     if (curData.value.activeCodeIndex !== -1) {
@@ -118,6 +118,11 @@ function handleContextFile(file: ISnipCode, index: number) {
             click() {
                 curEditFileTitleIndex.value = index
             }
+        },{
+            label: "删除",
+            click() {
+                handleDelFile(file, index)
+            }
         }
     ])
     menus.show()
@@ -151,6 +156,7 @@ function handleSubmit() {
         return
     }
     emit("save", cloneDeep(toRaw(curData.value)), () => {
+        console.log("save success");
         isSame.value = true
     })
 }
@@ -160,6 +166,11 @@ async function copyText() {
         await _agent.call("func.copyText", curFile.value?.content)
         toast.success("复制成功")
     }
+}
+
+const cursotPosidian = ref<number[]>([])
+function getCursorPosition(pos: [number, number]) {
+    cursotPosidian.value = pos
 }
 </script>
 <template>
@@ -199,7 +210,7 @@ async function copyText() {
                     <input v-model="curFile!.desc" class="input flex-1" placeholder="输入内部描述" />
                     <button class="button is-info ml-6px" @click="copyText">复制代码</button>
                 </div>
-                <CodeEditor :key="curFile.key" v-model="curFile!.content" :name="curFile!.title"></CodeEditor>
+                <CodeEditor :logo="configStore['editor.bg']" logo-type="logo" @cursor:position="getCursorPosition" :key="curFile.key" v-model="curFile!.content" :name="curFile!.title"></CodeEditor>
             </div>
         </div>
         <div class="flex-1 h-0 flex flex-col" v-else>
@@ -207,6 +218,10 @@ async function copyText() {
         </div>
         <div class="border-t flex items-center justify-end px-12px py-6px">
             <div class="flex-1 w-0">{{ curFileType }}</div>
+            <div>
+                <span>行{{ cursotPosidian[0] }}</span> ,
+                <span>列{{ cursotPosidian[1] }}</span>
+            </div>
             <!-- <button type="submit" :class="isSame ? '' : 'is-danger'" class="button float-right"
                     @click="handleSubmit">保存</button> -->
         </div>

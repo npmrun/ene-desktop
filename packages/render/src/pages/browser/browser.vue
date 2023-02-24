@@ -2,6 +2,8 @@
 import { toast } from 'vue3-toastify';
 import parse from 'url-parse';
 import { PopupMenu } from '@/bridge/PopupMenu';
+import "nprogress/nprogress.css"
+import NProgress from "nprogress";
 
 const props = withDefaults(defineProps<{
     collect?: boolean,
@@ -12,8 +14,15 @@ const props = withDefaults(defineProps<{
     url: '我的首页'
 })
 
+NProgress.configure({
+    easing: 'ease', 
+    speed: 500,
+    showSpinner: false,
+    parent: "#wrapperWebview"
+})
+
 const matchCustomUrl = {
-    "我的首页": "https://blog.xieyaxin.top/"//_agent.getStaticHtml("home")
+    "我的首页": _agent.getStaticHtml("home")
 }
 
 const matchInternalUrl = {
@@ -136,10 +145,12 @@ onMounted(() => {
             }
         })
         we.addEventListener('did-start-loading', function (e) {
+            NProgress.start()
             state.isLoading = true
         })
         we.addEventListener('did-stop-loading', function (e) {
             state.isLoading = false
+            NProgress.done()
         })
         we.addEventListener('context-menu', function (e: any) {
             console.log(e);
@@ -310,8 +321,10 @@ const webviewPreloadPath = _agent.webviewPreloadPath
                 <SvgIcon name="browser-develop"></SvgIcon>
             </div>
         </div>
-        <webview allowpopups ref="webviewRef" class="flex-1 h-0" :preload="webviewPreloadPath" :src="state.curUrl">
-        </webview>
+        <div id="wrapperWebview" class="flex-1 h-0">
+            <webview allowpopups ref="webviewRef" class="h-1/1" :preload="webviewPreloadPath" :src="state.curUrl">
+            </webview>
+        </div>
     </div>
 </template>
 

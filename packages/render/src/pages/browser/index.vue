@@ -7,9 +7,13 @@ import browser from "./browser.vue"
 const home = "我的首页"
 // const home = "https://blog.xieyaxin.top"
 </script>
-
+<script lang="ts">
+export default defineComponent({
+    name: "browser"
+})
+</script>
 <route lang="yaml">
 name: browser
 meta:
-    cache: true
+    cache: false
 </route>

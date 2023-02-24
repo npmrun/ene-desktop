@@ -2,6 +2,33 @@ import { dialog } from 'electron'
 import { Shared } from "@rush/main-share"
 import { appTrayPath } from '@rush/main-tool'
 import setting from '@rush/share/setting'
+
+/**
+ * 选择本地文件夹地址
+ */
+export function saveDir(title: string, defaultPath: string) {
+    return new Promise((resolve, reject)=>{
+        dialog
+        .showSaveDialog(Shared.data.focusWindow, {
+            title: title,
+            defaultPath: defaultPath,
+            buttonLabel: "保存",
+            properties: ['showHiddenFiles', 'createDirectory', 'showOverwriteConfirmation'],
+        })
+        .then((result) => {
+            if(!result.canceled){
+                let path = result.filePath
+                resolve(path)
+            }else{
+                reject(new Error("取消选择"))
+            }
+        })
+        .catch((err) => {
+            reject(err)
+        })
+    })
+}
+
 /**
  * 选择本地文件夹地址
  */

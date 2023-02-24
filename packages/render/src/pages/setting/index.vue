@@ -34,6 +34,15 @@
                 <button class="button is-info is-medium ml-8px" @click="openDir(configStore.storagePath)">{{ $t('setting.storagePath.buttons.open') }}</button>
             </div>
         </SettingItem>
+        <SettingItem title="编辑器背景" desc="改变编辑器背景" :red-border="!configStore.isSameOne('editor.bg')">
+            <div class="whitespace-nowrap flex">
+                <div class="!min-w-320px !max-w-550px hover:flex-1 hover:w-0" style="transition: flex .5s linear;">
+                    <input spellcheck="false" :value="configStore['editor.bg']" :title="configStore['editor.bg']"
+                        @change="(e: any) => configStore.setConfig('editor.bg', e.target.value)"
+                        class="input is-medium block" type="text" placeholder="请输入图片链接">
+                </div>
+            </div>
+        </SettingItem>
         <!-- <SettingItem title="数据备份频次" desc="采用Cron表达式，主要用于备份本地数据，若文件未修改则不会备份"
             :red-border="!configStore.isSameOne('backup_rule')">
             <input spellcheck="false" :value="configStore['backup_rule']"

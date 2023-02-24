@@ -5,6 +5,11 @@ export async function readFile(path: string): Promise<any> {
     const data = await fs.readFile(path, "utf8")
     return data
 }
+
+export function writeFileSync(path: string, str: string) {
+    fs.writeFileSync(path, str, "utf8")
+}
+
 export function readFileSync(path: string): string {
     const data = fs.readFileSync(path, "utf8")
     return data

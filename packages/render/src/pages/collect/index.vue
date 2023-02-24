@@ -2,10 +2,9 @@
     <div class="h-1/1 relative flex">
         <div class="h-1/1 flex flex-col">
             <div class="border-b border-r px-12px py-8px flex items-center">
-                <div class="mr-6px flex-1 w-0">代码片段工具-对于同步方案没有确认</div>
-                <!-- <button disabled class="button is-small is-info mr-6px">导入</button>
-                    <button disabled class="button is-small is-info mr-6px">导出</button>
-                    <button disabled class="button is-small is-info">备份</button> -->
+                <div class="mr-6px flex-1 w-0">代码片段工具</div>
+                    <!-- <button class="button is-small is-info mr-6px">导入</button> -->
+                    <button class="button is-small is-info mr-6px" @click="clickExport">导出</button>
             </div>
             <div class="relative flex h-0 flex-1">
                 <aside class="w-300px border-r flex flex-col">
@@ -34,6 +33,15 @@ import { toast } from "vue3-toastify";
 const collectStore = CollectStore()
 const isSame = ref(true)
 const { activeData } = storeToRefs(collectStore)
+
+async function clickExport() {
+    const p = await _agent.callLong("dialog.saveDir", "选择导出地址")
+    if(p){
+        const data = await collectStore.exportAllData()
+        _agent.file.writeFileSync(p, JSON.stringify(data))
+        toast("导出成功")
+    }
+}
 
 async function handleSave(snip: ISnip, ok?: () => void) {
     try {
