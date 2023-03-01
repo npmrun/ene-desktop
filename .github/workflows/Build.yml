@@ -97,7 +97,7 @@ jobs:
       - name: Generate release tag
         id: tag
         run: |
-          echo "release_tag=v$(steps.version.outputs.value)" >> $GITHUB_OUTPUT
+          echo "release_tag=\"v${{steps.version.outputs.value}}\"" >> $GITHUB_OUTPUT
         # echo "::set-output name=release_tag::v${{steps.version.outputs.value}}"
       - name: release # https://github.com/softprops/action-gh-release/issues/20
         uses: softprops/action-gh-release@v1
