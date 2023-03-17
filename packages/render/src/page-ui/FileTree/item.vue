@@ -136,7 +136,6 @@
                 outline: 0;
                 border: 1px solid #cdcdcd6b;
                 margin-left: -1px;
-                font-family: "Work Sans", Tahoma,Helvetica,Arial,'宋体',sans-serif;
             }
         }
 
