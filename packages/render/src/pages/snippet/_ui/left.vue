@@ -2,32 +2,35 @@
     <div class="flex flex-col h-1/1">
         <form class="h-45px flex items-center border-b px-12px">
             <input class="flex-1 w-0 mr-6px input" type="text" placeholder="输入搜索" />
-            <button type="submit" class="button is-info">搜索</button>
+            <button type="submit" class="button is-info" @click="loadViewState.loading = !loadViewState.loading">搜索</button>
         </form>
-        <div class="flex-1 h-0" @contextmenu="handleGlobalContextmenu">
-            <FileTree
-                @itemDragover="onDragover"
-                @itemDragleave="onDragleave"
-                @itemDrop="onDrop"
-                :dropFn="handleDropFn"
-                ref="filetreeRef"
-                :list="treeList"
-                v-model:activeKeys="collectStore.treeState.activeKeys"
-                v-model:openKey="collectStore.treeState.openKey"
-                v-model:focusKey="collectStore.treeState.focusKey"
-                v-model:isFocus="collectStore.treeState.isFocus"
-                @clickNode="handleClickNode"
-                @contextmenu="handleContextmenu"
-                @rename="handleRename"
-                @createOne="handleCreateOne"
-                @expand="handleExpand"
-            ></FileTree>
-        </div>
+        <LoadView class="flex-1 h-0" v-bind="loadViewState" errorText="aa">
+            <div class="h-1/1" @contextmenu="handleGlobalContextmenu">
+                <FileTree
+                    @itemDragover="onDragover"
+                    @itemDragleave="onDragleave"
+                    @itemDrop="onDrop"
+                    :dropFn="handleDropFn"
+                    ref="filetreeRef"
+                    :list="treeList"
+                    v-model:activeKeys="collectStore.treeState.activeKeys"
+                    v-model:openKey="collectStore.treeState.openKey"
+                    v-model:focusKey="collectStore.treeState.focusKey"
+                    v-model:isFocus="collectStore.treeState.isFocus"
+                    @clickNode="handleClickNode"
+                    @contextmenu="handleContextmenu"
+                    @rename="handleRename"
+                    @createOne="handleCreateOne"
+                    @expand="handleExpand"
+                ></FileTree>
+            </div>
+        </LoadView>
     </div>
 </template>
 
 <script lang="ts" setup>
-import { addCollect, removeColletTree, updateCollect } from "@/api/collect"
+import LoadView from "@/page-ui/LoadView/LoadView.vue"
+// import { addCollect, removeColletTree, updateCollect } from "@/api/collect"
 import { addData, searchDataByKey, updateData } from "@/api/collect/data"
 import { PopupMenu } from "@/bridge/PopupMenu"
 import FileTree from "@/page-ui/FileTree/filetree.vue"
@@ -42,6 +45,12 @@ import { findPath, treeMap } from "@common/util/treeHelper"
  * 删除时需要删除子项，需要保证原子性
  */
 
+const loadViewState = reactive({
+    loading: false,
+    error: false,
+    empty: false,
+    retry: undefined,
+})
 const collectStore = CollectStore()
 const filetreeRef = ref<InstanceType<typeof FileTree>>()
 
@@ -75,52 +84,6 @@ const { treeList } = storeToRefs(collectStore)
 function handleClickNode(data: INiuTreeData) {
     collectStore.treeState.openKey = data.key
     collectStore.treeState.activeKeys = [data.key]
-}
-
-async function saveTreeState() {
-    try {
-        const isHave = await searchDataByKey("tree_state")
-        if (isHave) {
-            updateData("tree_state", {
-                value: JSON.stringify(toRaw(collectStore.treeState)),
-                desc: "保存树形状态",
-            })
-        } else {
-            addData({
-                key: "tree_state",
-                value: JSON.stringify(toRaw(collectStore.treeState)),
-                desc: "保存树形状态",
-            })
-        }
-    } catch (error) {
-        toast.error("保存树形状态失败！！！")
-        console.error(error)
-    }
-}
-async function saveTreeStruct() {
-    const json = treeMap(treeList.value, {
-        conversion(node: INiuTreeData) {
-            return { key: node.key }
-        },
-    })
-    try {
-        const isHave = await searchDataByKey("tree_order")
-        if (isHave) {
-            updateData("tree_order", {
-                value: JSON.stringify(json),
-                desc: "保存树形结构",
-            })
-        } else {
-            addData({
-                key: "tree_order",
-                value: JSON.stringify(json),
-                desc: "保存树形结构",
-            })
-        }
-    } catch (error) {
-        toast.error("保存树形结构失败！！！")
-        console.error(error)
-    }
 }
 
 function handleGlobalContextmenu() {
@@ -193,10 +156,9 @@ function handleContextmenu(data: INiuTreeData) {
             const answer = await _agent.call("dialog.confrim", { title: "是否删除", message: "是否删除" })
             if (answer) {
                 // 删除数据库中的数据
-                const array = await removeColletTree(data.key)
+                // const array = await removeColletTree(data.key)
                 // 更新视图中的数据
-                filetreeRef.value?.delArray(array)
-                saveTreeStruct()
+                // filetreeRef.value?.delArray(array)
             }
         },
     })
@@ -209,18 +171,12 @@ async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData
         // await updateCollect(data.key, {
         //     parentKey: targetData?.parentKey
         // })
-        setTimeout(() => {
-            saveTreeStruct()
-        }, 0)
         return true
     }
     if (type === ENiuTreeStatus.DragIn && targetData.key) {
-        await updateCollect(data.key, {
-            parentKey: targetData.key,
-        })
-        setTimeout(() => {
-            saveTreeStruct()
-        }, 0)
+        // await updateCollect(data.key, {
+        //     parentKey: targetData.key,
+        // })
         return true
     }
     if (type === ENiuTreeStatus.DragUp) {
@@ -228,9 +184,6 @@ async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData
         //     // @ts-ignore
         //     parentKey: targetData?.parentKey
         // })
-        setTimeout(() => {
-            saveTreeStruct()
-        }, 0)
         return true
     }
     return false
@@ -238,13 +191,12 @@ async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData
 
 async function handleCreateOne(data: INiuTreeData, parent: INiuTreeData, done: (status?: boolean) => void) {
     try {
-        await addCollect({
-            key: data.key,
-            parentKey: parent?.key,
-            title: data.title,
-            isExpand: true,
-        })
-        saveTreeStruct()
+        // await addCollect({
+        //     key: data.key,
+        //     parentKey: parent?.key,
+        //     title: data.title,
+        //     isExpand: true,
+        // })
         done(true)
         collectStore.treeState.openKey = data.key
         collectStore.treeState.activeKeys = [data.key]
@@ -256,9 +208,9 @@ async function handleCreateOne(data: INiuTreeData, parent: INiuTreeData, done: (
 
 async function handleExpand(data: INiuTreeData) {
     try {
-        await updateCollect(data.key, {
-            isExpand: data.isExpand,
-        })
+        // await updateCollect(data.key, {
+        //     isExpand: data.isExpand,
+        // })
     } catch (error) {
         console.error(error)
         data.isExpand = !data.isExpand
@@ -267,9 +219,9 @@ async function handleExpand(data: INiuTreeData) {
 
 async function handleRename(data: INiuTreeData, done: (status?: boolean) => void) {
     try {
-        await updateCollect(data.key, {
-            title: data.title,
-        })
+        // await updateCollect(data.key, {
+        //     title: data.title,
+        // })
         done(true)
     } catch (error) {
         console.error(error)
@@ -293,12 +245,5 @@ onBeforeMount(async () => {
         }
     }
     collectStore.afterTree()
-    watch(
-        () => collectStore.treeState,
-        () => {
-            saveTreeState()
-        },
-        { deep: true },
-    )
 })
 </script>

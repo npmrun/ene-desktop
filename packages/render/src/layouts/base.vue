@@ -41,11 +41,13 @@
 <script lang="ts" setup>
 import { useAppMessage } from '$Event/AppMessage';
 import Menu from '@/page-ui/menu.vue';
+import { useGlobalStore } from '@/store/module/global';
 import pageStore from '@/store/module/page'
 import type { RouteLocationNormalizedLoaded } from 'vue-router'
 
 const route = useRoute()
 const store = pageStore()
+const globalStore = useGlobalStore()
 
 const MsgHtml = ref()
 useAppMessage({
@@ -72,26 +74,16 @@ watch(
 )
 
 function getTransitionName(route: RouteLocationNormalizedLoaded) {
-    return 'fade'
+    if(route.meta.anim === false){
+        return ''
+    }
+    return (route.meta.anim ?? "fade") as string
 }
 
 const router = useRouter()
-const activeTab = ref(-1)
-const TopMenu = reactive([
-    { key: 0, title: "浏览器", url: "/browser" },
-    { key: 1, title: "工具", url: "/home" },
-    { key: 2, title: "代码", url: `/collect` },
-    { key: 3, title: "代码片段", url: `/snippet` },
-    // { key: 3, title: "壁纸", url: `/web` },
-    // { key: 4, title: "导航", url: "/test" },
-    // { key: 2, title: "电视", url: "/tv" },
-    // { key: 3, title: "笔记", url: "/note" },
-    // { key: 4, title: "博客", url: "/blog" },
-])
-const SysMenu = reactive([
-    { key: 5, title: "设置", url: "/setting" },
-]);
-
+const activeTab = ref<string | number>(-1)
+const TopMenu = globalStore.topMenu
+const SysMenu = globalStore.bottomMenu
 watch(() => router.currentRoute.value, (route) => {
     console.log(route.path);
 

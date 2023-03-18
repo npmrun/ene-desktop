@@ -35,6 +35,11 @@
     </div>
 </template>
 
+<route lang="yaml">
+name: setting
+meta:
+    anim: false
+</route>
 
 <script lang="ts" setup>
 import { sendTip } from '@/event/AppMessage';
