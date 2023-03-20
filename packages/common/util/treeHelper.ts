@@ -28,7 +28,27 @@ export function listToTree<T = any>(list: any[], config: Partial<TreeHelperConfi
     }
     for (const node of list) {
         const parent = nodeMap.get(node[pid])
-        ;(parent ? parent.children : result).push(node)
+            ; (parent ? parent.children : result).push(node)
+    }
+    return result
+}
+
+// tree from list
+export function listToTreeCB<T = any>(list: any[], cb: Function, config: Partial<TreeHelperConfig> = {}): T[] {
+    const conf = getConfig(config) as TreeHelperConfig
+    const nodeMap = new Map()
+    const result: T[] = []
+    const { id, children, pid } = conf
+
+    for (const node of list) {
+        node[children] = node[children] || []
+        nodeMap.set(node[id], node)
+    }
+    for (const node of list) {
+        const parent = nodeMap.get(node[pid])
+        let _list = parent ? parent.children : result
+        _list.push(node)
+        _list = cb(_list)
     }
     return result
 }
@@ -53,6 +73,47 @@ export function findNode<T = any>(tree: any, func: Fn, config: Partial<TreeHelpe
         node[children!] && list.push(...node[children!])
     }
     return null
+}
+
+export function findPreNode(tree: any, func: Fn, config: Partial<TreeHelperConfig> = {}) {
+    config = getConfig(config)
+    const { children } = config
+    function listFilter(list: any[]): any {
+        if (list.length == 1 && func(list[0])) return
+        else if (list.length == 1) {
+            return listFilter(list[0][children!])
+        }
+        for (let i = 1; i < list.length; i++) {
+            const node = list[i - 1];
+            const curNode = list[i];
+            if (func(curNode)) {
+                return node
+            }
+            if (curNode[children!]) {
+                let node = listFilter(curNode[children!])
+                if (node) return node
+            }
+        }
+    }
+    console.log(listFilter(tree));
+
+    return listFilter(tree)
+}
+
+export function findNextNode(tree: any, func: Fn, config: Partial<TreeHelperConfig> = {}) {
+    config = getConfig(config)
+    const { children } = config
+    function listFilter(list: any[]): any {
+        for (let i = 0; i < list.length - 1; i++) {
+            const node = list[i + 1];
+            const curNode = list[i];
+            if (func(curNode)) return node
+            if (curNode[children!]) {
+                return listFilter(curNode[children!])
+            }
+        }
+    }
+    return listFilter(tree)
 }
 
 export function findNodeAll<T = any>(tree: any, func: Fn, config: Partial<TreeHelperConfig> = {}): T[] {

@@ -48,6 +48,7 @@
     "vuedraggable": "^4.1.0"
   },
   "devDependencies": {
+    "@iconify/json": "^2.2.37",
     "@types/lodash-es": "^4.17.6",
     "@types/url-parse": "^1.4.8",
     "@types/uuid": "^8.3.4",

@@ -9,23 +9,12 @@
         </form>
         <LoadView class="flex-1 h-0" v-bind="loadViewState" errorText="aa">
             <div class="h-1/1" @contextmenu="handleGlobalContextmenu">
-                <FileTree
-                    @itemDragover="onDragover"
-                    @itemDragleave="onDragleave"
-                    @itemDrop="onDrop"
-                    :dropFn="handleDropFn"
-                    ref="filetreeRef"
-                    :list="treeList"
-                    v-model:activeKeys="SnippetStore.treeState.activeKeys"
-                    v-model:openKey="SnippetStore.treeState.openKey"
-                    v-model:focusKey="SnippetStore.treeState.focusKey"
-                    v-model:isFocus="SnippetStore.treeState.isFocus"
-                    @clickNode="handleClickNode"
-                    @contextmenu="handleContextmenu"
-                    @rename="handleRename"
-                    @createOne="handleCreateOne"
-                    @expand="handleExpand"
-                ></FileTree>
+                <FileTree @itemDragover="onDragover" @itemDragleave="onDragleave" @itemDrop="onDrop" :dropFn="handleDropFn"
+                    ref="filetreeRef" :list="treeList" v-model:activeKeys="SnippetStore.treeState.activeKeys"
+                    v-model:openKey="SnippetStore.treeState.openKey" v-model:focusKey="SnippetStore.treeState.focusKey"
+                    v-model:isFocus="SnippetStore.treeState.isFocus" @clickNode="handleClickNode"
+                    @contextmenu="handleContextmenu" @rename="handleRename" @createOne="handleCreateOne"
+                    @expand="handleExpand"></FileTree>
             </div>
         </LoadView>
     </div>
@@ -43,7 +32,8 @@ import { storeToRefs } from "pinia"
 import { convert, ENiuTreeStatus, INiuTreeData, INiuTreeKey } from "princess-ui"
 import { v4 } from "uuid"
 import { toast } from "vue3-toastify"
-import { findPath } from "@common/util/treeHelper"
+import { findPath, findPreNode } from "@common/util/treeHelper"
+import { addOneSnippetFolder } from "@/api/snippet/data"
 
 /**
  * 删除时需要删除子项，需要保证原子性
@@ -113,6 +103,7 @@ function handleContextmenu(data: INiuTreeData) {
             data.children?.push(
                 convert({
                     key: v4(),
+                    parentKey: data.key,
                     title: "",
                     order: 0,
                     isNew: true,
@@ -124,7 +115,7 @@ function handleContextmenu(data: INiuTreeData) {
     })
     menuList.push({
         label: "清空",
-        async click() {},
+        async click() { },
     })
     menuList.push({
         label: "删除",
@@ -167,6 +158,22 @@ async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData
 
 async function handleCreateOne(data: INiuTreeData, parent: INiuTreeData, done: (status?: boolean) => void) {
     try {
+        const preNode = findPreNode(treeList.value, (node)=>{
+            return node.key === data.key
+        }, { id: "key", pid: "parentKey" })
+        console.log(preNode);
+        
+        let order = 0
+        if(preNode){
+            order = preNode.order + 1
+        }
+        await addOneSnippetFolder({
+            key: data.key,
+            parentKey: parent?.key,
+            title: data.title,
+            order,
+            isExpand: true
+        })
         done(true)
         SnippetStore.treeState.openKey = data.key
         SnippetStore.treeState.activeKeys = [data.key]
@@ -223,7 +230,7 @@ onBeforeMount(async () => {
             const _data = JSON.parse(data.value)
             SnippetStore.treeState = Object.assign(SnippetStore.treeState, _data)
         }
-        await SnippetStore.initCollestTree()
+        await SnippetStore.initSnippetFolder()
         if (treeList.value.length && SnippetStore.treeState.openKey) {
             const array = findPath(treeList.value, (node: INiuTreeData) => {
                 return node.key === SnippetStore.treeState.openKey
@@ -241,11 +248,13 @@ onBeforeMount(async () => {
             },
             { deep: true },
         )
-        if(!!treeList.value.length){
-            loadViewState.empty = false
-        }else{
-            loadViewState.empty = true
-        }
+        watchEffect(() => {
+            if (!!treeList.value.length) {
+                loadViewState.empty = false
+            } else {
+                loadViewState.empty = true
+            }
+        })
         loadViewState.loading = false
         loadViewState.error = false
     } catch (error) {

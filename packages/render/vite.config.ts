@@ -57,8 +57,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
         },
         plugins: [
             Icons({ 
-                compiler: "vue3",
-                autoInstall: true
+                compiler: "vue3"
              }),
             isDev && ViteRestart({
                 reload: [

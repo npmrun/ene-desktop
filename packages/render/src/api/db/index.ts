@@ -56,7 +56,7 @@ export interface SnippetFolder {
     key: INiuTreeKey
     parentKey: INiuTreeKey | void
     title: string
-    sort: number
+    order: number
     isExpand?: boolean
     isDel?: boolean
     isCollect?: boolean
@@ -78,14 +78,14 @@ export class MySubClassedDexie extends Dexie {
 
     constructor() {
         super("ene-desktop")
-        this.version(1.6).stores({
+        this.version(1.7).stores({
             collect_folder: "key, parentKey, title, sort, isExpand, isDel, isCollect",
             collect_snip: "key, title, desc, from, fromText, activeCodeIndex",
             collect_snipcode: "key, from, title, desc, content, order",
             collect_urls: "key, fromId, fromTitle, title, urls, desc, isDel, isCollect",
             collect_data: "key, value, desc",
 
-            snippet_folder: "key, parentKey, title, sort, isExpand, isDel, isCollect, createTime, updateTime",
+            snippet_folder: "key, parentKey, title, order, isExpand, isDel, isCollect, createTime, updateTime",
             snippet_data: "key, value, desc, createTime, updateTime",
         })
     }

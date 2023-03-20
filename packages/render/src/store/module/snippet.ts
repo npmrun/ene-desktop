@@ -1,4 +1,5 @@
 
+import { getSnippetFolder } from "@/api/snippet/data"
 import { defineStore } from "pinia"
 import { convertTreeData, findByKey, INiuTreeData, INiuTreeKey } from "princess-ui"
 
@@ -63,8 +64,8 @@ export const useSnippetStore = defineStore("snippet", {
         },
     },
     actions: {
-        async initCollestTree() {
-            const data: any[] = []
+        async initSnippetFolder() {
+            const data = await getSnippetFolder() ?? []
             this.treeList = convertTreeData(data)
             return this.treeList
         }

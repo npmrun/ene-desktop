@@ -79,10 +79,12 @@ async function save() {
     try {
         await configStore.saveConfig()
         showDialog.value = false
-        setTimeout(() => {
-            router.replace(toWhere.value)
-            toWhere.value = undefined
-        }, 200);
+        if(toWhere.value){
+            setTimeout(() => {
+                router.replace(toWhere.value)
+                toWhere.value = undefined
+            }, 200);
+        }
         toast.success("保存成功")
     } catch (error) {
         toast.error(`${error}`)

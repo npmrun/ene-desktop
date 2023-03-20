@@ -95,10 +95,6 @@ importers:
       '@babel/runtime': ^7.18.9
       '@commitlint/cli': ^13.2.1
       '@commitlint/config-conventional': ^13.2.0
-      '@iconify-json/carbon': ^1.1.16
-      '@iconify-json/eos-icons': ^1.1.6
-      '@iconify-json/ic': ^1.1.13
-      '@iconify-json/mdi': ^1.1.50
       '@rollup/plugin-alias': ^3.1.9
       '@rollup/plugin-commonjs': ^20.0.0
       '@rollup/plugin-node-resolve': ^13.3.0
@@ -174,10 +170,6 @@ importers:
     devDependencies:
       '@commitlint/cli': 13.2.1
       '@commitlint/config-conventional': 13.2.0
-      '@iconify-json/carbon': 1.1.16
-      '@iconify-json/eos-icons': 1.1.6
-      '@iconify-json/ic': 1.1.13
-      '@iconify-json/mdi': 1.1.50
       '@rollup/plugin-alias': 3.1.9_rollup@2.79.1
       '@rollup/plugin-commonjs': 20.0.0_rollup@2.79.1
       '@rollup/plugin-node-resolve': 13.3.0_rollup@2.79.1
@@ -254,6 +246,7 @@ importers:
 
   packages/render:
     specifiers:
+      '@iconify/json': ^2.2.37
       '@intlify/vite-plugin-vue-i18n': ^3.4.0
       '@rush-ui/dialog': 0.0.1-beta.8
       '@rush-ui/mask': ^0.0.1-beta.5
@@ -343,6 +336,7 @@ importers:
       vue3-toastify: 0.0.3_vue@3.2.41
       vuedraggable: 4.1.0_vue@3.2.41
     devDependencies:
+      '@iconify/json': 2.2.37
       '@types/lodash-es': 4.17.6
       '@types/url-parse': 1.4.8
       '@types/uuid': 8.3.4
@@ -1949,28 +1943,11 @@ packages:
     engines: {node: '>=6.9.0'}
     dev: true
 
-  /@iconify-json/carbon/1.1.16:
-    resolution: {integrity: sha512-AD8bcnRSGA0WfcGEass2FbA0sagrUzrpFx5WchuDy3uf7yKBWumdypdQK121DH321fQDl5+zZQ26T6gC9knwUQ==}
+  /@iconify/json/2.2.37:
+    resolution: {integrity: sha512-3PHw+H9hMUYZ+wUij6DmdWxBnBIYOMtsKGRrJUHsKhMloy4kcOu+Yi2XKfD8JvXgJ6ybzoNAXOkKDgEqY0JKQw==}
     dependencies:
       '@iconify/types': 2.0.0
-    dev: true
-
-  /@iconify-json/eos-icons/1.1.6:
-    resolution: {integrity: sha512-A1kUcVbgrdlBBacFcs+srwnfSH9htQvlgbi0u6Jf38lp4PZAK3InXVbVySrJKx//FJtSMdnpZh0b89yjcAIIBg==}
-    dependencies:
-      '@iconify/types': 2.0.0
-    dev: true
-
-  /@iconify-json/ic/1.1.13:
-    resolution: {integrity: sha512-5i5zal/VRwTrs99iMTnG1Zu97bgX9Mkiu9TzR1U1rHBylUnBW+HkOweoQVEPgQITGG024/lNbZxU+3Aa2xuDww==}
-    dependencies:
-      '@iconify/types': 2.0.0
-    dev: true
-
-  /@iconify-json/mdi/1.1.50:
-    resolution: {integrity: sha512-SgbT5w5eHCdOG74ZWPz7HlTGk6VsifIJhNi6lAsxj/5Nlqt6Cz4LlQmSa9eecU9p075Jub2aAx/o7YI+GCahRQ==}
-    dependencies:
-      '@iconify/types': 2.0.0
+      pathe: 1.1.0
     dev: true
 
   /@iconify/types/2.0.0:
@@ -8328,6 +8305,10 @@ packages:
   /pathe/0.3.9:
     resolution: {integrity: sha512-6Y6s0vT112P3jD8dGfuS6r+lpa0qqNrLyHPOwvXMnyNTQaYiwgau2DP3aNDsR13xqtGj7rrPo+jFUATpU6/s+g==}
     dev: false
+
+  /pathe/1.1.0:
+    resolution: {integrity: sha512-ODbEPR0KKHqECXW1GoxdDb+AZvULmXjVPy4rt+pGo2+TnjJTIPJQSVS6N63n8T2Ip+syHhbn52OewKicV0373w==}
+    dev: true
 
   /pause-stream/0.0.11:
     resolution: {integrity: sha1-/lo0sMvOErWqaitAPuLnO2AvFEU=}
