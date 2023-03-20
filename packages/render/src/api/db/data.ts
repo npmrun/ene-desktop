@@ -1,14 +1,5 @@
-import { IndexableType, PromiseExtended } from "dexie";
-import { db, SnippetData, SnippetFolder } from "../db";
 
-function getCurTimestamp() {
-    return String(new Date().getTime())
-}
-
-export function addOneSnippetFolder(one: SnippetFolder): PromiseExtended<IndexableType> {
-    one.createTime = getCurTimestamp()
-    return db.snippet_folder.add(one)
-}
+import { db, SnippetData } from ".";
 
 export function addData(opts: SnippetData) {
     return db.snippet_data.add(opts)

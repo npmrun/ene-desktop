@@ -2,7 +2,10 @@
     <div class="flex flex-col h-1/1">
         <form class="h-45px flex items-center border-b px-12px">
             <input class="flex-1 w-0 mr-6px input" type="text" placeholder="输入搜索" />
-            <button type="submit" class="button is-info" @click="loadViewState.loading = !loadViewState.loading">搜索</button>
+            <button type="submit" class="button is-info" @click="loadViewState.loading = !loadViewState.loading">
+                <SearchIcon class="icon" />
+                <span>搜索</span>
+            </button>
         </form>
         <LoadView class="flex-1 h-0" v-bind="loadViewState" errorText="aa">
             <div class="h-1/1" @contextmenu="handleGlobalContextmenu">
@@ -13,10 +16,10 @@
                     :dropFn="handleDropFn"
                     ref="filetreeRef"
                     :list="treeList"
-                    v-model:activeKeys="collectStore.treeState.activeKeys"
-                    v-model:openKey="collectStore.treeState.openKey"
-                    v-model:focusKey="collectStore.treeState.focusKey"
-                    v-model:isFocus="collectStore.treeState.isFocus"
+                    v-model:activeKeys="SnippetStore.treeState.activeKeys"
+                    v-model:openKey="SnippetStore.treeState.openKey"
+                    v-model:focusKey="SnippetStore.treeState.focusKey"
+                    v-model:isFocus="SnippetStore.treeState.isFocus"
                     @clickNode="handleClickNode"
                     @contextmenu="handleContextmenu"
                     @rename="handleRename"
@@ -29,17 +32,18 @@
 </template>
 
 <script lang="ts" setup>
+import SearchIcon from "~icons/ic/sharp-search"
 import LoadView from "@/page-ui/LoadView/LoadView.vue"
 // import { addCollect, removeColletTree, updateCollect } from "@/api/collect"
-import { addData, searchDataByKey, updateData } from "@/api/collect/data"
+import { addData, searchDataByKey, updateData } from "@/api/db/data"
 import { PopupMenu } from "@/bridge/PopupMenu"
 import FileTree from "@/page-ui/FileTree/filetree.vue"
-import { CollectStore, ISnip } from "@/store/module/collect"
+import { useSnippetStore, ISnip } from "@/store/module/snippet"
 import { storeToRefs } from "pinia"
 import { convert, ENiuTreeStatus, INiuTreeData, INiuTreeKey } from "princess-ui"
 import { v4 } from "uuid"
 import { toast } from "vue3-toastify"
-import { findPath, treeMap } from "@common/util/treeHelper"
+import { findPath } from "@common/util/treeHelper"
 
 /**
  * 删除时需要删除子项，需要保证原子性
@@ -51,7 +55,7 @@ const loadViewState = reactive({
     empty: false,
     retry: undefined,
 })
-const collectStore = CollectStore()
+const SnippetStore = useSnippetStore()
 const filetreeRef = ref<InstanceType<typeof FileTree>>()
 
 function onDragover(ev: DragEvent, active: (status: boolean) => void, data: INiuTreeData) {
@@ -64,26 +68,13 @@ function onDragleave(ev: DragEvent, active: (status: boolean) => void, data: INi
 
 async function onDrop(ev: DragEvent, active: (status: boolean) => void, data: INiuTreeData) {
     console.log("onDrop")
-    let _data = ev.dataTransfer?.getData("data")
-    if (_data) {
-        let aa = JSON.parse(_data) as ISnip
-        aa.from = data.key
-        aa.fromText = data.title
-        await collectStore.modifySnip(aa, aa.files)
-        if (collectStore.treeState.openKey) {
-            collectStore.getSnips(collectStore.treeState.openKey)
-        } else {
-            collectStore.getSnips()
-        }
-    }
     active(false)
 }
 
-const { treeList } = storeToRefs(collectStore)
-
+const { treeList } = storeToRefs(SnippetStore)
+const router = useRouter()
 function handleClickNode(data: INiuTreeData) {
-    collectStore.treeState.openKey = data.key
-    collectStore.treeState.activeKeys = [data.key]
+    router.replace("/snippet/" + data.key)
 }
 
 function handleGlobalContextmenu() {
@@ -133,22 +124,7 @@ function handleContextmenu(data: INiuTreeData) {
     })
     menuList.push({
         label: "清空",
-        async click() {
-            const list = await collectStore.getSnipsArray(data.key)
-            if (!list.length) {
-                toast("无东西清空")
-                return
-            }
-            const answer = await _agent.call("dialog.confrim", { title: "是否清空该文档", message: "是否清空该文档" })
-            if (answer) {
-                const keys = list.map(v => v.key)
-                await collectStore.removeOneSnips(keys)
-                if (data.key === collectStore.treeState.openKey) {
-                    collectStore.dataList = []
-                }
-                toast.success("清除成功")
-            }
-        },
+        async click() {},
     })
     menuList.push({
         label: "删除",
@@ -191,15 +167,9 @@ async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData
 
 async function handleCreateOne(data: INiuTreeData, parent: INiuTreeData, done: (status?: boolean) => void) {
     try {
-        // await addCollect({
-        //     key: data.key,
-        //     parentKey: parent?.key,
-        //     title: data.title,
-        //     isExpand: true,
-        // })
         done(true)
-        collectStore.treeState.openKey = data.key
-        collectStore.treeState.activeKeys = [data.key]
+        SnippetStore.treeState.openKey = data.key
+        SnippetStore.treeState.activeKeys = [data.key]
     } catch (error) {
         console.error(error)
         done(false)
@@ -219,31 +189,68 @@ async function handleExpand(data: INiuTreeData) {
 
 async function handleRename(data: INiuTreeData, done: (status?: boolean) => void) {
     try {
-        // await updateCollect(data.key, {
-        //     title: data.title,
-        // })
         done(true)
     } catch (error) {
         console.error(error)
         done(false)
     }
 }
-
-onBeforeMount(async () => {
-    await collectStore.initCollestTree()
-    const data = await searchDataByKey("tree_state")
-    if (data && data.value) {
-        const _data = JSON.parse(data.value)
-        collectStore.treeState = Object.assign(collectStore.treeState, _data)
-        const array = findPath(treeList.value, (node: INiuTreeData) => {
-            return node.key === collectStore.treeState.openKey
-        })
-        if (array) {
-            array.slice(0, -1).forEach((node: INiuTreeData) => {
-                node.isExpand = true
+async function saveTreeState() {
+    try {
+        const isHave = await searchDataByKey("folder_state")
+        if (isHave) {
+            updateData("folder_state", {
+                value: JSON.stringify(toRaw(SnippetStore.treeState)),
+                desc: "保存树形状态",
+            })
+        } else {
+            addData({
+                key: "folder_state",
+                value: JSON.stringify(toRaw(SnippetStore.treeState)),
+                desc: "保存树形状态",
             })
         }
+    } catch (error) {
+        toast.error("保存树形状态失败！！！")
+        console.error(error)
     }
-    collectStore.afterTree()
+}
+onBeforeMount(async () => {
+    try {
+        loadViewState.loading = true
+        const data = await searchDataByKey("tree_state")
+        if (data && data.value) {
+            const _data = JSON.parse(data.value)
+            SnippetStore.treeState = Object.assign(SnippetStore.treeState, _data)
+        }
+        await SnippetStore.initCollestTree()
+        if (treeList.value.length && SnippetStore.treeState.openKey) {
+            const array = findPath(treeList.value, (node: INiuTreeData) => {
+                return node.key === SnippetStore.treeState.openKey
+            })
+            if (array) {
+                array.slice(0, -1).forEach((node: INiuTreeData) => {
+                    node.isExpand = true
+                })
+            }
+        }
+        watch(
+            () => SnippetStore.treeState.openKey,
+            () => {
+                saveTreeState()
+            },
+            { deep: true },
+        )
+        if(!!treeList.value.length){
+            loadViewState.empty = false
+        }else{
+            loadViewState.empty = true
+        }
+        loadViewState.loading = false
+        loadViewState.error = false
+    } catch (error) {
+        loadViewState.loading = false
+        loadViewState.error = true
+    }
 })
 </script>

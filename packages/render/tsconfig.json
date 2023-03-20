@@ -11,13 +11,14 @@
         "isolatedModules": true,
         "esModuleInterop": true,
         "lib": ["esnext", "dom"],
+        "types": ["unplugin-icons/types/vue"],
         "skipLibCheck": true,
         "baseUrl": ".",
         "paths": {
             "@/*": ["src/*"],
             "@common/*": ["../common/*"],
             "#/*": ["typings/*"],
-            "$Event/*": ["src/event/*"],
+            "$Event/*": ["src/event/*"]
         }
     },
     "include": [

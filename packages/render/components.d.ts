@@ -5,6 +5,7 @@ import '@vue/runtime-core'
 
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
+    Devtool: typeof import('./src/componentsAuto/Devtool/Devtool.vue')['default']
     NiuImage: typeof import('./src/componentsAuto/niu-image/niu-image.vue')['default']
     PsTree: typeof import('princess-ui')['PsTree']
     RouterLink: typeof import('vue-router')['RouterLink']

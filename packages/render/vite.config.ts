@@ -16,6 +16,7 @@ import PkgConfig from "vite-plugin-package-config"
 import ViteRestart from 'vite-plugin-restart'
 import WindiCSS from "vite-plugin-windicss"
 import monacoEditorPlugin from 'vite-plugin-monaco-editor';
+import Icons from 'unplugin-icons/vite'
 
 import PrincessResolver from "princess-ui/PrincessResolver"
 // @ts-ignore
@@ -55,6 +56,10 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
             outDir: path.resolve(__dirname, "../../dist/electron"),
         },
         plugins: [
+            Icons({ 
+                compiler: "vue3",
+                autoInstall: true
+             }),
             isDev && ViteRestart({
                 reload: [
                   "../common/languages/**/*.json",

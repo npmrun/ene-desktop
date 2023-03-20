@@ -22,6 +22,7 @@
         <!-- <div class="app-footer h-35px leading-35px border-t px-12px box-content text-size-12px flex" v-html="MsgHtml">
         </div> -->
     </div>
+    <Devtool v-if="isDev"></Devtool>
 </template>
 
 <style lang="less" scoped>
@@ -48,6 +49,8 @@ import type { RouteLocationNormalizedLoaded } from 'vue-router'
 const route = useRoute()
 const store = pageStore()
 const globalStore = useGlobalStore()
+
+const isDev = import.meta.env.DEV
 
 const MsgHtml = ref()
 useAppMessage({

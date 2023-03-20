@@ -10,17 +10,9 @@
                 </aside>
             </div>
         </div>
-        <aside class="w-300px border-r flex flex-col">
-            <router-view v-slot="{ Component }">
-                <!-- <keep-alive> -->
-                    <component :is="Component" />
-                <!-- </keep-alive> -->
-            </router-view>
-        </aside>
-        <main class="flex-1 w-0">
-            <button @click="$router.push('/snippet/aaa')">asd</button>
-            <!-- <Editor v-model:is-same="isSame" v-if="!!activeData" :data="activeData" @save="handleSave"></Editor> -->
-        </main>
+        <router-view v-slot="{ Component }">
+            <component :is="Component" />
+        </router-view>
     </div>
 </template>
 <route lang="yaml">
@@ -29,20 +21,61 @@ meta:
     cache: true
 </route>
 <script lang="ts" setup>
-import { onBeforeRouteLeave } from "vue-router";
+import { useSnippetStore } from "@/store/module/snippet"
+import { INiuTreeKey } from "princess-ui"
+import { onBeforeRouteLeave } from "vue-router"
 import Left from "./snippet/_ui/left.vue"
+
+const SnippetStore = useSnippetStore()
 
 const lastRoute = ref()
 const router = useRouter()
-onBeforeRouteLeave((to, from, next)=>{
+onBeforeRouteLeave((to, from, next) => {
     lastRoute.value = from.fullPath
     next()
 })
-onActivated(()=>{
-    if(lastRoute.value){
+onActivated(() => {
+    if (lastRoute.value) {
         router.replace(lastRoute.value)
         lastRoute.value = undefined
     }
+})
+
+const route = useRoute()
+watch(
+    () => route.fullPath,
+    () => {
+        if (route.params.folder) {
+            const key = route.params.folder as INiuTreeKey
+            SnippetStore.treeState.openKey = key
+            SnippetStore.treeState.activeKeys = [key]
+        } else {
+            SnippetStore.treeState.openKey = undefined
+            SnippetStore.treeState.activeKeys = []
+        }
+        if (route.params.snippet) {
+            SnippetStore.dataState.openKey = route.params.snippet as string
+        } else {
+            SnippetStore.dataState.openKey = undefined
+        }
+    },
+    { immediate: true },
+)
+let isAppActive = false
+watch(
+    () => SnippetStore.treeState.openKey,
+    () => {
+        if (isAppActive && route.params.folder !== SnippetStore.treeState.openKey) {
+            router.replace("/snippet/" + SnippetStore.treeState.openKey)
+        }
+    },
+    { immediate: true },
+)
+onActivated(() => {
+    isAppActive = true
+})
+onDeactivated(() => {
+    isAppActive = false
 })
 </script>
 <style lang="less" scoped></style>
