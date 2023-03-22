@@ -2,12 +2,12 @@
     <div class="flex flex-col h-1/1">
         <form class="h-45px flex items-center border-b px-12px">
             <input class="flex-1 w-0 mr-6px input" type="text" placeholder="输入搜索" />
-            <button type="submit" class="button is-info" @click="loadViewState.loading = !loadViewState.loading">
+            <button type="submit" class="button is-info">
                 <SearchIcon class="icon" />
                 <span>搜索</span>
             </button>
         </form>
-        <LoadView class="flex-1 h-0" v-bind="loadViewState" errorText="aa">
+        <LoadView class="flex-1 h-0" v-bind="loadViewState">
             <div class="h-1/1" @contextmenu="handleGlobalContextmenu">
                 <FileTree @itemDragover="onDragover" @itemDragleave="onDragleave" @itemDrop="onDrop" :dropFn="handleDropFn"
                     ref="filetreeRef" :list="treeList" v-model:activeKeys="SnippetStore.treeState.activeKeys"
@@ -57,7 +57,6 @@ function onDragleave(ev: DragEvent, active: (status: boolean) => void, data: INi
 }
 
 async function onDrop(ev: DragEvent, active: (status: boolean) => void, data: INiuTreeData) {
-    console.log("onDrop")
     active(false)
 }
 

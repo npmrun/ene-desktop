@@ -17,7 +17,9 @@
         </slot>
         <div v-if="empty && !error && showIcon">
             <slot name="empty">
+                <div style="text-align: center; padding: 8px 0; font-size: 16px; font-weight: bold">
                 {{ emptyText }}
+                </div>
             </slot>
         </div>
         <div class="flex-1 h-0" v-if="isShow">
@@ -25,9 +27,6 @@
         </div>
     </div>
 </template>
-<script lang="ts">
-export function loadData() {}
-</script>
 <script lang="ts" setup>
 import { computed } from "vue"
 import BubbleLoadingIcon from "~icons/eos-icons/bubble-loading"
