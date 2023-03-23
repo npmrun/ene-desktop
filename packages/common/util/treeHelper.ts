@@ -95,8 +95,6 @@ export function findPreNode(tree: any, func: Fn, config: Partial<TreeHelperConfi
             }
         }
     }
-    console.log(listFilter(tree));
-
     return listFilter(tree)
 }
 
@@ -109,11 +107,30 @@ export function findNextNode(tree: any, func: Fn, config: Partial<TreeHelperConf
             const curNode = list[i];
             if (func(curNode)) return node
             if (curNode[children!]) {
-                return listFilter(curNode[children!])
+                let node = listFilter(curNode[children!])
+                if (node) return node
             }
         }
     }
     return listFilter(tree)
+}
+
+export function findNextNodes(tree: any, func: Fn, config: Partial<TreeHelperConfig> = {}) {
+    config = getConfig(config)
+    const { children } = config
+    function listFilter(list: any[]): any {
+        for (let i = 0; i < list.length; i++) {
+            const curNode = list[i];
+            if (func(curNode)) {
+                return list.slice(i)
+            }
+            if (curNode[children!]) {
+                let node = listFilter(curNode[children!])
+                if (node) return node
+            }
+        }
+    }
+    return listFilter(tree) ?? []
 }
 
 export function findNodeAll<T = any>(tree: any, func: Fn, config: Partial<TreeHelperConfig> = {}): T[] {

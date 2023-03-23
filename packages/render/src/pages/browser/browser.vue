@@ -105,7 +105,7 @@ onMounted(() => {
                 for (const key in matchCustomUrl) {
                     if (Object.prototype.hasOwnProperty.call(matchCustomUrl, key)) {
                         const element = matchCustomUrl[key as keyof typeof matchCustomUrl];
-                        if(element === url){
+                        if(encodeURIComponent(element) === encodeURIComponent(url)){
                             state.tempUrl = key
                             have = true
                         }

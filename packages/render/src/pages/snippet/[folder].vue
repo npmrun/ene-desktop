@@ -3,14 +3,16 @@
         <div class="w-300px flex border-r flex-col h-1/1">
             <LoadView class="flex-1 h-0" v-bind="loadViewState">
                 <div
-                    class="bg-light-700 cursor-pointer border-t border-r-width-2px border-r border-r-red-400 last:border-b"
+                    class="bg-light-700 cursor-pointer border-t border-r-width-2px border-r hover:border-r-width-4px transition-all border-r-red-400 last:border-b"
                 >
                     <div class="h-14px box-content leading-14px px-6px py-4px font-bold text-size-1.33em">title</div>
                     <div class="h-28px leading-14px box-content px-6px pb-4px">
                         阿萨大阿萨大阿萨大阿萨大阿萨大阿萨大阿萨大阿萨大阿萨大
                     </div>
                 </div>
-                <div class="cursor-pointer border-r-width-2px border-t border-r border-r-green-400 last:border-b">
+                <div
+                    class="cursor-pointer border-r-width-2px border-t border-r border-r-green-400 hover:border-r-width-4px transition-all last:border-b"
+                >
                     <div class="h-14px box-content leading-14px px-6px py-4px font-bold text-size-1.33em">title</div>
                     <div class="h-28px leading-14px box-content px-6px pb-4px">
                         阿萨大阿萨大阿萨大阿萨大阿萨大阿萨大阿萨大阿萨大阿萨大
@@ -37,6 +39,13 @@ const loadViewState = reactive({
     error: false,
     empty: false,
     retry: undefined,
+})
+
+watchEffect(() => {
+    if (SnippetStore.treeState.openKey) {
+        console.log(222)
+    } else {
+    }
 })
 </script>
 <style lang="less" scoped></style>

@@ -2,7 +2,7 @@
     <div class="flex flex-col h-1/1">
         <form class="h-45px flex items-center border-b px-12px">
             <input class="flex-1 w-0 mr-6px input" type="text" placeholder="输入搜索" />
-            <button type="submit" class="button is-info">
+            <button type="submit" class="button is-info" @click="loadViewState.loading = !loadViewState.loading">
                 <SearchIcon class="icon" />
                 <span>搜索</span>
             </button>
@@ -32,8 +32,8 @@ import { storeToRefs } from "pinia"
 import { convert, ENiuTreeStatus, INiuTreeData, INiuTreeKey } from "princess-ui"
 import { v4 } from "uuid"
 import { toast } from "vue3-toastify"
-import { findNextNodes, findPath, findPreNode } from "@common/util/treeHelper"
-import { addOneSnippetFolder, updateOneSnippetFolder } from "@/api/snippet/data"
+import { findPath, findPreNode } from "@common/util/treeHelper"
+import { addOneSnippetFolder } from "@/api/snippet/data"
 
 /**
  * 删除时需要删除子项，需要保证原子性
@@ -57,6 +57,7 @@ function onDragleave(ev: DragEvent, active: (status: boolean) => void, data: INi
 }
 
 async function onDrop(ev: DragEvent, active: (status: boolean) => void, data: INiuTreeData) {
+    console.log("onDrop")
     active(false)
 }
 
@@ -102,7 +103,9 @@ function handleContextmenu(data: INiuTreeData) {
             data.children?.push(
                 convert({
                     key: v4(),
+                    parentKey: data.key,
                     title: "",
+                    order: 0,
                     isNew: true,
                     isEdit: true,
                     children: [],
@@ -132,24 +135,22 @@ function handleContextmenu(data: INiuTreeData) {
 
 async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData: INiuTreeData) {
     if (type === ENiuTreeStatus.DragDown) {
-        // const list = findNextNodes(treeList.value, (node)=>{
-        //     return node.key === targetData.key
-        // }, { id: "key", pid: "parentKey" }).filter((v: INiuTreeData)=>v.key !== data.key)
-        // await updateOrder(data.key, list.map((v: any)=>v.key), targetData.order ?? 0)
+        // await updateCollect(data.key, {
+        //     parentKey: targetData?.parentKey
+        // })
         return true
     }
     if (type === ENiuTreeStatus.DragIn && targetData.key) {
-        // await updateOneSnippetFolder(data.key, {
+        // await updateCollect(data.key, {
         //     parentKey: targetData.key,
-        //     order: (targetData?.children?.slice(-1)[0]?.order ?? -1) + 1
         // })
         return true
     }
     if (type === ENiuTreeStatus.DragUp) {
-        // const list = findNextNodes(treeList.value, (node)=>{
-        //     return node.key === targetData.key
-        // }, { id: "key", pid: "parentKey" }).filter((v: INiuTreeData)=>v.key !== data.key)
-        // await updateOrder(data.key, list.map((v: any)=>v.key), targetData.order ?? 0, "up")
+        // await updateCollect(data.key, {
+        //     // @ts-ignore
+        //     parentKey: targetData?.parentKey
+        // })
         return true
     }
     return false
@@ -157,14 +158,22 @@ async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData
 
 async function handleCreateOne(data: INiuTreeData, parent: INiuTreeData, done: (status?: boolean) => void) {
     try {
-        // let order = parent?.children?.length ?? 0
-        // await addOneSnippetFolder({
-        //     key: data.key,
-        //     parentKey: parent?.key,
-        //     title: data.title,
-        //     order,
-        //     isExpand: true
-        // })
+        const preNode = findPreNode(treeList.value, (node)=>{
+            return node.key === data.key
+        }, { id: "key", pid: "parentKey" })
+        console.log(preNode);
+        
+        let order = 0
+        if(preNode){
+            order = preNode.order + 1
+        }
+        await addOneSnippetFolder({
+            key: data.key,
+            parentKey: parent?.key,
+            title: data.title,
+            order,
+            isExpand: true
+        })
         done(true)
         SnippetStore.treeState.openKey = data.key
         SnippetStore.treeState.activeKeys = [data.key]
@@ -221,7 +230,7 @@ onBeforeMount(async () => {
             const _data = JSON.parse(data.value)
             SnippetStore.treeState = Object.assign(SnippetStore.treeState, _data)
         }
-        await SnippetStore.getSnippetFolder()
+        await SnippetStore.initSnippetFolder()
         if (treeList.value.length && SnippetStore.treeState.openKey) {
             const array = findPath(treeList.value, (node: INiuTreeData) => {
                 return node.key === SnippetStore.treeState.openKey
@@ -236,8 +245,10 @@ onBeforeMount(async () => {
             () => SnippetStore.treeState.openKey,
             () => {
                 saveTreeState()
+                console.log(22);
+                
             },
-            { deep: true },
+            {  },
         )
         watchEffect(() => {
             if (!!treeList.value.length) {
