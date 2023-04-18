@@ -5,18 +5,15 @@ import Components from "unplugin-vue-components/vite"
 import { NaiveUiResolver } from "unplugin-vue-components/resolvers"
 import AutoImport from "unplugin-auto-import/vite"
 import { createSvgIconsPlugin } from "vite-plugin-svg-icons"
-import vueI18n from "@intlify/vite-plugin-vue-i18n"
+import vueI18n from "@intlify/unplugin-vue-i18n/vite"
 import { createHtmlPlugin } from "vite-plugin-html"
-import { viteMockServe } from "vite-plugin-mock"
 import Pages from "vite-plugin-pages"
 import Layouts from "vite-plugin-vue-layouts"
 import Inspector from "vite-plugin-vue-inspector"
-import OptimizationPersist from "vite-plugin-optimize-persist"
-import PkgConfig from "vite-plugin-package-config"
-import ViteRestart from 'vite-plugin-restart'
+import ViteRestart from "vite-plugin-restart"
 import WindiCSS from "vite-plugin-windicss"
-import monacoEditorPlugin from 'vite-plugin-monaco-editor';
-import Icons from 'unplugin-icons/vite'
+import monacoEditorPlugin from "vite-plugin-monaco-editor"
+import Icons from "unplugin-icons/vite"
 
 import PrincessResolver from "princess-ui/PrincessResolver"
 // @ts-ignore
@@ -30,7 +27,6 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
     const env = <ImportMetaEnv>loadEnv(mode, __dirname)
     let isProd = mode === "production"
     let isDev = mode === "development"
-    let prodMock = false
     return defineConfig({
         root: __dirname,
         base: "./",
@@ -41,7 +37,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
             alias: {
                 "@": path.join(__dirname, "src"),
                 "@common": path.join(__dirname, "../common"),
-                "$Event": path.join(__dirname, "src/event"),
+                $Event: path.join(__dirname, "src/event"),
             },
         },
         css: {
@@ -56,30 +52,25 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
             outDir: path.resolve(__dirname, "../../dist/electron"),
         },
         plugins: [
-            Icons({ 
-                compiler: "vue3"
-             }),
-            isDev && ViteRestart({
-                reload: [
-                  "../common/languages/**/*.json",
-                  'vite.config.[jt]s',
-                  'windi.config.[jt]s',
-                ]
+            Icons({
+                compiler: "vue3",
             }),
+            isDev &&
+                ViteRestart({
+                    reload: ["../common/languages/**/*.json", "vite.config.[jt]s", "windi.config.[jt]s"],
+                }),
             monacoEditorPlugin({
                 publicPath: "monacoeditorwork",
-                customDistPath(){
+                customDistPath() {
                     return path.resolve(__dirname, "../../dist/electron/monacoeditorwork")
                 },
             }),
-            PkgConfig(),
-            OptimizationPersist(),
             vue({
                 template: {
                     compilerOptions: {
-                        isCustomElement: tag => ['webview'].includes(tag)
-                      }
-                }
+                        isCustomElement: tag => ["webview"].includes(tag),
+                    },
+                },
             }),
             vueJsx(),
             // Inspector(),
@@ -99,8 +90,8 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
                 onRoutesGenerated(routes) {
                     routes.push({
                         path: "",
-                        redirect: "/home"
-                    } )
+                        redirect: "/home",
+                    })
                     return routes
                 },
             }),
@@ -136,7 +127,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
                         injectOptions: {
                             data: {
                                 title: setting.app_title,
-                                scheme_file: setting.app_scheme+"-file",
+                                scheme_file: setting.app_scheme + "-file",
                             },
                         },
                     },
@@ -146,7 +137,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
                         injectOptions: {
                             data: {
                                 title: setting.app_title,
-                                scheme_file: setting.app_scheme+"-file",
+                                scheme_file: setting.app_scheme + "-file",
                             },
                         },
                     },
@@ -156,22 +147,12 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
                         injectOptions: {
                             data: {
                                 title: setting.app_title,
-                                scheme_file: setting.app_scheme+"-file",
+                                scheme_file: setting.app_scheme + "-file",
                             },
                         },
                     },
                 ],
             }),
-            viteMockServe({
-                mockPath: "src/mocks/mock",
-                localEnabled: command === "serve",
-                prodEnabled: command !== "serve" && prodMock,
-                injectCode: `
-                  import { setupProdMockServer } from '@/mocks/mockProdServer';
-                  setupProdMockServer();
-                `,
-                logger: true,
-            })
         ],
     })
 }

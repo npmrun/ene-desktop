@@ -1,5 +1,5 @@
 /// <reference types="vue/macros-global" />
-/// <reference types="@intlify/vite-plugin-vue-i18n/client" />
+/// <reference types="@intlify/unplugin-vue-i18n/message" />
 /// <reference types="vite-plugin-pages/client" />
 /// <reference types="vite-plugin-vue-layouts/client" />
 /// <reference types="vite-plugin-svg-icons/client" />
