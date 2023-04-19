@@ -1,27 +1,28 @@
 <template>
-    <div class="flex flex-col h-1/1">
-        <form class="h-45px flex items-center border-b px-12px">
-            <input class="flex-1 w-0 mr-6px input" type="text" placeholder="输入搜索" />
-            <button type="submit" class="button is-info">
-                <SearchIcon class="icon" />
-                <span>搜索</span>
-            </button>
-        </form>
-        <LoadView class="flex-1 h-0" v-bind="loadViewState">
-            <div class="h-1/1" @contextmenu="handleGlobalContextmenu">
-                <FileTree @itemDragover="onDragover" @itemDragleave="onDragleave" @itemDrop="onDrop" :dropFn="handleDropFn"
-                    ref="filetreeRef" :list="treeList" v-model:activeKeys="SnippetStore.treeState.activeKeys"
-                    v-model:openKey="SnippetStore.treeState.openKey" v-model:focusKey="SnippetStore.treeState.focusKey"
-                    v-model:isFocus="SnippetStore.treeState.isFocus" @clickNode="handleClickNode"
-                    @contextmenu="handleContextmenu" @rename="handleRename" @createOne="handleCreateOne"
-                    @expand="handleExpand"></FileTree>
-            </div>
-        </LoadView>
-    </div>
+    <LoadView class="flex-1 h-0" v-bind="loadViewState">
+        <div class="h-1/1" @contextmenu="handleGlobalContextmenu">
+            <FileTree
+                @itemDragover="onDragover"
+                @itemDragleave="onDragleave"
+                @itemDrop="onDrop"
+                :dropFn="handleDropFn"
+                ref="filetreeRef"
+                :list="treeList"
+                v-model:activeKeys="SnippetStore.treeState.activeKeys"
+                v-model:openKey="SnippetStore.treeState.openKey"
+                v-model:focusKey="SnippetStore.treeState.focusKey"
+                v-model:isFocus="SnippetStore.treeState.isFocus"
+                @clickNode="handleClickNode"
+                @contextmenu="handleContextmenu"
+                @rename="handleRename"
+                @createOne="handleCreateOne"
+                @expand="handleExpand"
+            ></FileTree>
+        </div>
+    </LoadView>
 </template>
 
 <script lang="ts" setup>
-import SearchIcon from "~icons/ic/sharp-search"
 import LoadView from "@/page-ui/LoadView/LoadView.vue"
 // import { addCollect, removeColletTree, updateCollect } from "@/api/collect"
 import { addData, searchDataByKey, updateData } from "@/api/db/data"
@@ -112,7 +113,7 @@ function handleContextmenu(data: INiuTreeData) {
     })
     menuList.push({
         label: "清空",
-        async click() { },
+        async click() {},
     })
     menuList.push({
         label: "删除",

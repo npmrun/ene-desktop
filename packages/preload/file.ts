@@ -35,9 +35,13 @@ function _walkDir(dir: string, cb?: (file: string) => void) {
     return _walk()
 }
 
-export function walkDir(fromDir) {
+export function walkDir(fromDir, cb) {
+    if (!fs.pathExistsSync(fromDir)) {
+        console.error("路径不存在:"+fromDir)
+        return
+    }
     _walkDir(fromDir, function (file) {
         let fromRes = path.resolve(fromDir, file)
-        console.log(fromRes);
+        cb?.(fromRes)
     })
 }

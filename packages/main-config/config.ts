@@ -14,6 +14,7 @@ const defaultConfig: IConfig = {
     "update.repo": "electron-template",
     "update.owner": "npmrun",
     "editor.bg": "",
+    "snippet.storagePath": path.join(app.getPath("documents"), setting.app_title, "./SnippetData"),
     storagePath: path.join(app.getPath("documents"), setting.app_title),
 }
 
@@ -112,6 +113,7 @@ class Settings {
             this.#syncVar()
             this.#sync()
         }
+        fs.ensureDirSync(this.#config["snippet.storagePath"])
     }
     config() {
         return this.#config

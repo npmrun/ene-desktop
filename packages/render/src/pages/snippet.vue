@@ -6,7 +6,16 @@
             </div>
             <div class="relative flex h-0 flex-1">
                 <aside class="w-300px border-r flex flex-col">
-                    <Left></Left>
+                    <div class="flex flex-col h-1/1">
+                        <form class="h-45px flex items-center border-b px-12px">
+                            <input class="flex-1 w-0 mr-6px input" type="text" placeholder="输入搜索" />
+                            <button type="submit" class="button is-info">
+                                <SearchIcon class="icon" />
+                                <span>搜索</span>
+                            </button>
+                        </form>
+                        <Left></Left>
+                    </div>
                 </aside>
             </div>
         </div>
@@ -21,12 +30,20 @@ meta:
     cache: true
 </route>
 <script lang="ts" setup>
+import SearchIcon from "~icons/ic/sharp-search"
 import { useSnippetStore } from "@/store/module/snippet"
+import ConfigStore from "@/store/module/config"
 import { INiuTreeKey } from "princess-ui"
 import { onBeforeRouteLeave } from "vue-router"
 import Left from "./snippet/_ui/left.vue"
 
+
+const configStore = ConfigStore()
 const SnippetStore = useSnippetStore()
+
+_agent.file.walkDir(configStore["snippet.storagePath"], (file: string) => {
+    // console.log(file)
+})
 
 const lastRoute = ref()
 const router = useRouter()

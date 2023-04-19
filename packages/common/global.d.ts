@@ -16,6 +16,7 @@ interface IConfig {
     "update.repo"?: string // 更新地址
     "update.owner"?: string // 更新通道
     "editor.bg": string // 更新通道
+    "snippet.storagePath": string // 代码片段保存位置
     backup_rule: string // 备份规则
     storagePath: string // 存储地址
 }
