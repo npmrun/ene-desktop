@@ -320,6 +320,25 @@ const webviewPreloadPath = _agent.webviewPreloadPath
                 :class="[state.devtoolsIsOpen ? 'bg-red-100' : '']" @click="clickToggleDevTools" title="开发者工具">
                 <SvgIcon name="browser-develop"></SvgIcon>
             </div>
+            
+            <div class="dropdown is-right is-hoverable">
+                <div class="dropdown-trigger">
+                    <div class="w-30px h-30px p-5px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer" title="菜单">
+                        <SvgIcon name="browser-menu"></SvgIcon>
+                    </div>
+                </div>
+                <div class="dropdown-menu" id="dropdown-menu6" role="menu">
+                    <div class="dropdown-content">
+                        <a href="#" class="dropdown-item">
+                            收藏
+                        </a>
+                        <hr class="dropdown-divider">
+                        <router-link to="/setting" class="dropdown-item">
+                            设置
+                        </router-link>
+                    </div>
+                </div>
+            </div>
         </div>
         <div id="wrapperWebview" class="flex-1 h-0">
             <webview allowpopups ref="webviewRef" class="h-1/1" :preload="webviewPreloadPath" :src="state.curUrl">
