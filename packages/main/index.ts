@@ -6,6 +6,7 @@ import { showMainWindow } from "@rush/main-module/window/main"
 import { setupTray } from "@rush/main-module/window/tray"
 import { Mitt } from "@rush/main-module/mitt"
 import setting from "@rush/share/setting"
+import { URL } from "url"
 
 Mitt.on("app-message", ({ event, msg, data }) => {
     if(event === "client"){
