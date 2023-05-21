@@ -55,16 +55,16 @@ export function initCommands() {
                 if (isPromise(result)) {
                     result
                         .then((res: any) => {
-                            event.reply(key, null, res)
-                            event.returnValue = res
+                            event.reply(key, null, res ?? null)
+                            event.returnValue = res ?? null
                         })
                         .catch((err: Error) => {
                             event.reply(key, err)
                             event.returnValue = null
                         })
                 } else {
-                    event.reply(key, null, result)
-                    event.returnValue = result
+                    event.reply(key, null, result ?? null)
+                    event.returnValue = result ?? null
                 }
             } else {
                 event.reply(key, new Error("不存在该命令"))

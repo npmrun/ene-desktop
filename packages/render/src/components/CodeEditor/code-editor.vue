@@ -34,7 +34,9 @@ function updateModel(name: string, content: string) {
     if (editor) {
         var oldModel = editor.getModel() //获取旧模型
         let file = judgeFile(name)
-        let model: monaco.editor.ITextModel = monaco.editor.createModel(content ?? "", file?.language ?? "txt")
+        // 这样定义的话model无法清除
+        // monaco.editor.createModel("const a = 111","typescript", monaco.Uri.parse('file://root/file3.ts'))
+        let model: monaco.editor.ITextModel = monaco.editor.createModel(content ?? "", file?.language ?? "txt", monaco.Uri.parse('file://root/file2.ts'))
         if (oldModel) {
             oldModel.dispose()
         }
@@ -58,7 +60,7 @@ onMounted(() => {
                 emit("update:modelValue", code)
             }
         })
-        editor.onDidChangeCursorPosition((e)=>{
+        editor.onDidChangeCursorPosition((e) => {
             emit('cursor:position', [e.position.lineNumber, e.position.column])
         })
         editorRef.value.addEventListener('resize', resizeLayout)
@@ -84,11 +86,12 @@ onBeforeUnmount(() => {
         }
         editor?.dispose()
         editor = null
+        console.log("editor dispose");
     }
 })
 const style = computed(() => {
     console.log(props);
-    
+
     if (props.logo && props.logoType === "bg") {
         return {
             backgroundImage: `url(${props.logo})`,
@@ -100,8 +103,8 @@ const style = computed(() => {
     return {}
 })
 
-const getLogo = computed(()=>{
-    if(props.logo) return props.logo
+const getLogo = computed(() => {
+    if (props.logo) return props.logo
     return DefaultLogo
 })
 

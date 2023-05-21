@@ -34,6 +34,7 @@ import { UnwrapRef } from "vue"
 const props = withDefaults(
     defineProps<{
         list: INiuTreeData[]
+        sort?: boolean
         openKey?: INiuTreeKey
         activeKeys?: INiuTreeKey[]
         focusKey?: INiuTreeKey
@@ -44,6 +45,7 @@ const props = withDefaults(
     }>(),
     {
         justOpen: false,
+        sort: false,
         isFocus: false,
         activeKeys: () => [],
         justOpenOne: false,

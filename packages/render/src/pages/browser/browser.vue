@@ -130,6 +130,10 @@ onMounted(() => {
                 we.executeJavaScript(`document.open();document.write(\`${_agent.getStaticHtmlSource("403")}\`);document.close();`)
                 // internalLoad("404")
             }
+            if(e.errorCode === -21){
+                we.executeJavaScript(`document.open();document.write(\`${_agent.getStaticHtmlSource("403")}\`);document.close();`)
+                // internalLoad("404")
+            }
             // if(e.errorCode === -337){
             //     internalLoad("403")
             // }
@@ -234,8 +238,13 @@ function handleInputBlur() {
 
 }
 
-function handleInputFocus() {
-
+function handleInputFocus(ev: any) {
+    const el = ev.target as HTMLInputElement
+    if(state.tempUrl.startsWith("http://")||state.tempUrl.startsWith("https://")){
+        el.setSelectionRange(state.tempUrl.indexOf("//")+2, state.tempUrl.length)
+    } else {
+        el.setSelectionRange(0, state.tempUrl.length)
+    }
 }
 
 function handleCollect() {

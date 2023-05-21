@@ -50,13 +50,13 @@
                 <div v-if="!data.isEdit">
                     <slot></slot>
                 </div>
-                <form action="#" v-if="data.isEdit" class="flex-1 w-0" @submit="onSubmit($event, data)">
+                <form action="#" v-if="data.isEdit" class="flex-1 w-0" @submit="onSubmit($event, data, 1)">
                     <input
                         id="value"
                         @click.passive.stop
                         @contextmenu.prevent.stop
                         v-focus="data"
-                        @blur="onSubmit($event, data)"
+                        @blur="onSubmit($event, data, 2)"
                         :value="data.title"
                         spellcheck="false"
                     />
@@ -229,6 +229,8 @@ const props = withDefaults(
 function judgeFile(filename: string) {
     if (!filename) return
     let ext = [
+        { language: "json", ext: ".json", index: -1 },
+        { language: "txt", ext: ".txt", index: -1 },
         { language: "vue", ext: ".vue", index: -1 },
         { language: "javascript", ext: ".js", index: -1 },
         { language: "css", ext: ".css", index: -1 },
@@ -281,7 +283,14 @@ const vFocus = {
         el.focus()
     },
 }
-function onSubmit(e: Event, data: INiuTreeData) {
+let tempV: any
+function onSubmit(e: Event, data: INiuTreeData, temp: number) {
+    if(!tempV){
+        tempV = temp
+    }else{
+        tempV = undefined
+        return
+    }
     e.preventDefault()
     if (draggable) {
         draggable.value = true

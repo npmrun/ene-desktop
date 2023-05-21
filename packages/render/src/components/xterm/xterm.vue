@@ -8,6 +8,7 @@
 import "xterm/css/xterm.css"
 import { FitAddon } from "xterm-addon-fit"
 import { CanvasAddon } from "xterm-addon-canvas"
+import { WebLinksAddon } from 'xterm-addon-web-links';
 
 import { Terminal } from "xterm"
 const wrapperEl = ref<HTMLDivElement>()
@@ -45,9 +46,10 @@ async function onContextMenu() {
 
 onMounted(async () => {
     term = new Terminal({
-        fontFamily: `'DroidSansMono Nerd Font','Droid Sans Mono', Consolas, 'Courier New', monospace`,
+        fontFamily: `'NotoMono Nerd Font','Droid Sans Mono', Consolas, 'Courier New', monospace`,
         fontSize: 14,
         theme: {
+            selectionBackground: "grey",
             foreground: "#383a42",
             background: "#fafafa",
             cursor: "#bfceff",
@@ -90,6 +92,17 @@ onMounted(async () => {
     term.onData(data => {
         _agent.send(channels[1], data)
     })
+    let isPressControl = false
+    term.element?.addEventListener("keydown", (ev)=>{
+        if(ev.key === "Control"){
+            isPressControl = true
+        }
+    })
+    term.element?.addEventListener("keyup", (ev)=>{
+        if(ev.key === "Control"){
+            isPressControl = false
+        }
+    })
     term.onResize(size => {
         _agent.send(channels[2], size.cols, size.rows)
     })
@@ -100,6 +113,11 @@ onMounted(async () => {
     term.loadAddon(fitAddon)
     canvas = new CanvasAddon()
     term.loadAddon(canvas)
+    term.loadAddon(new WebLinksAddon((event: MouseEvent, uri: string)=>{
+        if(isPressControl){
+            _agent.call('func.openExternal', uri)
+        }
+    }));
 
     _agent.send(channels[2], term.cols, term.rows)
     fitAddon.fit()
@@ -108,6 +126,7 @@ onMounted(async () => {
     term.writeln("<<<<<<<<<<<>>>>>>>>>>")
     term.writeln("   Kaiium V1.1.0")
     term.writeln("<<<<<<<<<<<>>>>>>>>>>")
+    term.focus()
     // This handles the copy and paste for the pty process
     // term.attachCustomKeyEventHandler((arg) => {
     // if (arg.ctrlKey && arg.code === "KeyV" && arg.type === "keydown") {
@@ -124,6 +143,8 @@ onBeforeUnmount(() => {
         // fitAddon.dispose()
         term.dispose()
         _agent.send("terminal-close-" + pid)
+        console.log("close ", pid);
+        
     }
 })
 </script>

@@ -26,7 +26,7 @@ export function callMethod(command: string, ...args: any[]): Promise<any> {
 
         // 超过5s就取消监听
         timeID = setTimeout(() => {
-            reject(new Error("超过5s未响应"))
+            reject(new Error(`超过5s未响应: ${command}`))
             ipcRenderer.removeListener(key, fn)
         }, 5000)
     })
