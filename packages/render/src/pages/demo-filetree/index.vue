@@ -6,6 +6,7 @@ import { findNode } from "@common/util/treeHelper"
 import { convert, findByKeyParent } from "princess-ui"
 import { INiuTreeData, convertTreeData } from "princess-ui"
 import { v4 } from "uuid"
+import CodeEditor from '@/components/CodeEditor/code-editor.vue';
 
 const configStore = useConfigStore()
 
@@ -44,14 +45,25 @@ function listenFileChange(_:any, ev:any) {
                     return node.base == encodeURIComponent(temp.path.split("/").slice(0, -1).join('/'))
                 })
                 if (pNode) {
+                    let key = v4()
                     pNode.children?.push(
                         convert({
-                            key: v4(),
+                            key: key,
                             // @ts-ignore
                             base: encodeURIComponent(temp.path),
                             title: temp.path.split("/").slice(-1).join('')
                         })
                     )
+                    state.openKey = key
+                }
+                break;
+            case "update":
+                let nodee = findNode(rrr.value, (node) => {
+                    return node.base == encodeURIComponent(temp.path)
+                })
+                if (nodee && nodee.key === state.openKey) {
+                    let p = decodeURIComponent(nodee.base)
+                    content.value = _agent.file.readFileSync(p)
                 }
                 break;
             default:
@@ -95,12 +107,13 @@ function handleContextmenu(data: INiuTreeData) {
             data.isFolder && (data.isExpand = true)
             data.children?.push(
                 convert({
-                    key: v4(),
+                    key: "",
+                    base: (data as any).base,
                     title: "",
                     order: 0,
                     isNew: true,
                     isEdit: true,
-                }),
+                } as any),
             )
         },
     })
@@ -110,13 +123,14 @@ function handleContextmenu(data: INiuTreeData) {
             data.isFolder && (data.isExpand = true)
             data.children?.push(
                 convert({
-                    key: v4(),
+                    key: "",
+                    base: (data as any).base,
                     title: "",
                     order: 0,
                     isNew: true,
                     isEdit: true,
                     children: [],
-                }),
+                } as any),
             )
         },
     })
@@ -124,11 +138,25 @@ function handleContextmenu(data: INiuTreeData) {
     menu.show()
 }
 
+async function handleCreateOne(data: INiuTreeData, parent: INiuTreeData, done: (status?: boolean) => void) {
+    try {
+        // @ts-ignore
+        data.key = encodeURIComponent(data.base+"/"+data.title)
+        // @ts-ignore
+        data.base = data.base+"/"+data.title
+        done(true)
+    } catch (error) {
+        console.error(error);
+        done(false)
+    }
+}
+
+
 async function handleRename(data: INiuTreeData, done: (status?: boolean) => void) {
     // @ts-ignore
-    const pPath = decodeURIComponent(data.base).split("/").slice(0, -1).join('/')
+    const pPath = data.base.split("/").slice(0, -1).join('/')
     // @ts-ignore
-    let oldP = (decodeURIComponent(data.base)).split("/").slice(-1).join('')
+    let oldP = (data.base).split("/").slice(-1).join('')
     try {
         await _agent.file.renameFile(pPath+"/"+oldP, pPath+"/"+data.title)
         done(true)
@@ -137,12 +165,35 @@ async function handleRename(data: INiuTreeData, done: (status?: boolean) => void
         done(false)
     }
 }
+
+let content = ref("")
+watchEffect(()=>{
+    try {
+        if(state.openKey){
+            console.log(state.openKey);
+            let node = findNode(rrr.value, (node)=>{
+                return node.key === state.openKey
+            })
+            if(node){
+                let p = node.base
+                content.value = _agent.file.readFileSync(p)
+            }
+        }
+    } catch (error) {
+        console.error(error);
+    }
+})
 </script>
 
 <template>
-    <div>
-        <FileTree @contextmenu="handleContextmenu" sort :list="rrr" v-model:activeKeys="state.activeKeys" v-model:openKey="state.openKey"
-            v-model:focusKey="state.focusKey" v-model:isFocus="state.isFocus" @clickNode="handleClickNode" @rename="handleRename"></FileTree>
-        {{ rrr }}
+    <div class="flex h-1/1">
+        <div class="w-300px flex-shrink-0 relative">
+            <FileTree @contextmenu="handleContextmenu" sort :list="rrr" v-model:activeKeys="state.activeKeys" v-model:openKey="state.openKey"
+            v-model:focusKey="state.focusKey" v-model:isFocus="state.isFocus" @createOne="handleCreateOne" @clickNode="handleClickNode" @rename="handleRename"></FileTree>
+        </div>
+        <div class="flex-1">
+            <CodeEditor v-model="content" :key="state.openKey" :name="state.openKey" :logo="(configStore['editor.bg'])"></CodeEditor>
+        </div>
+            
     </div>
 </template>

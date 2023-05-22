@@ -2,6 +2,10 @@ import fs from "fs-extra"
 import path from "path"
 
 export async function readFile(path: string): Promise<any> {
+    const fileStats = fs.statSync(path); // 获取文件的状态信息
+    if(fileStats.isDirectory()){
+        throw new Error(`${path} 不是文件`);
+    }
     const data = await fs.readFile(path, "utf8")
     return data
 }
@@ -16,6 +20,10 @@ export function writeFileSync(path: string, str: string) {
 }
 
 export function readFileSync(path: string): string {
+    const fileStats = fs.statSync(path); // 获取文件的状态信息
+    if(fileStats.isDirectory()){
+        throw new Error(`${path} 不是文件`);
+    }
     const data = fs.readFileSync(path, "utf8")
     return data
 }
@@ -52,14 +60,14 @@ export function walkDir(fromDir, cb: (file: string, isDirectory:boolean)=>void) 
     })
 }
 
-export function readFolderToTree(folderPath, getId: ()=>any) {
+export function readFolderToTree(folderPath) {
     const stats = fs.statSync(folderPath); // 获取文件夹的状态信息
     if (!stats.isDirectory()) {
       throw new Error('The provided path is not a directory.');
     }
   
     const folderName = path.basename(folderPath); // 获取文件夹的名称
-    const tree = { title: folderName, type: 'folder', children: [], key: getId(), base: encodeURIComponent(folderPath) };
+    const tree = { title: folderName, type: 'folder', children: [], key: encodeURIComponent(folderPath.split(path.sep).join('/')), base: folderPath.split(path.sep).join('/') };
   
     const files = fs.readdirSync(folderPath); // 读取文件夹内的所有文件和文件夹
     files.forEach((file) => {
@@ -67,12 +75,12 @@ export function readFolderToTree(folderPath, getId: ()=>any) {
   
       const fileStats = fs.statSync(filePath); // 获取文件的状态信息
       if (fileStats.isDirectory()) {
-        const childTree = readFolderToTree(filePath, getId); // 递归处理子文件夹
+        const childTree = readFolderToTree(filePath); // 递归处理子文件夹
         tree.children.push(childTree);
       } else {
         // const fileName = path.basename(file, path.extname(file)); // 获取文件的名称（不包括扩展名）
         const fileName = file; // 获取文件的名称（包括扩展名）
-        const fileNode = { title: fileName, type: 'file', key: getId(), base: encodeURIComponent(filePath) };
+        const fileNode = { title: fileName, type: 'file', key: encodeURIComponent(filePath.split(path.sep).join('/')), base: filePath.split(path.sep).join('/') };
         tree.children.push(fileNode);
       }
     });

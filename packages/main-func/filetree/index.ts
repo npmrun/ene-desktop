@@ -2,6 +2,7 @@ import watcher from "@parcel/watcher";
 import { Settings } from "@rush/main-config/config";
 import { Mitt } from "@rush/main-module/mitt";
 import { broadcast } from "@rush/main-tool/broadcast";
+import path from "path";
 
 const allWatchDir: Record<string, watcher.AsyncSubscription> = {}
 
@@ -14,7 +15,12 @@ export async function init(dir: string) {
     console.log("开始监听：", dir);
     allWatchDir[dir] = await watcher.subscribe(Settings.n.values("storagePath"), (err, events) => {
         if(err) throw err
-        broadcast("filetree-update-message", events)
+        broadcast("filetree-update-message", events.map(v=>{
+            return {
+                path: v.path.split(path.sep).join('/'),
+                type: v.type
+            }
+        }))
     });
 }
 
