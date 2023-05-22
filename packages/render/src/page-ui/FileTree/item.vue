@@ -28,13 +28,16 @@
                     @click.stop="onExpand(data)"
                     @dblclick.stop
                 >
+                    <!-- v-if="data.isFolder && (!data.isExpand || data.children?.length===0)" -->
                     <svg-icon
-                        v-if="data.isFolder && (!data.isExpand || data.children?.length===0)"
+                        
+                        v-if="data.isFolder && (!data.isExpand)"
                         name="code-folder"
                         style="width: 100%; height: 100%"
                     ></svg-icon>
+                    <!-- v-if="data.isFolder && data.isExpand && data.children?.length!==0" -->
                     <svg-icon
-                        v-if="data.isFolder && data.isExpand && data.children?.length!==0"
+                        v-if="data.isFolder && data.isExpand"
                         name="code-folder-open"
                         style="width: 100%; height: 100%"
                     ></svg-icon>
@@ -199,7 +202,8 @@ function onDrop(ev: DragEvent) {
 
 function onExpand(data: INiuTreeData) {
     if(data.isFile) return
-    if(data.isFolder && data.children?.length === 0) return
+    // 没有子文件应该也能展开
+    // if(data.isFolder && data.children?.length === 0) return
     data.isExpand = !data.isExpand
     emits("change")
 }

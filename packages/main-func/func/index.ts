@@ -16,7 +16,7 @@ export function openDir(path: string){
 }
 
 export function showItemInFolder(fullPath: string){
-    return shell.showItemInFolder(fullPath)
+    return shell.showItemInFolder(path.normalize(fullPath))
 }
 
 export function copyText(text: string) {

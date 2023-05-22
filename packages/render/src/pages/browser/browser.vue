@@ -126,6 +126,9 @@ onMounted(() => {
             if(e.errorCode === -300){
                 we.executeJavaScript(`document.open();document.write(\`${_agent.getStaticHtmlSource("404")}\`);document.close();`)
             }
+            if(e.errorCode === -100){
+                we.executeJavaScript(`document.open();document.write(\`${_agent.getStaticHtmlSource("404")}\`);document.close();`)
+            }
             if(e.errorCode === -105){
                 we.executeJavaScript(`document.open();document.write(\`${_agent.getStaticHtmlSource("403")}\`);document.close();`)
                 // internalLoad("404")

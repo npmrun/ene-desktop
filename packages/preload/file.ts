@@ -31,7 +31,9 @@ export async function readDir(path: string): Promise<any> {
     const files = await fs.readdir(path, { encoding: "utf8" })
     return files
 }
-
+export function normalizePath(path: string): string {
+    return path.normalize(path)
+}
 function _walkDir(dir: string, cb?: (file: string, isDirectory:boolean) => void) {
     function _walk(_dir = ".") {
         const statInfo = fs.statSync(dir + path.sep + _dir)
@@ -67,7 +69,7 @@ export function readFolderToTree(folderPath) {
     }
   
     const folderName = path.basename(folderPath); // 获取文件夹的名称
-    const tree = { title: folderName, type: 'folder', children: [], key: encodeURIComponent(folderPath.split(path.sep).join('/')), base: folderPath.split(path.sep).join('/') };
+    const tree = { title: folderName, type: 'folder', children: [], key: fs.realpathSync(folderPath, "hex"), base: folderName };
   
     const files = fs.readdirSync(folderPath); // 读取文件夹内的所有文件和文件夹
     files.forEach((file) => {
@@ -80,7 +82,7 @@ export function readFolderToTree(folderPath) {
       } else {
         // const fileName = path.basename(file, path.extname(file)); // 获取文件的名称（不包括扩展名）
         const fileName = file; // 获取文件的名称（包括扩展名）
-        const fileNode = { title: fileName, type: 'file', key: encodeURIComponent(filePath.split(path.sep).join('/')), base: filePath.split(path.sep).join('/') };
+        const fileNode = { title: fileName, type: 'file', key: fs.realpathSync(filePath, "hex"), base: fileName };
         tree.children.push(fileNode);
       }
     });

@@ -45,9 +45,11 @@ const _agent = {
     callLong: callMethodLong,
     callSync: callMethodSync,
     send(command: string, ...argu: any[]) {
+        if(!command) return
         return ipcRenderer.send(command, ...argu)
     },
     sendSync(command: string, ...argu: any[]) {
+        if(!command) return
         return ipcRenderer.sendSync(command, ...argu)
     },
     on(command: string, cb: (event: IpcRendererEvent, ...args: any[]) => void) {
