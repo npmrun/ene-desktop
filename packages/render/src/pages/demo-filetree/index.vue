@@ -3,13 +3,15 @@ import { PopupMenu } from "@/bridge/PopupMenu"
 import FileTree from "@/page-ui/FileTree/filetree.vue"
 import useConfigStore from "@/store/module/config"
 import { findNode, findPath, findPathAll } from "@common/util/treeHelper"
-import { INiuTreeKey, convert, findByKeyParent } from "princess-ui"
+import { INiuTreeKey, convert, findByKeyParent, ENiuTreeStatus } from "princess-ui"
 import { INiuTreeData, convertTreeData } from "princess-ui"
 import CodeEditor from "@/components/CodeEditor/code-editor.vue"
+import { toast } from "vue3-toastify"
 
 const configStore = useConfigStore()
 const state = reactive<{
     rootDir: string
+    curFile?: string
     content: string
     fileData: any[]
     openKey?: INiuTreeKey
@@ -18,6 +20,7 @@ const state = reactive<{
     isFocus?: boolean
 }>({
     rootDir: _agent.file.replacePath(configStore.storagePath),
+    curFile: undefined,
     content: "",
     fileData: [],
     openKey: undefined,
@@ -26,13 +29,14 @@ const state = reactive<{
     isFocus: undefined,
 })
 
-const activeNode = computed(()=>{
-    return findNode(state.fileData, (n)=>{
+const activeNode = computed(() => {
+    return findNode(state.fileData, n => {
         return n.key === state.openKey
     })
 })
 
 function listenFileChange(_: any, ev: any) {
+    // 从任意文件名修改为aaa.这个文件名的话不会有create事件
     console.log(ev)
     const array = ev as { path: string; type: string }[]
     for (let i = 0; i < array.length; i++) {
@@ -53,6 +57,10 @@ function listenFileChange(_: any, ev: any) {
                         state.fileData = state.fileData?.filter(t => {
                             return t.key !== node.key
                         })
+                    }
+                    if ((state.openKey = node.key)) {
+                        state.openKey = undefined
+                        state.activeKeys = []
                     }
                 }
                 break
@@ -105,9 +113,9 @@ function listenFileChange(_: any, ev: any) {
                 let node = findNode(state.fileData, node => {
                     return findNodePath(node) == temp.path
                 })
-                
+
                 if (node && node.key === state.openKey) {
-                    console.log(temp.path);
+                    console.log(temp.path)
                     state.content = _agent.file.readFileSync(temp.path)
                 }
                 break
@@ -128,16 +136,30 @@ watch(
                     return node.key === state.openKey
                 })
                 if (node && node.isFile) {
-                    console.log(JSON.stringify(node, null, 2))
-
-                    state.content = _agent.file.readFileSync(findNodePath(node))
+                    state.curFile = findNodePath(node)
+                    state.content = _agent.file.readFileSync(state.curFile)
                 }
+            } else {
+                state.curFile = undefined
             }
         } catch (error) {
-            console.error(error)
+            toast.error(`打开错误：${error}`)
         }
     },
     { immediate: true },
+)
+
+watch(
+    () => state.content,
+    () => {
+        try {
+            if (state.curFile && _agent.file.existsSync(state.curFile) && !_agent.file.isDirectory(state.curFile)) {
+                _agent.file.writeFileSync(state.curFile, state.content)
+            }
+        } catch (error: any) {
+            toast.error(`保存错误：${error}`)
+        }
+    },
 )
 
 onBeforeMount(async () => {
@@ -168,7 +190,7 @@ function findNodePath(data: INiuTreeData) {
     const path = state.rootDir + "/" + array.map((v: any) => v.base).join("/")
     return path
 }
-
+const filetreeRef = ref<InstanceType<typeof FileTree>>()
 function handleContextmenu(data: INiuTreeData) {
     const menuList: IMenuItemOption[] = []
     menuList.push({
@@ -182,6 +204,18 @@ function handleContextmenu(data: INiuTreeData) {
         label: "重命名",
         click() {
             data.isEdit = true
+        },
+    })
+    menuList.push({
+        label: "删除",
+        async click() {
+            const answer = await _agent.call("dialog.confrim", { title: "是否删除", message: "是否删除" })
+            if (answer) {
+                let path = findNodePath(data)
+                if (_agent.file.existsSync(path)) {
+                    _agent.file.rm(path)
+                }
+            }
         },
     })
     if (data.isFolder) {
@@ -257,12 +291,29 @@ async function handleRename(data: INiuTreeData, done: (status?: boolean) => void
         done(false)
     }
 }
+
+async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData: INiuTreeData) {
+    if (type !== ENiuTreeStatus.DragInner && type !== ENiuTreeStatus.DragIn) return false
+    if (data.key && targetData && targetData.key) {
+        let srcPath = findNodePath(data)
+        let destPath = findNodePath(targetData) + "/" + data.title
+        _agent.file.moveSync(srcPath, destPath)
+        return false
+    } else if (data.key && targetData === undefined) {
+        let srcPath = findNodePath(data)
+        let destPath = state.rootDir + "/" + data.title
+        _agent.file.moveSync(srcPath, destPath)
+        return false
+    }
+    return false
+}
 </script>
 
 <template>
     <div class="flex h-1/1">
         <div class="w-300px flex-shrink-0 relative">
             <FileTree
+                ref="filetreeRef"
                 @contextmenu="handleContextmenu"
                 sort
                 :list="state.fileData"
@@ -273,6 +324,7 @@ async function handleRename(data: INiuTreeData, done: (status?: boolean) => void
                 @clickNode="handleClickNode"
                 @rename="handleRename"
                 @createOne="handleCreateOne"
+                :dropFn="handleDropFn"
             ></FileTree>
         </div>
         <div class="flex-1">
