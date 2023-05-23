@@ -1,6 +1,10 @@
 import fs from "fs-extra"
 import path from "path"
 
+export function isDirectory(path: string): boolean {
+    const fileStats = fs.statSync(path); // 获取文件的状态信息
+    return fileStats.isDirectory()
+}
 export async function readFile(path: string): Promise<any> {
     const fileStats = fs.statSync(path); // 获取文件的状态信息
     if(fileStats.isDirectory()){
@@ -31,8 +35,23 @@ export async function readDir(path: string): Promise<any> {
     const files = await fs.readdir(path, { encoding: "utf8" })
     return files
 }
+export function createFileSync(path: string) {
+    return fs.createFileSync(path)
+}
+export function mkdirSync(path: string) {
+    return fs.mkdirSync(path)
+}
 export function normalizePath(path: string): string {
     return path.normalize(path)
+}
+export function existsSync(filePath:string): boolean {
+    return fs.existsSync(filePath)
+}
+export function replacePath(filePath:string) {
+    return filePath.split(path.sep).join("/")
+}
+export function realpathSync(filePath:string) {
+    return fs.realpathSync(filePath, "hex")
 }
 function _walkDir(dir: string, cb?: (file: string, isDirectory:boolean) => void) {
     function _walk(_dir = ".") {
@@ -69,7 +88,7 @@ export function readFolderToTree(folderPath) {
     }
   
     const folderName = path.basename(folderPath); // 获取文件夹的名称
-    const tree = { title: folderName, type: 'folder', children: [], key: fs.realpathSync(folderPath, "hex"), base: folderName };
+    const tree = { title: folderName, base: folderName, type: 'folder', children: [], key: fs.realpathSync(folderPath, "hex") };
   
     const files = fs.readdirSync(folderPath); // 读取文件夹内的所有文件和文件夹
     files.forEach((file) => {
@@ -82,7 +101,7 @@ export function readFolderToTree(folderPath) {
       } else {
         // const fileName = path.basename(file, path.extname(file)); // 获取文件的名称（不包括扩展名）
         const fileName = file; // 获取文件的名称（包括扩展名）
-        const fileNode = { title: fileName, type: 'file', key: fs.realpathSync(filePath, "hex"), base: fileName };
+        const fileNode = { title: fileName, base: fileName, type: 'file', key: fs.realpathSync(filePath, "hex") };
         tree.children.push(fileNode);
       }
     });

@@ -36,7 +36,7 @@ function updateModel(name: string, content: string) {
         let file = judgeFile(name)
         // 这样定义的话model无法清除
         // monaco.editor.createModel("const a = 111","typescript", monaco.Uri.parse('file://root/file3.ts'))
-        let model: monaco.editor.ITextModel = monaco.editor.createModel(content ?? "", file?.language ?? "txt", monaco.Uri.parse('file://root/file2.ts'))
+        let model: monaco.editor.ITextModel = monaco.editor.createModel(content ?? "", file?.language ?? "txt")
         if (oldModel) {
             oldModel.dispose()
         }
@@ -63,8 +63,21 @@ onMounted(() => {
         editor.onDidChangeCursorPosition((e) => {
             emit('cursor:position', [e.position.lineNumber, e.position.column])
         })
+        editor.setValue
         editorRef.value.addEventListener('resize', resizeLayout)
     }
+    watch(
+        () => props.modelValue,
+        async (str) => {
+            if (editor) {
+                let code = editor.getValue()
+                if(code !== str){
+                    editor.setValue(str)
+                }
+            }
+        },
+        { immediate: true },
+    )
     watch(
         () => props.name,
         async (name) => {
