@@ -6,6 +6,7 @@ import { findNode, findPath, findPathAll } from "@common/util/treeHelper"
 import { INiuTreeKey, convert, findByKeyParent, ENiuTreeStatus } from "princess-ui"
 import { INiuTreeData, convertTreeData } from "princess-ui"
 import CodeEditor from "@/components/CodeEditor/code-editor.vue"
+import AdjustLine from "@/components/adjust-line"
 import { toast } from "vue3-toastify"
 
 const configStore = useConfigStore()
@@ -58,9 +59,12 @@ function listenFileChange(_: any, ev: any) {
                             return t.key !== node.key
                         })
                     }
-                    if ((state.openKey = node.key)) {
+                    if ((state.openKey === node.key)) {
                         state.openKey = undefined
-                        state.activeKeys = []
+                    }
+                    let index = state.activeKeys.indexOf(node.key)
+                    if (index !== -1) {
+                        state.activeKeys.splice(index)
                     }
                 }
                 break
@@ -84,8 +88,8 @@ function listenFileChange(_: any, ev: any) {
                             children: _agent.file.isDirectory(temp.path) ? childFiles : undefined,
                         }),
                     )
-                    state.openKey = key
-                    state.activeKeys = [key]
+                    // state.openKey = key
+                    // state.activeKeys = [key]
                 } else {
                     let pNode = findNode(state.fileData, node => {
                         return findNodePath(node) == pPath
@@ -103,8 +107,8 @@ function listenFileChange(_: any, ev: any) {
                                 children: _agent.file.isDirectory(temp.path) ? childFiles : undefined,
                             }),
                         )
-                        state.openKey = key
-                        state.activeKeys = [key]
+                        // state.openKey = key
+                        // state.activeKeys = [key]
                     }
                 }
                 break
@@ -162,19 +166,34 @@ watch(
     },
 )
 
-onBeforeMount(async () => {
+async function initDir() {
+    if(!_agent.file.isDirectory(state.rootDir)) throw new Error("将要打开的目录不是文件夹:" + state.rootDir)
     state.fileData = convertTreeData(_agent.file.readFolderToTree(state.rootDir).children)
-    console.log(state.rootDir)
-    console.log(state.fileData)
+    await _agent.call("filetree.init", state.rootDir)
+    console.log("initDir", state.rootDir);
+}
+
+async function dispose() {
+    await _agent.call("filetree.dispose", state.rootDir)
+    console.log("dispose", state.rootDir);
+}
+
+onBeforeMount(async () => {
+    await initDir()
     _agent.on("filetree-update-message", listenFileChange)
-    await _agent.callLong("filetree.init", state.rootDir)
 })
 onBeforeUnmount(async () => {
-    _agent.off("filetree-update-message", listenFileChange)
-    await _agent.callLong("filetree.dispose", state.rootDir)
+    await dispose()
+    _agent.offAll("filetree-update-message")
 })
 
+const control = useKeyModifier('Control')
+
 function handleClickNode(data: INiuTreeData) {
+    if (control.value) {
+        state.activeKeys.push(data.key)
+        return
+    }
     if (data.isFolder) {
         data.isExpand = !data.isExpand
     }
@@ -193,6 +212,26 @@ function findNodePath(data: INiuTreeData) {
 const filetreeRef = ref<InstanceType<typeof FileTree>>()
 function handleContextmenu(data: INiuTreeData) {
     const menuList: IMenuItemOption[] = []
+    if (data.isFile) {
+        menuList.push({
+            label: "默认程序打开",
+            click() {
+                const path = findNodePath(data)
+                _agent.call("func.openDir", path)
+            },
+        })
+    }
+    if (data.isFolder) {
+        menuList.push({
+            label: "操作本目录",
+            async click() {
+                const path = findNodePath(data)
+                await dispose()
+                state.rootDir = path
+                await initDir()
+            },
+        })
+    }
     menuList.push({
         label: "打开所在文件夹",
         click() {
@@ -209,7 +248,7 @@ function handleContextmenu(data: INiuTreeData) {
     menuList.push({
         label: "删除",
         async click() {
-            const answer = await _agent.call("dialog.confrim", { title: "是否删除", message: "是否删除" })
+            const answer = await _agent.call("dialog.confrim", { title: "是否删除", message: "是否删除？" })
             if (answer) {
                 let path = findNodePath(data)
                 if (_agent.file.existsSync(path)) {
@@ -218,6 +257,29 @@ function handleContextmenu(data: INiuTreeData) {
             }
         },
     })
+    if (state.activeKeys.length > 1) {
+        menuList.push({
+            label: "删除所有",
+            async click() {
+                const answer = await _agent.call("dialog.confrim", { title: "是否删除所有", message: "是否删除所有？" })
+                if (answer) {
+                    for (let i = 0; i < state.activeKeys.length; i++) {
+                        const key = state.activeKeys[i];
+                        let node = findNode(state.fileData, node => {
+                            return node.key === key
+                        })
+                        if (node) {
+                            let path = findNodePath(node)
+                            if (path && _agent.file.existsSync(path)) {
+                                _agent.file.rm(path)
+                            }
+                        }
+                    }
+
+                }
+            },
+        })
+    }
     if (data.isFolder) {
         menuList.push({
             label: "新建文件",
@@ -258,6 +320,69 @@ function handleContextmenu(data: INiuTreeData) {
     const menu = new PopupMenu(menuList)
     menu.show()
 }
+function handleGlobalContextmenu() {
+    const menuList: IMenuItemOption[] = []
+    menuList.push({
+        label: "切换文件夹打开",
+        async click() {
+            const p = await _agent.callLong("dialog.chooseDir", "选择文件夹")
+            if (p) {
+                await dispose()
+                state.rootDir = p
+                await initDir()
+            }
+        },
+    })
+    menuList.push({
+        label: "操作父级目录",
+        async click() {
+            await dispose()
+            state.rootDir = state.rootDir.split("/").slice(0,-1).join("/")
+            await initDir()
+        },
+    })
+    menuList.push({
+        label: "打开所在的文件夹",
+        click() {
+            _agent.call("func.openDir", state.rootDir)
+        },
+    })
+    menuList.push({
+        label: "新建文件",
+        click() {
+            state.fileData?.push(
+                convert({
+                    key: "",
+                    base: "",
+                    title: "",
+                    type: "file",
+                    order: 0,
+                    isNew: true,
+                    isEdit: true,
+                } as any),
+            )
+        },
+    })
+    menuList.push({
+        label: "新建文件夹",
+        click() {
+            state.fileData?.push(
+                convert({
+                    key: "",
+                    base: "",
+                    title: "",
+                    type: "folder",
+                    order: 0,
+                    isNew: true,
+                    isEdit: true,
+                    children: [],
+                } as any),
+            )
+        },
+    })
+    const menu = new PopupMenu(menuList)
+    menu.show()
+}
 async function handleCreateOne(data: INiuTreeData, parent: INiuTreeData, done: (status?: boolean) => void) {
     try {
         let p = findNodePath(data)
@@ -294,6 +419,14 @@ async function handleRename(data: INiuTreeData, done: (status?: boolean) => void
 
 async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData: INiuTreeData) {
     if (type !== ENiuTreeStatus.DragInner && type !== ENiuTreeStatus.DragIn) return false
+    if (targetData?.children?.find(node => node.key === data.key)) {
+        toast.warn("一样的地方拖着干啥？");
+        return false
+    }
+    if (targetData === undefined && state.fileData.find(node => node.key === data.key)) {
+        toast.warn("一样的地方拖着干啥？");
+        return false
+    }
     if (data.key && targetData && targetData.key) {
         let srcPath = findNodePath(data)
         let destPath = findNodePath(targetData) + "/" + data.title
@@ -311,30 +444,16 @@ async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData
 
 <template>
     <div class="flex h-1/1">
-        <div class="w-300px flex-shrink-0 relative">
-            <FileTree
-                ref="filetreeRef"
-                @contextmenu="handleContextmenu"
-                sort
-                :list="state.fileData"
-                v-model:activeKeys="state.activeKeys"
-                v-model:openKey="state.openKey"
-                v-model:focusKey="state.focusKey"
-                v-model:isFocus="state.isFocus"
-                @clickNode="handleClickNode"
-                @rename="handleRename"
-                @createOne="handleCreateOne"
-                :dropFn="handleDropFn"
-            ></FileTree>
+        <div class="w-300px flex-shrink-0 relative border-r" @contextmenu="handleGlobalContextmenu">
+            <FileTree ref="filetreeRef" @contextmenu="handleContextmenu" sort :list="state.fileData"
+                v-model:activeKeys="state.activeKeys" v-model:openKey="state.openKey" v-model:focusKey="state.focusKey"
+                v-model:isFocus="state.isFocus" @clickNode="handleClickNode" @rename="handleRename"
+                @createOne="handleCreateOne" :dropFn="handleDropFn"></FileTree>
+            <AdjustLine mid="filetree-demo" direction="right"></AdjustLine>
         </div>
-        <div class="flex-1">
-            <CodeEditor
-                v-if="activeNode"
-                v-model="state.content"
-                :key="activeNode.key"
-                :name="activeNode.title as any"
-                :logo="configStore['editor.bg']"
-            ></CodeEditor>
+        <div class="flex-1 w-0">
+            <CodeEditor v-if="activeNode" v-model="state.content" :key="activeNode.key" :name="activeNode.title as any"
+                :logo="configStore['editor.bg']"></CodeEditor>
         </div>
     </div>
 </template>

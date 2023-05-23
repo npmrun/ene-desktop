@@ -55,22 +55,27 @@ export function initCommands() {
                 if (isPromise(result)) {
                     result
                         .then((res: any) => {
+                            console.log(command, `将要发送的数据`, res);
                             event.reply(key, null, res ?? null)
                             event.returnValue = res ?? null
                         })
                         .catch((err: Error) => {
+                            console.log(command, `将要发送的数据`, null);
                             event.reply(key, err)
                             event.returnValue = null
                         })
                 } else {
+                    console.log(command, `将要发送的数据`, result);
                     event.reply(key, null, result ?? null)
                     event.returnValue = result ?? null
                 }
             } else {
+                console.log(command, `将要发送的数据`, null);
                 event.reply(key, new Error("不存在该命令"))
                 event.returnValue = null
             }
         } catch (error) {
+            console.log(command, `将要发送的数据`, null);
             event.reply(key, error)
             event.returnValue = null
         }
