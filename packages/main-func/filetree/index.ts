@@ -21,6 +21,8 @@ export async function init(dir: string) {
                 type: v.type
             }
         }))
+    }, {
+        ignore: ["node_modules"]
     });
     return true
 }

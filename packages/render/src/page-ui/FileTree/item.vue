@@ -32,18 +32,18 @@
                     <svg-icon
                         
                         v-if="data.isFolder && (!data.isExpand)"
-                        name="code-folder"
+                        :name="getIcon(data)"
                         style="width: 100%; height: 100%"
                     ></svg-icon>
                     <!-- v-if="data.isFolder && data.isExpand && data.children?.length!==0" -->
                     <svg-icon
                         v-if="data.isFolder && data.isExpand"
-                        name="code-folder-open"
+                        :name="getIcon(data)"
                         style="width: 100%; height: 100%"
                     ></svg-icon>
                     <svg-icon
                         v-if="data.isFile"
-                        name="code-file"
+                        :name="getIcon(data)"
                         style="width: 100%; height: 100%"
                     ></svg-icon>
                 </div>
@@ -230,20 +230,37 @@ const props = withDefaults(
         activeKeys: () => [],
     },
 )
+
+function getIcon(data: INiuTreeData) {
+    if(data.isFile){
+        let curLanguage = judgeFile(data.title)?.language
+        if(!curLanguage) return 'micons-document'
+        return 'micons-'+judgeFile(data.title)?.icon
+    }
+    if(data.isFolder && (!data.isExpand)){
+        return "micons-folder"
+        // return "code-folder"
+    }
+    if(data.isFolder && data.isExpand){
+        return "micons-folder-open"
+        // return "code-folder-open"
+    }
+    return ''
+}
 function judgeFile(filename: string) {
     if (!filename) return
     let ext = [
-        { language: "json", ext: ".json", index: -1 },
-        { language: "txt", ext: ".txt", index: -1 },
-        { language: "vue", ext: ".vue", index: -1 },
-        { language: "javascript", ext: ".js", index: -1 },
-        { language: "css", ext: ".css", index: -1 },
-        { language: "scss", ext: ".scss", index: -1 },
-        { language: "html", ext: ".html", index: -1 },
-        { language: "tsx", ext: ".tsx", index: -1 },
-        { language: "typescript", ext: ".ts", index: -1 },
-        { language: "markdown", ext: ".md", index: -1 },
-        { language: "dot", pre: ".", index: -1 },
+        { language: "json", ext: ".json", index: -1, icon: "json" },
+        { language: "txt", ext: ".txt", index: -1, icon: "document" },
+        { language: "vue", ext: ".vue", index: -1, icon: "vue" },
+        { language: "javascript", ext: ".js", index: -1, icon: "javascript" },
+        { language: "css", ext: ".css", index: -1, icon: "css" },
+        { language: "scss", ext: ".scss", index: -1, icon: "scss" },
+        { language: "html", ext: ".html", index: -1, icon: "html" },
+        { language: "tsx", ext: ".tsx", index: -1, icon: "tsx" },
+        { language: "typescript", ext: ".ts", index: -1, icon: "typescript" },
+        { language: "markdown", ext: ".md", index: -1, icon: "markdown" },
+        { language: "dot", pre: ".", index: -1, icon: "dot" },
     ]
     let cur
     for (let i = 0; i < ext.length; i++) {

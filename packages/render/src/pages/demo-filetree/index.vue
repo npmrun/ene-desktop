@@ -131,6 +131,7 @@ function listenFileChange(_: any, ev: any) {
     }
 }
 
+let stopWatch: Function
 watch(
     () => state.openKey,
     () => {
@@ -140,8 +141,22 @@ watch(
                     return node.key === state.openKey
                 })
                 if (node && node.isFile) {
+                    stopWatch?.()
                     state.curFile = findNodePath(node)
                     state.content = _agent.file.readFileSync(state.curFile)
+                    stopWatch = watch(
+                        () => state.content,
+                        () => {
+                            try {
+                                if (state.curFile && _agent.file.existsSync(state.curFile) && !_agent.file.isDirectory(state.curFile)) {
+                                    console.log("成功写入", state.curFile);
+                                    _agent.file.writeFileSync(state.curFile, state.content)
+                                }
+                            } catch (error: any) {
+                                toast.error(`保存错误：${error}`)
+                            }
+                        },
+                    )
                 }
             } else {
                 state.curFile = undefined
@@ -151,19 +166,6 @@ watch(
         }
     },
     { immediate: true },
-)
-
-watch(
-    () => state.content,
-    () => {
-        try {
-            if (state.curFile && _agent.file.existsSync(state.curFile) && !_agent.file.isDirectory(state.curFile)) {
-                _agent.file.writeFileSync(state.curFile, state.content)
-            }
-        } catch (error: any) {
-            toast.error(`保存错误：${error}`)
-        }
-    },
 )
 
 async function initDir() {
@@ -240,6 +242,9 @@ function handleContextmenu(data: INiuTreeData) {
         },
     })
     menuList.push({
+        type: "separator"
+    })
+    menuList.push({
         label: "重命名",
         click() {
             data.isEdit = true
@@ -281,6 +286,9 @@ function handleContextmenu(data: INiuTreeData) {
         })
     }
     if (data.isFolder) {
+        menuList.push({
+            type: "separator"
+        })
         menuList.push({
             label: "新建文件",
             click() {
@@ -344,7 +352,7 @@ function handleGlobalContextmenu() {
     menuList.push({
         label: "打开所在的文件夹",
         click() {
-            _agent.call("func.openDir", state.rootDir)
+            _agent.call("func.openDir", _agent.file.normalizePath(state.rootDir))
         },
     })
     menuList.push({
@@ -427,6 +435,7 @@ async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData
         toast.warn("一样的地方拖着干啥？");
         return false
     }
+    // TODO 拖动多个文件
     if (data.key && targetData && targetData.key) {
         let srcPath = findNodePath(data)
         let destPath = findNodePath(targetData) + "/" + data.title
@@ -452,7 +461,7 @@ async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData
             <AdjustLine mid="filetree-demo" direction="right"></AdjustLine>
         </div>
         <div class="flex-1 w-0">
-            <CodeEditor v-if="activeNode" v-model="state.content" :key="activeNode.key" :name="activeNode.title as any"
+            <CodeEditor v-if="activeNode && activeNode.isFile" v-model="state.content" :key="activeNode.key" :name="activeNode.title as any"
                 :logo="configStore['editor.bg']"></CodeEditor>
         </div>
     </div>

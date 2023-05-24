@@ -51,8 +51,8 @@ export function createFileSync(path: string) {
 export function mkdirSync(path: string) {
     return fs.mkdirSync(path)
 }
-export function normalizePath(path: string): string {
-    return path.normalize(path)
+export function normalizePath(filePath: string): string {
+    return path.normalize(filePath)
 }
 export function existsSync(filePath: string): boolean {
     return fs.existsSync(filePath)
