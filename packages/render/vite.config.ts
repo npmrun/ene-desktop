@@ -107,6 +107,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
             }),
             AutoImport({
                 include: [/\.[tj]sx?$/, /\.vue\??/],
+                exclude: [/^_/],
                 imports: ["vue", "vue-router", "pinia", "@vueuse/core", "vue-i18n"],
                 dts: "auto-import.d.ts",
                 dirs: ["src/hooksAuto"],

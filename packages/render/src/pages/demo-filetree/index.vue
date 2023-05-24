@@ -8,10 +8,14 @@ import { INiuTreeData, convertTreeData } from "princess-ui"
 import CodeEditor from "@/components/CodeEditor/code-editor.vue"
 import AdjustLine from "@/components/adjust-line"
 import { toast } from "vue3-toastify"
+import Preview from "@/componentsAuto/Preview/Preview.vue"
+
+const previewRef = ref<InstanceType<typeof Preview>>()
 
 const configStore = useConfigStore()
 const state = reactive<{
-    rootDir: string
+    showURL?: string
+    rootDir?: string
     curFile?: string
     content: string
     fileData: any[]
@@ -20,7 +24,8 @@ const state = reactive<{
     activeKeys: INiuTreeKey[]
     isFocus?: boolean
 }>({
-    rootDir: _agent.file.replacePath(configStore.storagePath),
+    showURL: undefined,
+    rootDir: undefined,//_agent.file.replacePath(configStore.storagePath),
     curFile: undefined,
     content: "",
     fileData: [],
@@ -151,6 +156,9 @@ watch(
                                 if (state.curFile && _agent.file.existsSync(state.curFile) && !_agent.file.isDirectory(state.curFile)) {
                                     console.log("成功写入", state.curFile);
                                     _agent.file.writeFileSync(state.curFile, state.content)
+                                    if ((state.curFile.endsWith(".html") || state.curFile.endsWith(".css")) && state.showURL) {
+                                        previewRef.value?.update()
+                                    }
                                 }
                             } catch (error: any) {
                                 toast.error(`保存错误：${error}`)
@@ -169,13 +177,15 @@ watch(
 )
 
 async function initDir() {
-    if(!_agent.file.isDirectory(state.rootDir)) throw new Error("将要打开的目录不是文件夹:" + state.rootDir)
+    if (!state.rootDir) return
+    if (!_agent.file.isDirectory(state.rootDir)) throw new Error("将要打开的目录不是文件夹:" + state.rootDir)
     state.fileData = convertTreeData(_agent.file.readFolderToTree(state.rootDir).children)
     await _agent.call("filetree.init", state.rootDir)
     console.log("initDir", state.rootDir);
 }
 
 async function dispose() {
+    if (!state.rootDir) return
     await _agent.call("filetree.dispose", state.rootDir)
     console.log("dispose", state.rootDir);
 }
@@ -329,24 +339,42 @@ function handleContextmenu(data: INiuTreeData) {
     menu.show()
 }
 function handleGlobalContextmenu() {
+    if (!state.rootDir) return
     const menuList: IMenuItemOption[] = []
+    menuList.push({
+        label: "关闭文件夹",
+        async click() {
+            await dispose()
+            Object.assign(state, {
+                showURL: undefined,
+                rootDir: undefined,//_agent.file.replacePath(configStore.storagePath),
+                curFile: undefined,
+                content: "",
+                fileData: [],
+                openKey: undefined,
+                focusKey: undefined,
+                activeKeys: [],
+                isFocus: undefined,
+            })
+        },
+    })
+    menuList.push({
+        type: "separator"
+    })
     menuList.push({
         label: "切换文件夹打开",
         async click() {
-            const p = await _agent.callLong("dialog.chooseDir", "选择文件夹")
-            if (p) {
-                await dispose()
-                state.rootDir = p
-                await initDir()
-            }
+            handleChooseDir()
         },
     })
     menuList.push({
         label: "操作父级目录",
         async click() {
-            await dispose()
-            state.rootDir = state.rootDir.split("/").slice(0,-1).join("/")
-            await initDir()
+            if (state.rootDir) {
+                await dispose()
+                state.rootDir = state.rootDir.split("/").slice(0, -1).join("/")
+                await initDir()
+            }
         },
     })
     menuList.push({
@@ -449,20 +477,62 @@ async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData
     }
     return false
 }
+
+function toggleShowWeb(node: INiuTreeData) {
+    if (state.showURL) {
+        state.showURL = undefined
+    } else {
+        let p = findNodePath(node)
+        state.showURL = _agent.file.pathToFileURL(p)
+    }
+}
+
+async function handleChooseDir() {
+    const p = await _agent.callLong("dialog.chooseDir", "选择文件夹", configStore.storagePath)
+    if (p) {
+        await dispose()
+        state.rootDir = p
+        await initDir()
+    }
+}
 </script>
 
 <template>
     <div class="flex h-1/1">
-        <div class="w-300px flex-shrink-0 relative border-r" @contextmenu="handleGlobalContextmenu">
-            <FileTree ref="filetreeRef" @contextmenu="handleContextmenu" sort :list="state.fileData"
-                v-model:activeKeys="state.activeKeys" v-model:openKey="state.openKey" v-model:focusKey="state.focusKey"
-                v-model:isFocus="state.isFocus" @clickNode="handleClickNode" @rename="handleRename"
-                @createOne="handleCreateOne" :dropFn="handleDropFn"></FileTree>
-            <AdjustLine mid="filetree-demo" direction="right"></AdjustLine>
+        <div class="w-300px flex-shrink-0 relative border-r flex flex-col">
+            <div class="flex-1 h-0" @contextmenu="handleGlobalContextmenu">
+                <div class="text-center pt-25px mx-12px overflow-hidden" v-if="!state.rootDir">
+                    <button @click="handleChooseDir" class="button">打开一个文件夹</button>
+                </div>
+                <FileTree v-if="state.rootDir" ref="filetreeRef" @contextmenu="handleContextmenu" sort :list="state.fileData"
+                    v-model:activeKeys="state.activeKeys" v-model:openKey="state.openKey" v-model:focusKey="state.focusKey"
+                    v-model:isFocus="state.isFocus" @clickNode="handleClickNode" @rename="handleRename"
+                    @createOne="handleCreateOne" :dropFn="handleDropFn">
+                    <template #default="{ data: { data } }">
+                        <!-- 未保存 -->
+                    </template>
+                </FileTree>
+            </div>
+            <div class="flex-shrink-0 border-t p-6px relative text-center bg-white">
+                <span class="text-red-300">可以放点快捷的目录来点击打开</span>
+                <AdjustLine mid="filetree-demo-left" direction="top"></AdjustLine>
+            </div>
+            <AdjustLine mid="filetree-demo-left" direction="right"></AdjustLine>
         </div>
-        <div class="flex-1 w-0">
-            <CodeEditor v-if="activeNode && activeNode.isFile" v-model="state.content" :key="activeNode.key" :name="activeNode.title as any"
-                :logo="configStore['editor.bg']"></CodeEditor>
+        <div class="flex-1 w-0 flex flex-col h-1/1">
+            <div class="flex-shrink-0 p-16px border-b"
+                v-if="(activeNode && activeNode.title.endsWith('.html')) || !!state.showURL">
+                <button @click="toggleShowWeb(activeNode)" v-if="state.showURL" class="button is-primary">取消展示</button>
+                <button v-else @click="toggleShowWeb(activeNode)" class="button">展示网页</button>
+            </div>
+            <div class="flex-1 h-0">
+                <CodeEditor v-if="activeNode && activeNode.isFile" v-model="state.content" :key="activeNode.key"
+                    :name="activeNode.title as any" :logo="configStore['editor.bg']"></CodeEditor>
+            </div>
+        </div>
+        <div v-if="state.showURL" class="relative border-l">
+            <Preview ref="previewRef" class="h-1/1" type="browser" :src="state.showURL"></Preview>
+            <AdjustLine mid="filetree-demo-right" direction="left"></AdjustLine>
         </div>
     </div>
 </template>

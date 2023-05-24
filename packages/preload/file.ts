@@ -1,5 +1,6 @@
 import fs from "fs-extra"
 import path from "path"
+import URL from "url"
 
 export function isDirectory(path: string): boolean {
     const fileStats = fs.statSync(path) // 获取文件的状态信息
@@ -40,6 +41,9 @@ export function readFileSync(path: string): string {
     }
     const data = fs.readFileSync(path, "utf8")
     return data
+}
+export function pathToFileURL(path: string): string {
+    return URL.pathToFileURL(path).toString()
 }
 export async function readDir(path: string): Promise<any> {
     const files = await fs.readdir(path, { encoding: "utf8" })

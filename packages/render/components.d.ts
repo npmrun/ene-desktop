@@ -12,6 +12,7 @@ declare module '@vue/runtime-core' {
     Devtool: typeof import('./src/componentsAuto/Devtool/Devtool.vue')['default']
     NiuAdjustWidth: typeof import('./src/componentsAuto/niu-adjust-width/niu-adjust-width.vue')['default']
     NiuImage: typeof import('./src/componentsAuto/niu-image/niu-image.vue')['default']
+    Preview: typeof import('./src/componentsAuto/Preview/Preview.vue')['default']
     PsTree: typeof import('princess-ui')['PsTree']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
