@@ -124,7 +124,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
                     {
                         entry: "src/main.ts",
                         filename: "index.html",
-                        template: "html/index.html",
+                        template: "index.html",
                         injectOptions: {
                             data: {
                                 title: setting.app_title,
@@ -134,7 +134,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
                     },
                     {
                         filename: "about.html",
-                        template: "html/about.html",
+                        template: "about.html",
                         injectOptions: {
                             data: {
                                 title: setting.app_title,
@@ -144,7 +144,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
                     },
                     {
                         filename: "iframe.html",
-                        template: "html/iframe.html",
+                        template: "iframe.html",
                         injectOptions: {
                             data: {
                                 title: setting.app_title,

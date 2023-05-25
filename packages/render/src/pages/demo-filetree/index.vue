@@ -258,7 +258,7 @@ function handleContextmenu(data: INiuTreeData) {
             async click() {
                 const path = findNodePath(data)
                 await dispose()
-                state.rootDir = path
+                state.rootDir = _agent.file.replacePath(path)
                 await initDir()
             },
         })
@@ -465,10 +465,6 @@ async function handleRename(data: INiuTreeData, done: (status?: boolean) => void
     try {
         await _agent.file.renameFile(oldPath, newPath)
         let isSuccess = _agent.file.existsSync(newPath)
-        if(isSuccess){
-            // @ts-ignore
-            data.base = data.title
-        }
         done(isSuccess)
     } catch (error) {
         console.error(error)
@@ -514,7 +510,7 @@ async function handleChooseDir() {
     const p = await _agent.callLong("dialog.chooseDir", "选择文件夹", configStore.storagePath)
     if (p) {
         await dispose()
-        state.rootDir = p
+        state.rootDir = _agent.file.replacePath(p)
         await initDir()
     }
 }
