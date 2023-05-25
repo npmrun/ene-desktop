@@ -1,7 +1,7 @@
 import { ChildProcessWithoutNullStreams } from "child_process"
 import { execa } from "./execa"
 import { forkFn } from "./fork"
-import kill from "./kill"
+import kill, { killPID } from "./kill"
 import { iGetInnerText } from "@rush/common/util"
 import { EProcessStatus } from "@rush/common/process"
 import { broadcast } from "@rush/main-tool"
@@ -21,7 +21,7 @@ interface IProcessChild {
 }
 
 class ProcessManager {
-    private constructor() {}
+    private constructor() { }
     static instance: null | ProcessManager = null
     static getInstance() {
         if (ProcessManager.instance == null) {
@@ -57,34 +57,26 @@ class ProcessManager {
         }
     }
 
-    async run(command: string){
+    async run(command: string) {
         const commandArray = command.split(" ")
         let execCommand = checkCommand(commandArray[0])
         let exec = forkFn
-        if(!execCommand){
+        if (!execCommand) {
             exec = execa
             execCommand = commandArray[0]
         }
         let args = commandArray.slice(1)
-        let logs = []
-        await (async () => {
-            await (new Promise((resolve)=>{
-                exec(execCommand, args, (err, data, isComplete) => {
-                    if (isComplete) {
-                        resolve(null)
-                        return
-                    }
-                    if (err) {
-                        logs.push(err)
-                    } else {
-                        logs.push(iGetInnerText(data))
-                    }
-                })
-            }))
-        })()
-        console.log(logs);
-        
-        return logs.join('\n')
+        const pid = await (new Promise((resolve) => {
+            let p = exec(execCommand, args, (err, data, isComplete) => {
+                if (isComplete) {
+                    broadcast(`process.run`, `command run completed: ${command}`)
+                    return
+                }
+                broadcast(`process.run`, err || data)
+            })
+            resolve(p.pid)
+        }))
+        return pid
     }
 
     createProcess(key: string | number, command: string): boolean {
@@ -162,6 +154,9 @@ class ProcessManager {
             }
         }
     }
+    killPID(pid: string) {
+        killPID(pid)
+    }
     clearOneDeath(p: ChildProcessWithoutNullStreams) {
         let list = this._processlist
         let len = list.length
@@ -206,7 +201,7 @@ const instance = ProcessManager.getInstance()
 
 export default instance
 
-Mitt.on("exit", ({ code })=>{
+Mitt.on("exit", ({ code }) => {
     console.log("清理所有存在的进程");
     instance.killAll()
     process.exit(code)

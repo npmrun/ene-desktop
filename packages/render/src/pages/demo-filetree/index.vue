@@ -514,14 +514,23 @@ async function handleChooseDir() {
         await initDir()
     }
 }
+
+_agent.on("process.run", (_, data)=>{
+    console.log(data);
+})
+let pid: string
 async function handleExtraaa() {
     // console.log(await _agent.call("process.run", "pwd"));
-    console.log(await _agent.call("process.kill", 'showweb'));
+    // console.log(await _agent.call("process.kill", 'showweb'));
+    if(pid){
+        await _agent.call("process.killPID", pid)
+    }
 }
 
 async function handleExtra() {
-    // console.log(await _agent.call("process.run", "pwd"));
-    console.log(await _agent.call("process.createProcess", 'showweb', `show ${'/home/topuser/文档/ene-desktop/SnippetData/index.html'}`));
+    pid = await _agent.callLong("process.run", `show ${'/home/topuser/文档/ene-desktop/SnippetData/index.html'}`);
+    console.log(pid);
+    // console.log(await _agent.call("process.createProcess", 'showweb', `show ${'/home/topuser/文档/ene-desktop/SnippetData/index.html'}`));
 }
 
 </script>
