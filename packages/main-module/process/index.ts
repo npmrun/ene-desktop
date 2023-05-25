@@ -6,6 +6,7 @@ import { iGetInnerText } from "@rush/common/util"
 import { EProcessStatus } from "@rush/common/process"
 import { broadcast } from "@rush/main-tool"
 import { checkCommand } from "./script"
+import { Mitt } from "@rush/main-module/mitt"
 
 interface IProcessChild {
     key: number | string
@@ -205,15 +206,8 @@ const instance = ProcessManager.getInstance()
 
 export default instance
 
-process
-    // Handle normal exits
-    .on("exit", code => {
-        instance.killAll()
-        process.exit(code)
-    })
-
-    // Handle CTRL+C
-    .on("SIGINT", () => {
-        instance.killAll()
-        process.exit(0)
-    })
+Mitt.on("exit", ({ code })=>{
+    console.log("清理所有存在的进程");
+    instance.killAll()
+    process.exit(code)
+})

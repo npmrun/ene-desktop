@@ -514,6 +514,16 @@ async function handleChooseDir() {
         await initDir()
     }
 }
+async function handleExtraaa() {
+    // console.log(await _agent.call("process.run", "pwd"));
+    console.log(await _agent.call("process.kill", 'showweb'));
+}
+
+async function handleExtra() {
+    // console.log(await _agent.call("process.run", "pwd"));
+    console.log(await _agent.call("process.createProcess", 'showweb', `show ${'/home/topuser/文档/ene-desktop/SnippetData/index.html'}`));
+}
+
 </script>
 
 <template>
@@ -544,7 +554,8 @@ async function handleChooseDir() {
                 </FileTree>
             </div>
             <div class="flex-shrink-0 border-t p-6px relative text-center bg-white">
-                <span class="text-red-300">可以放点快捷的目录来点击打开</span>
+                <span class="text-red-300" @click="handleExtra">可以放点快捷的目录来点击打开</span>
+                <span class="text-red-300" @click="handleExtraaa">11111111111</span>
                 <AdjustLine mid="filetree-demo-left" direction="top"></AdjustLine>
             </div>
             <AdjustLine mid="filetree-demo-left" direction="right"></AdjustLine>
