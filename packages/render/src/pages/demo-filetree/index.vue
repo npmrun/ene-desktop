@@ -1,3 +1,13 @@
+<route lang="yaml">
+name: demo-filetree
+meta:
+    cache: true
+</route>
+<script lang="ts">
+export default defineComponent({
+    name: "demo-filetree",
+})
+</script>
 <script lang="ts" setup>
 import { PopupMenu } from "@/bridge/PopupMenu"
 import FileTree from "@/page-ui/FileTree/filetree.vue"
@@ -25,7 +35,7 @@ const state = reactive<{
     isFocus?: boolean
 }>({
     showURL: undefined,
-    rootDir: undefined,//_agent.file.replacePath(configStore.storagePath),
+    rootDir: undefined, //_agent.file.replacePath(configStore.storagePath),
     curFile: undefined,
     content: "",
     fileData: [],
@@ -64,7 +74,7 @@ function listenFileChange(_: any, ev: any) {
                             return t.key !== node.key
                         })
                     }
-                    if ((state.openKey === node.key)) {
+                    if (state.openKey === node.key) {
                         state.openKey = undefined
                     }
                     let index = state.activeKeys.indexOf(node.key)
@@ -153,10 +163,17 @@ watch(
                         () => state.content,
                         () => {
                             try {
-                                if (state.curFile && _agent.file.existsSync(state.curFile) && !_agent.file.isDirectory(state.curFile)) {
-                                    console.log("成功写入", state.curFile);
+                                if (
+                                    state.curFile &&
+                                    _agent.file.existsSync(state.curFile) &&
+                                    !_agent.file.isDirectory(state.curFile)
+                                ) {
+                                    console.log("成功写入", state.curFile)
                                     _agent.file.writeFileSync(state.curFile, state.content)
-                                    if ((state.curFile.endsWith(".html") || state.curFile.endsWith(".css")) && state.showURL) {
+                                    if (
+                                        (state.curFile.endsWith(".html") || state.curFile.endsWith(".css")) &&
+                                        state.showURL
+                                    ) {
                                         previewRef.value?.update()
                                     }
                                 }
@@ -181,25 +198,27 @@ async function initDir() {
     if (!_agent.file.isDirectory(state.rootDir)) throw new Error("将要打开的目录不是文件夹:" + state.rootDir)
     state.fileData = convertTreeData(_agent.file.readFolderToTree(state.rootDir).children)
     await _agent.call("filetree.init", state.rootDir)
-    console.log("initDir", state.rootDir);
+    console.log("initDir", state.rootDir)
 }
 
 async function dispose() {
     if (!state.rootDir) return
     await _agent.call("filetree.dispose", state.rootDir)
-    console.log("dispose", state.rootDir);
+    console.log("dispose", state.rootDir)
 }
 
 onBeforeMount(async () => {
+    console.log("onBeforeMount")
     await initDir()
     _agent.on("filetree-update-message", listenFileChange)
 })
 onBeforeUnmount(async () => {
+    console.log("onBeforeUnmount")
     await dispose()
     _agent.offAll("filetree-update-message")
 })
 
-const control = useKeyModifier('Control')
+const control = useKeyModifier("Control")
 
 function handleClickNode(data: INiuTreeData) {
     if (control.value) {
@@ -252,7 +271,7 @@ function handleContextmenu(data: INiuTreeData) {
         },
     })
     menuList.push({
-        type: "separator"
+        type: "separator",
     })
     menuList.push({
         label: "重命名",
@@ -279,7 +298,7 @@ function handleContextmenu(data: INiuTreeData) {
                 const answer = await _agent.call("dialog.confrim", { title: "是否删除所有", message: "是否删除所有？" })
                 if (answer) {
                     for (let i = 0; i < state.activeKeys.length; i++) {
-                        const key = state.activeKeys[i];
+                        const key = state.activeKeys[i]
                         let node = findNode(state.fileData, node => {
                             return node.key === key
                         })
@@ -290,14 +309,13 @@ function handleContextmenu(data: INiuTreeData) {
                             }
                         }
                     }
-
                 }
             },
         })
     }
     if (data.isFolder) {
         menuList.push({
-            type: "separator"
+            type: "separator",
         })
         menuList.push({
             label: "新建文件",
@@ -347,7 +365,7 @@ function handleGlobalContextmenu() {
             await dispose()
             Object.assign(state, {
                 showURL: undefined,
-                rootDir: undefined,//_agent.file.replacePath(configStore.storagePath),
+                rootDir: undefined, //_agent.file.replacePath(configStore.storagePath),
                 curFile: undefined,
                 content: "",
                 fileData: [],
@@ -359,7 +377,7 @@ function handleGlobalContextmenu() {
         },
     })
     menuList.push({
-        type: "separator"
+        type: "separator",
     })
     menuList.push({
         label: "切换文件夹打开",
@@ -446,7 +464,12 @@ async function handleRename(data: INiuTreeData, done: (status?: boolean) => void
     let newPath = pPath + "/" + data.title
     try {
         await _agent.file.renameFile(oldPath, newPath)
-        done(_agent.file.existsSync(newPath))
+        let isSuccess = _agent.file.existsSync(newPath)
+        if(isSuccess){
+            // @ts-ignore
+            data.base = data.title
+        }
+        done(isSuccess)
     } catch (error) {
         console.error(error)
         done(false)
@@ -456,11 +479,11 @@ async function handleRename(data: INiuTreeData, done: (status?: boolean) => void
 async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData: INiuTreeData) {
     if (type !== ENiuTreeStatus.DragInner && type !== ENiuTreeStatus.DragIn) return false
     if (targetData?.children?.find(node => node.key === data.key)) {
-        toast.warn("一样的地方拖着干啥？");
+        toast.warn("一样的地方拖着干啥？")
         return false
     }
     if (targetData === undefined && state.fileData.find(node => node.key === data.key)) {
-        toast.warn("一样的地方拖着干啥？");
+        toast.warn("一样的地方拖着干啥？")
         return false
     }
     // TODO 拖动多个文件
@@ -504,10 +527,21 @@ async function handleChooseDir() {
                 <div class="text-center pt-25px mx-12px overflow-hidden" v-if="!state.rootDir">
                     <button @click="handleChooseDir" class="button">打开一个文件夹</button>
                 </div>
-                <FileTree v-if="state.rootDir" ref="filetreeRef" @contextmenu="handleContextmenu" sort :list="state.fileData"
-                    v-model:activeKeys="state.activeKeys" v-model:openKey="state.openKey" v-model:focusKey="state.focusKey"
-                    v-model:isFocus="state.isFocus" @clickNode="handleClickNode" @rename="handleRename"
-                    @createOne="handleCreateOne" :dropFn="handleDropFn">
+                <FileTree
+                    v-if="state.rootDir"
+                    ref="filetreeRef"
+                    @contextmenu="handleContextmenu"
+                    sort
+                    :list="state.fileData"
+                    v-model:activeKeys="state.activeKeys"
+                    v-model:openKey="state.openKey"
+                    v-model:focusKey="state.focusKey"
+                    v-model:isFocus="state.isFocus"
+                    @clickNode="handleClickNode"
+                    @rename="handleRename"
+                    @createOne="handleCreateOne"
+                    :dropFn="handleDropFn"
+                >
                     <template #default="{ data: { data } }">
                         <!-- 未保存 -->
                     </template>
@@ -520,14 +554,23 @@ async function handleChooseDir() {
             <AdjustLine mid="filetree-demo-left" direction="right"></AdjustLine>
         </div>
         <div class="flex-1 w-0 flex flex-col h-1/1">
-            <div class="flex-shrink-0 p-16px border-b"
-                v-if="(activeNode && activeNode.title.endsWith('.html')) || !!state.showURL">
-                <button @click="toggleShowWeb(activeNode)" v-if="state.showURL" class="button is-primary">取消展示</button>
+            <div
+                class="flex-shrink-0 p-16px border-b"
+                v-if="(activeNode && activeNode.title.endsWith('.html')) || !!state.showURL"
+            >
+                <button @click="toggleShowWeb(activeNode)" v-if="state.showURL" class="button is-primary">
+                    取消展示
+                </button>
                 <button v-else @click="toggleShowWeb(activeNode)" class="button">展示网页</button>
             </div>
             <div class="flex-1 h-0">
-                <CodeEditor v-if="activeNode && activeNode.isFile" v-model="state.content" :key="activeNode.key"
-                    :name="activeNode.title as any" :logo="configStore['editor.bg']"></CodeEditor>
+                <CodeEditor
+                    v-if="activeNode && activeNode.isFile"
+                    v-model="state.content"
+                    :key="activeNode.key"
+                    :name="activeNode.title as any"
+                    :logo="configStore['editor.bg']"
+                ></CodeEditor>
             </div>
         </div>
         <div v-if="state.showURL" class="relative border-l">
