@@ -21,6 +21,18 @@ import { toast } from "vue3-toastify"
 import Preview from "@/componentsAuto/Preview/Preview.vue"
 import { Editor as MdEditor, Viewer } from '@bytemd/vue-next'
 import gfm from '@bytemd/plugin-gfm'
+import frontmatter from '@bytemd/plugin-frontmatter'
+import btybreaks from '@bytemd/plugin-breaks'
+
+const ppp: any = {
+    viewerEffect({ markdownBody }: any) {
+
+    const links = markdownBody.querySelectorAll("a")
+    links.forEach((link: any) => {
+      link.setAttribute('target', '_blank');
+    });
+  }
+}
 
 const previewRef = ref<InstanceType<typeof Preview>>()
 
@@ -587,7 +599,7 @@ async function handleExtra() {
             </div>
             <div class="flex-1 h-0">
                 <!-- View没有样式，需要自己引入 -->
-                <MdEditor :plugins="[gfm()]" style="height:100%" :value="state.content" @change="(v: string)=> state.content = v" v-if="activeNode && activeNode.isFile && activeNode.title.endsWith('.md')"></MdEditor>
+                <MdEditor :plugins="[gfm(), frontmatter(), btybreaks(), ppp]" style="height:100%" :value="state.content" @change="(v: string)=> state.content = v" v-if="activeNode && activeNode.isFile && activeNode.title.endsWith('.md')"></MdEditor>
                 <CodeEditor
                     v-else-if="activeNode && activeNode.isFile"
                     v-model="state.content"
@@ -608,6 +620,7 @@ async function handleExtra() {
 .filetree{
     :deep(.bytemd){
         height: 100%;
+        user-select: text;
     }
 }
 </style>

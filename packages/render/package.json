@@ -9,6 +9,8 @@
     "serve": "vite preview"
   },
   "dependencies": {
+    "@bytemd/plugin-breaks": "^1.21.0",
+    "@bytemd/plugin-frontmatter": "^1.21.0",
     "@bytemd/plugin-gfm": "^1.21.0",
     "@bytemd/vue-next": "^1.21.0",
     "@intlify/unplugin-vue-i18n": "^0.10.0",
