@@ -8,16 +8,16 @@ export default function kill(process: ChildProcessWithoutNullStreams | null, cal
     const pid = process.pid
     let myProcess
     if (platform === "Linux") {
-        console.log("kill -9 " + pid)
-        myProcess = spawn("kill", ["-9", String(pid)])
+        console.log("kill " + pid)
+        myProcess = spawn("kill", [String(pid)])
     }
     if (platform === "MacOS") {
-        console.log("kill -9 " + pid)
-        myProcess = spawn("kill", ["-9", String(pid)])
+        console.log("kill " + pid)
+        myProcess = spawn("kill", [String(pid)])
     }
     if (platform === "windows") {
-        console.log("TASKKILL /F /T /PID " + pid)
-        myProcess = spawn("TASKKIll", ["/F", "/T", "/PID", String(pid)])
+        console.log("TASKKILL /T /PID " + pid)
+        myProcess = spawn("TASKKIll", ["/T", "/PID", String(pid)])
     }
     myProcess.stdout.on("data", data => {
         callback && callback(null, `${data}`)
@@ -38,16 +38,16 @@ export function killPID(pid: string, callback?: (err?: any, data?: any, isComple
     if (!pid) return
     let myProcess
     if (platform === "Linux") {
-        console.log("kill -9 " + pid)
-        myProcess = spawn("kill", ["-9", String(pid)])
+        console.log("kill " + pid)
+        myProcess = spawn("kill", [String(pid)])
     }
     if (platform === "MacOS") {
-        console.log("kill -9 " + pid)
-        myProcess = spawn("kill", ["-9", String(pid)])
+        console.log("kill" + pid)
+        myProcess = spawn("kill", [String(pid)])
     }
     if (platform === "windows") {
-        console.log("TASKKILL /F /T /PID " + pid)
-        myProcess = spawn("TASKKIll", ["/F", "/T", "/PID", String(pid)])
+        console.log("TASKKILL /T /PID " + pid)
+        myProcess = spawn("TASKKIll", ["/T", "/PID", String(pid)])
     }
     myProcess.stdout.on("data", data => {
         callback && callback(null, `${data}`)

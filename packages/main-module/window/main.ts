@@ -1,4 +1,4 @@
-import { app, BrowserWindow, dialog, ipcMain, session } from "electron"
+import { app, BrowserWindow, dialog, ipcMain, session, shell } from "electron"
 import { Shared } from "@rush/main-share"
 import { getFileUrl } from "@rush/main-tool"
 import { quit } from "."
@@ -56,6 +56,16 @@ export function showMainWindow(opts = {}) {
         //     // 注入全局配置变量
         //     mainWindow.webContents.executeJavaScript(`globalConfig = ${JSON.stringify(Settings.n.config())}`,false)
         // });
+        // 完全阻止一下两种方式打开新窗口
+        /**
+         * 如果属性中包含 target=_blank，单击链接或提交表格即可创建
+         * 在 JavaScript 中调用 window.open()
+         */
+        // https://www.electronjs.org/zh/docs/latest/api/window-open
+        Shared.data.mainWindow.webContents.setWindowOpenHandler((details)=>{
+            shell.openExternal(details.url)
+            return { action: 'deny' }
+        })
         Shared.data.mainWindow.on("close", (event: any) => {
             quit(event)
         })

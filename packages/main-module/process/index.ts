@@ -14,17 +14,17 @@ import fs from "fs-extra"
 const appPath = path.resolve(app.getAppPath(), "all-pid")
 fs.ensureDir(appPath)
 
-function spawnEvent(pid) {
-    console.log("创建" + path.resolve(appPath, String(pid)))
-    fs.createFileSync(path.resolve(appPath, String(pid)))
-}
-function exitEvent(pid) {
-    let pidPath = path.resolve(appPath, String(pid))
-    console.log("删除" + pidPath)
-    if (fs.existsSync(pidPath)) {
-        fs.rmSync(pidPath)
-    }
-}
+// function spawnEvent(pid) {
+//     console.log("创建" + path.resolve(appPath, String(pid)))
+//     fs.createFileSync(path.resolve(appPath, String(pid)))
+// }
+// function exitEvent(pid) {
+//     let pidPath = path.resolve(appPath, String(pid))
+//     console.log("删除" + pidPath)
+//     if (fs.existsSync(pidPath)) {
+//         fs.rmSync(pidPath)
+//     }
+// }
 
 interface IProcessChild {
     key: number | string
@@ -91,10 +91,10 @@ class ProcessManager {
                     return
                 }
                 broadcast(`process.run`, err || data)
-            })
-            p.on("spawn", () => spawnEvent(p.pid))
-            p.on("error", () => exitEvent(p.pid))
-            p.on("exit", () => exitEvent(p.pid))
+            }, {}, app.getAppPath())
+            // p.on("spawn", () => spawnEvent(p.pid))
+            // p.on("error", () => exitEvent(p.pid))
+            // p.on("exit", () => exitEvent(p.pid))
             resolve(p.pid)
         })
         return pid
@@ -103,6 +103,7 @@ class ProcessManager {
     createProcess(key: string | number, command: string): boolean {
         let pro = this._processlist.filter(v => v.key === key)[0]
         if (pro) {
+            this.send(key, pro.status, "")
             return false
         }
         const commandArray = command.split(" ")
@@ -137,11 +138,11 @@ class ProcessManager {
                 this.send(key, oneProcess.status, iGetInnerText(`${data}`))
                 oneProcess.log.push(iGetInnerText(data))
             }
-        })
+        }, {}, app.getAppPath())
 
-        p.on("spawn", () => spawnEvent(p.pid))
-        p.on("error", () => exitEvent(p.pid))
-        p.on("exit", () => exitEvent(p.pid))
+        // p.on("spawn", () => spawnEvent(p.pid))
+        // p.on("error", () => exitEvent(p.pid))
+        // p.on("exit", () => exitEvent(p.pid))
 
         p.on("spawn", () => {
             oneProcess.status = EProcessStatus.Running
@@ -161,10 +162,15 @@ class ProcessManager {
             if (instance) {
                 process.status = EProcessStatus.Stopping
                 this.send(process.key, process.status)
-                kill(process.instance)
-                if (process.instance.pid) {
-                    exitEvent(process.instance.pid)
+                let isKilled = process.instance.kill()
+                if(!isKilled){
+                    kill(process.instance)
                 }
+                this.clearOneDeath(process.instance)
+                process.status = EProcessStatus.Exit
+                // if (process.instance.pid) {
+                //     exitEvent(process.instance.pid)
+                // }
             }
         }
     }
@@ -177,10 +183,15 @@ class ProcessManager {
                 if (instance) {
                     process.status = EProcessStatus.Stopping
                     this.send(process.key, process.status)
-                    kill(process.instance)
-                    if (process.instance.pid) {
-                        exitEvent(process.instance.pid)
+                    let isKilled = process.instance.kill()
+                    if(!isKilled){
+                        kill(process.instance)
                     }
+                    this.clearOneDeath(process.instance)
+                    process.status = EProcessStatus.Exit
+                    // if (process.instance.pid) {
+                    //     exitEvent(process.instance.pid)
+                    // }
                 }
                 break
             }
@@ -197,10 +208,13 @@ class ProcessManager {
             const instance = process.instance
             if (instance === p) {
                 if (process.status === EProcessStatus.Exit || process.status === EProcessStatus.Normal) {
-                    kill(process.instance)
-                    if (process.instance.pid) {
-                        exitEvent(process.instance.pid)
+                    let isKilled = process.instance.kill()
+                    if(!isKilled){
+                        kill(process.instance)
                     }
+                    // if (process.instance.pid) {
+                    //     exitEvent(process.instance.pid)
+                    // }
                     this._processlist.splice(i, 1)
                 }
                 if (instance?.killed) {
@@ -218,10 +232,13 @@ class ProcessManager {
             const process = list[i]
             const instance = process.instance
             if ((process.status === EProcessStatus.Exit || process.status === EProcessStatus.Normal) && instance) {
-                kill(process.instance)
-                if (process.instance.pid) {
-                    exitEvent(process.instance.pid)
+                let isKilled = process.instance.kill()
+                if(!isKilled){
+                    kill(process.instance)
                 }
+                // if (process.instance.pid) {
+                //     exitEvent(process.instance.pid)
+                // }
                 count++
                 this._processlist.splice(i, 1)
             }

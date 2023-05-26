@@ -19,6 +19,8 @@ import CodeEditor from "@/components/CodeEditor/code-editor.vue"
 import AdjustLine from "@/components/adjust-line"
 import { toast } from "vue3-toastify"
 import Preview from "@/componentsAuto/Preview/Preview.vue"
+import { Editor as MdEditor, Viewer } from '@bytemd/vue-next'
+import gfm from '@bytemd/plugin-gfm'
 
 const previewRef = ref<InstanceType<typeof Preview>>()
 
@@ -518,25 +520,29 @@ async function handleChooseDir() {
 _agent.on("process.run", (_, data)=>{
     console.log(data);
 })
+_agent.on("event:process", (_, {key, message, status})=>{
+    console.log(key, status);
+    console.log(message);
+})
 let pid: string
 async function handleExtraaa() {
     // console.log(await _agent.call("process.run", "pwd"));
-    // console.log(await _agent.call("process.kill", 'showweb'));
-    if(pid){
-        await _agent.call("process.killPID", pid)
-    }
+    console.log(await _agent.call("process.kill", 'showweb'));
+    // if(pid){
+    //     await _agent.call("process.killPID", pid)
+    // }
 }
 
 async function handleExtra() {
-    pid = await _agent.callLong("process.run", `show ${configStore["snippet.storagePath"]+'/index.html'}`);
-    console.log(pid);
-    // console.log(await _agent.call("process.createProcess", 'showweb', `show ${'/home/topuser/文档/ene-desktop/SnippetData/index.html'}`));
+    // pid = await _agent.callLong("process.run", `show ${configStore["snippet.storagePath"]+'/index.html'}`);
+    // console.log(pid);
+    console.log(await _agent.call("process.createProcess", 'showweb', `show ${configStore["snippet.storagePath"]+'/index.html'}`));
 }
 
 </script>
 
 <template>
-    <div class="flex h-1/1">
+    <div class="flex h-1/1 filetree">
         <div class="w-300px flex-shrink-0 relative border-r flex flex-col">
             <div class="flex-1 h-0" @contextmenu="handleGlobalContextmenu">
                 <div class="text-center pt-25px mx-12px overflow-hidden" v-if="!state.rootDir">
@@ -580,8 +586,10 @@ async function handleExtra() {
                 <button v-else @click="toggleShowWeb(activeNode)" class="button">展示网页</button>
             </div>
             <div class="flex-1 h-0">
+                <!-- View没有样式，需要自己引入 -->
+                <MdEditor :plugins="[gfm()]" style="height:100%" :value="state.content" @change="(v: string)=> state.content = v" v-if="activeNode && activeNode.isFile && activeNode.title.endsWith('.md')"></MdEditor>
                 <CodeEditor
-                    v-if="activeNode && activeNode.isFile"
+                    v-else-if="activeNode && activeNode.isFile"
                     v-model="state.content"
                     :key="activeNode.key"
                     :name="activeNode.title as any"
@@ -595,3 +603,11 @@ async function handleExtra() {
         </div>
     </div>
 </template>
+
+<style scoped lang="scss">
+.filetree{
+    :deep(.bytemd){
+        height: 100%;
+    }
+}
+</style>

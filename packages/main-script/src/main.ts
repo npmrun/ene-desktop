@@ -2,6 +2,19 @@ import * as fs from "fs-extra"
 import * as path from "path"
 var liveServer = require("live-server")
 
+const exePath = process.cwd()
+const appPath = path.resolve(exePath, "all-pid")
+fs.ensureDir(appPath)
+fs.createFileSync(path.resolve(appPath, String(process.pid)))
+function exit() {
+    let pidPath = path.resolve(appPath, String(process.pid))
+    if (fs.existsSync(pidPath)) {
+        fs.rmSync(pidPath)
+    }
+}
+process.on("exit", exit)
+process.on("SIGINT", exit)
+
 let allargv = process.argv.slice(2)
 
 if (allargv.length == 1 && fs.statSync(allargv[0]).isFile) {
@@ -32,15 +45,3 @@ if (allargv.length == 1 && fs.statSync(allargv[0]).isFile) {
 
 // console.log(fs.readFileSync("/home/topuser/下载/最新激活码.txt", "utf-8"));
 // console.log(liveServer);
-
-/**
- * 尝试从这里新建与删除pid文件，问题是需要获取到应用目录位置。考虑process.cwd()看看路径是那里
- */
-//  fs.createFileSync(path.resolve(appPath, String(process.pid)))
-// process.on("exit", () => {
-//     let pidPath = path.resolve(appPath, String(process.pid))
-//     console.log("删除" + pidPath)
-//     if (fs.existsSync(pidPath)) {
-//         fs.rmSync(pidPath)
-//     }
-// })
