@@ -1,6 +1,6 @@
 import * as fs from "fs-extra"
-import * as path from "path";
-var liveServer = require("live-server");
+import * as path from "path"
+var liveServer = require("live-server")
 
 let allargv = process.argv.slice(2)
 
@@ -12,8 +12,8 @@ if (allargv.length == 1 && fs.statSync(allargv[0]).isFile) {
         root: path.parse(f).dir,
         file: path.parse(f).base, // When set, serve this file (server root relative) for every 404 (useful for single-page applications)
         wait: 1000, // Waits for all changes, before reloading. Defaults to 0 sec.
-    };
-    liveServer.start(params);
+    }
+    liveServer.start(params)
 }
 
 // var params = {
@@ -33,3 +33,14 @@ if (allargv.length == 1 && fs.statSync(allargv[0]).isFile) {
 // console.log(fs.readFileSync("/home/topuser/下载/最新激活码.txt", "utf-8"));
 // console.log(liveServer);
 
+/**
+ * 尝试从这里新建与删除pid文件，问题是需要获取到应用目录位置。考虑process.cwd()看看路径是那里
+ */
+//  fs.createFileSync(path.resolve(appPath, String(process.pid)))
+// process.on("exit", () => {
+//     let pidPath = path.resolve(appPath, String(process.pid))
+//     console.log("删除" + pidPath)
+//     if (fs.existsSync(pidPath)) {
+//         fs.rmSync(pidPath)
+//     }
+// })

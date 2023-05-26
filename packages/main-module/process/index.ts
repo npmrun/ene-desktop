@@ -7,6 +7,24 @@ import { EProcessStatus } from "@rush/common/process"
 import { broadcast } from "@rush/main-tool"
 import { checkCommand } from "./script"
 import { Mitt } from "@rush/main-module/mitt"
+import { app } from "electron"
+import path from "path"
+import fs from "fs-extra"
+
+const appPath = path.resolve(app.getAppPath(), "all-pid")
+fs.ensureDir(appPath)
+
+function spawnEvent(pid) {
+    console.log("创建" + path.resolve(appPath, String(pid)))
+    fs.createFileSync(path.resolve(appPath, String(pid)))
+}
+function exitEvent(pid) {
+    let pidPath = path.resolve(appPath, String(pid))
+    console.log("删除" + pidPath)
+    if (fs.existsSync(pidPath)) {
+        fs.rmSync(pidPath)
+    }
+}
 
 interface IProcessChild {
     key: number | string
@@ -66,7 +84,7 @@ class ProcessManager {
             execCommand = commandArray[0]
         }
         let args = commandArray.slice(1)
-        const pid = await (new Promise((resolve) => {
+        const pid = await new Promise(resolve => {
             let p = exec(execCommand, args, (err, data, isComplete) => {
                 if (isComplete) {
                     broadcast(`process.run`, `command run completed: ${command}`)
@@ -74,8 +92,11 @@ class ProcessManager {
                 }
                 broadcast(`process.run`, err || data)
             })
+            p.on("spawn", () => spawnEvent(p.pid))
+            p.on("error", () => exitEvent(p.pid))
+            p.on("exit", () => exitEvent(p.pid))
             resolve(p.pid)
-        }))
+        })
         return pid
     }
 
@@ -117,6 +138,11 @@ class ProcessManager {
                 oneProcess.log.push(iGetInnerText(data))
             }
         })
+
+        p.on("spawn", () => spawnEvent(p.pid))
+        p.on("error", () => exitEvent(p.pid))
+        p.on("exit", () => exitEvent(p.pid))
+
         p.on("spawn", () => {
             oneProcess.status = EProcessStatus.Running
             this.send(key, oneProcess.status)
@@ -136,6 +162,9 @@ class ProcessManager {
                 process.status = EProcessStatus.Stopping
                 this.send(process.key, process.status)
                 kill(process.instance)
+                if (process.instance.pid) {
+                    exitEvent(process.instance.pid)
+                }
             }
         }
     }
@@ -149,6 +178,9 @@ class ProcessManager {
                     process.status = EProcessStatus.Stopping
                     this.send(process.key, process.status)
                     kill(process.instance)
+                    if (process.instance.pid) {
+                        exitEvent(process.instance.pid)
+                    }
                 }
                 break
             }
@@ -166,6 +198,9 @@ class ProcessManager {
             if (instance === p) {
                 if (process.status === EProcessStatus.Exit || process.status === EProcessStatus.Normal) {
                     kill(process.instance)
+                    if (process.instance.pid) {
+                        exitEvent(process.instance.pid)
+                    }
                     this._processlist.splice(i, 1)
                 }
                 if (instance?.killed) {
@@ -184,6 +219,9 @@ class ProcessManager {
             const instance = process.instance
             if ((process.status === EProcessStatus.Exit || process.status === EProcessStatus.Normal) && instance) {
                 kill(process.instance)
+                if (process.instance.pid) {
+                    exitEvent(process.instance.pid)
+                }
                 count++
                 this._processlist.splice(i, 1)
             }
@@ -202,7 +240,7 @@ const instance = ProcessManager.getInstance()
 export default instance
 
 Mitt.on("exit", ({ code }) => {
-    console.log("清理所有存在的进程");
+    console.log("清理所有存在的进程")
     instance.killAll()
     process.exit(code)
 })

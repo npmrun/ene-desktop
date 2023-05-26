@@ -64,11 +64,13 @@ function createWindow() {
 process
     // Handle normal exits
     .on("exit", code => {
+        console.log("exit");
         logger.debug("exit", code)
         Mitt.emit("exit", { code })
     })
     // Handle CTRL+C
     .on("SIGINT", () => {
+        console.log("SIGINT");
         logger.debug("SIGINT exit")
         Mitt.emit("exit")
     })
