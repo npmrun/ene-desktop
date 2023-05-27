@@ -67,6 +67,23 @@ export function replacePath(filePath: string) {
 export function realpathSync(filePath: string) {
     return fs.realpathSync(filePath, "hex")
 }
+
+let extraPath = path.join(__dirname, "../../extra")
+if (__dirname.split(path.sep).indexOf("app.asar") >= 0) {
+    extraPath = path.join(__dirname, "../..")
+}
+export function saveOpenFile(content: string) {
+    const p = path.join(extraPath, "app-opendir")
+    fs.ensureFileSync(p)
+    fs.writeFileSync(p, content, "utf-8")
+}
+
+export function loadOpenFile() {
+    const p = path.join(extraPath, "app-opendir")
+    fs.ensureFileSync(p)
+    return fs.readFileSync(p, "utf-8")
+}
+
 function _walkDir(dir: string, cb?: (file: string, isDirectory: boolean) => void) {
     function _walk(_dir = ".") {
         const statInfo = fs.statSync(dir + path.sep + _dir)

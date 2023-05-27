@@ -213,6 +213,7 @@ async function initDir() {
     state.fileData = convertTreeData(_agent.file.readFolderToTree(state.rootDir).children)
     await _agent.call("filetree.init", state.rootDir)
     console.log("initDir", state.rootDir)
+    _agent.file.saveOpenFile(state.rootDir)
 }
 
 async function dispose() {
@@ -223,6 +224,10 @@ async function dispose() {
 
 onBeforeMount(async () => {
     console.log("onBeforeMount")
+    let str = _agent.file.loadOpenFile()
+    if(str){
+        state.rootDir = str
+    }
     await initDir()
     _agent.on("filetree-update-message", listenFileChange)
 })
@@ -287,6 +292,15 @@ function handleContextmenu(data: INiuTreeData) {
     menuList.push({
         type: "separator",
     })
+    if(data.isFile){
+        menuList.push({
+            label: "复制",
+            click() {
+                const path = findNodePath(data)
+                _agent.call("copyFile", path)
+            },
+        })
+    }
     menuList.push({
         label: "重命名",
         click() {

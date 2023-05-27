@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { judgeFile } from "@common/util/file"
 import { monaco } from "./monaco"
-import { computed, getCurrentScope, onBeforeUnmount, onMounted, onScopeDispose, onUnmounted, ref, watch } from "vue";
+import { computed, getCurrentScope, onBeforeUnmount, onMounted, onScopeDispose, onUnmounted, ref, watch } from "vue"
 import DefaultLogo from "./120x120.png"
 const editorRef = ref<HTMLDivElement>()
 let editor: monaco.editor.IStandaloneCodeEditor | null = null
@@ -24,11 +24,54 @@ const emit = defineEmits<{
     (e: "cursor:position", position: [number, number]): void
 }>()
 defineExpose({
+    insertText(text: string, type = "cursor") {
+        if (editor) {
+            let m = editor.getModel()
+            const currentPosition = editor.getPosition()
+            if (m) {
+                console.log(currentPosition)
+                if (type === "cursor" && currentPosition) {
+                    m.pushEditOperations(
+                        [],
+                        [
+                            {
+                                range: new monaco.Range(
+                                    currentPosition.lineNumber,
+                                    currentPosition.column,
+                                    currentPosition.lineNumber,
+                                    currentPosition.column,
+                                ),
+                                text,
+                            },
+                        ],
+                        () => [
+                            new monaco.Selection(
+                                currentPosition.lineNumber,
+                                currentPosition.column,
+                                currentPosition.lineNumber,
+                                currentPosition.column,
+                            ),
+                        ],
+                    )
+                } else {
+                    const lineCount = m.getLineCount()
+                    const lastLineLength = m.getLineLength(lineCount)
+                    const range = new monaco.Selection(lineCount, lastLineLength + 1, lineCount, lastLineLength + 1)
+                    const text = "your text"
+                    const op = {
+                        range: range,
+                        text: text,
+                    }
+                    m.pushEditOperations([], [op], () => [range])
+                }
+            }
+        }
+    },
     setContent(content: string) {
         if (editorRef.value && editor) {
             editor.setValue(content)
         }
-    }
+    },
 })
 function updateModel(name: string, content: string) {
     if (editor) {
@@ -60,18 +103,18 @@ onMounted(() => {
                 emit("update:modelValue", code)
             }
         })
-        editor.onDidChangeCursorPosition((e) => {
-            emit('cursor:position', [e.position.lineNumber, e.position.column])
+        editor.onDidChangeCursorPosition(e => {
+            emit("cursor:position", [e.position.lineNumber, e.position.column])
         })
-        editor.setValue
-        editorRef.value.addEventListener('resize', resizeLayout)
+        editorRef.value.addEventListener("resize", resizeLayout)
     }
+    // 如果不需要从动态外部更改代码的话应该就不需要这个
     watch(
         () => props.modelValue,
-        async (str) => {
+        async str => {
             if (editor) {
                 let code = editor.getValue()
-                if(code !== str){
+                if (code !== str) {
                     editor.setValue(str)
                 }
             }
@@ -80,7 +123,7 @@ onMounted(() => {
     )
     watch(
         () => props.name,
-        async (name) => {
+        async name => {
             if (editor) {
                 updateModel(name, props.modelValue)
             }
@@ -90,7 +133,7 @@ onMounted(() => {
 })
 onBeforeUnmount(() => {
     if (editorRef.value) {
-        editorRef.value.removeEventListener('resize', resizeLayout)
+        editorRef.value.removeEventListener("resize", resizeLayout)
     }
     if (editor) {
         var oldModel = editor.getModel()
@@ -99,18 +142,18 @@ onBeforeUnmount(() => {
         }
         editor?.dispose()
         editor = null
-        console.log("editor dispose");
+        console.log("editor dispose")
     }
 })
 const style = computed(() => {
-    console.log(props);
+    console.log(props)
 
     if (props.logo && props.logoType === "bg") {
         return {
             backgroundImage: `url(${props.logo})`,
-            backgroundSize: 'cover',
-            backgroundRepeat: 'no-repeat',
-            backgroundPosition: 'center center'
+            backgroundSize: "cover",
+            backgroundRepeat: "no-repeat",
+            backgroundPosition: "center center",
         }
     }
     return {}
@@ -121,8 +164,8 @@ const getLogo = computed(() => {
     return DefaultLogo
 })
 
-function useResizeObserver(callback: ResizeObserverCallback,) {
-    const isSupported = window && 'ResizeObserver' in window
+function useResizeObserver(callback: ResizeObserverCallback) {
+    const isSupported = window && "ResizeObserver" in window
     let observer: ResizeObserver | undefined
     const cleanup = () => {
         if (observer) {
@@ -132,14 +175,14 @@ function useResizeObserver(callback: ResizeObserverCallback,) {
     }
     const stopWatch = watch(
         () => editorRef.value,
-        (el) => {
+        el => {
             cleanup()
             if (isSupported && window && el) {
                 observer = new ResizeObserver(callback)
                 observer!.observe(el, {})
             }
         },
-        { immediate: true }
+        { immediate: true },
     )
     const stop = () => {
         cleanup()
@@ -167,7 +210,7 @@ useResizeObserver(() => {
     <div class="monaco-wrapper">
         <div class="monaco-editor" ref="editorRef"></div>
         <div class="monaco-bg" :style="style">
-            <img v-if="logoType === 'logo' && getLogo" class="monaco-logo" :src="getLogo" alt="">
+            <img v-if="logoType === 'logo' && getLogo" class="monaco-logo" :src="getLogo" alt="" />
         </div>
     </div>
 </template>
@@ -188,7 +231,7 @@ useResizeObserver(() => {
         right: 0;
         bottom: 0;
         pointer-events: none;
-        opacity: .1;
+        opacity: 0.1;
 
         .monaco-logo {
             @apply absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2;
