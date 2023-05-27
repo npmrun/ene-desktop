@@ -21,6 +21,7 @@ const props = withDefaults(
 )
 const emit = defineEmits<{
     (e: "update:modelValue", code: string): void
+    (e: "change", code: string): void
     (e: "cursor:position", position: [number, number]): void
 }>()
 defineExpose({
@@ -80,6 +81,13 @@ function updateModel(name: string, content: string) {
         // 这样定义的话model无法清除
         // monaco.editor.createModel("const a = 111","typescript", monaco.Uri.parse('file://root/file3.ts'))
         let model: monaco.editor.ITextModel = monaco.editor.createModel(content ?? "", file?.language ?? "txt")
+        model.onDidChangeContent((e)=>{
+            if(model){
+                let code = model.getValue()
+                emit("update:modelValue", code)
+                emit("change", code)
+            }
+        })
         if (oldModel) {
             oldModel.dispose()
         }
@@ -97,12 +105,6 @@ onMounted(() => {
             theme: "vs-light",
             fontFamily: 'Cascadia Mono, Consolas, "Courier New", monospace',
         }) as monaco.editor.IStandaloneCodeEditor
-        editor.onDidChangeModelContent(e => {
-            if (editor) {
-                let code = editor.getValue()
-                emit("update:modelValue", code)
-            }
-        })
         editor.onDidChangeCursorPosition(e => {
             emit("cursor:position", [e.position.lineNumber, e.position.column])
         })

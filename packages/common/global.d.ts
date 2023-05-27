@@ -17,6 +17,7 @@ interface IConfig {
     "update.owner"?: string // 更新通道
     "editor.bg": string // 更新通道
     "snippet.storagePath": string // 代码片段保存位置
+    "bookmark.storagePath": string // 书签保存位置
     backup_rule: string // 备份规则
     storagePath: string // 存储地址
 }

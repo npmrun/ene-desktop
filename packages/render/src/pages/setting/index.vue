@@ -55,6 +55,18 @@
                 <button class="button is-info is-medium ml-8px" @click="openDir(configStore['snippet.storagePath'])">打开目录</button>
             </div>
         </SettingItem>
+        <SettingItem title="收藏家保存位置" desc="用于储存收藏数据" :red-border="!configStore.isSameOne('bookmark.storagePath')">
+            <div class="whitespace-nowrap flex">
+                <div class="!min-w-320px !max-w-550px hover:flex-1 hover:w-0" style="transition: flex .5s linear;">
+                    <input spellcheck="false" :value="configStore['bookmark.storagePath']" :title="configStore['bookmark.storagePath']"
+                        @change="(e: any) => configStore.setConfig('bookmark.storagePath', e.target.value)"
+                        class="input is-medium block" disabled type="text" placeholder="Text input">
+                </div>
+                <button class="button is-info is-medium ml-8px"
+                    @click="chooseBookmarkDataDir(configStore['bookmark.storagePath'])"> 选择目录 </button>
+                <button class="button is-info is-medium ml-8px" @click="openDir(configStore['bookmark.storagePath'])">打开目录</button>
+            </div>
+        </SettingItem>
         <!-- <SettingItem title="数据备份频次" desc="采用Cron表达式，主要用于备份本地数据，若文件未修改则不会备份"
             :red-border="!configStore.isSameOne('backup_rule')">
             <input spellcheck="false" :value="configStore['backup_rule']"
@@ -90,5 +102,12 @@ async function chooseSnippetDataDir(defaultPath: string) {
         console.error(error);
     }
 }
-
+async function chooseBookmarkDataDir(defaultPath: string) {
+    try {
+        const dir = await _agent.callLong("dialog.chooseDir", "选择数据保存路径", defaultPath)
+        configStore.setConfig("bookmark.storagePath", dir)
+    } catch (error) {
+        console.error(error);
+    }
+}
 </script>

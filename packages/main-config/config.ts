@@ -15,7 +15,14 @@ const defaultConfig: IConfig = {
     "update.owner": "npmrun",
     "editor.bg": "",
     "snippet.storagePath": path.join(app.getPath("documents"), setting.app_title, "./SnippetData"),
+    "bookmark.storagePath": path.join(app.getPath("documents"), setting.app_title, "./BookmarkData"),
     storagePath: path.join(app.getPath("documents"), setting.app_title),
+}
+
+function init(config: IConfig) {
+    // 在配置初始化后执行
+    fs.ensureDirSync(config["snippet.storagePath"])
+    fs.ensureDirSync(config["bookmark.storagePath"])
 }
 
 // 判断是否是空文件夹
@@ -82,9 +89,9 @@ class Settings {
      */
     #syncVar(confingPath?: string) {
         const configFile = this.#configPath(confingPath)
-        if(!fs.pathExistsSync(configFile)){
+        if (!fs.pathExistsSync(configFile)) {
             fs.ensureFileSync(configFile)
-            fs.writeJSONSync(configFile,{})
+            fs.writeJSONSync(configFile, {})
         }
         const config = fs.readJSONSync(configFile) as IConfig
         confingPath && (config.storagePath = confingPath)
@@ -113,7 +120,7 @@ class Settings {
             this.#syncVar()
             this.#sync()
         }
-        fs.ensureDirSync(this.#config["snippet.storagePath"])
+        init.call(this, this.#config)
     }
     config() {
         return this.#config
@@ -140,9 +147,9 @@ class Settings {
         let oldMainConfig = Object.assign({}, this.#config)
         let isChange = false
         let changeKeys: (keyof IConfig)[] = []
-        let canChangeStorage = (targetPath: string)=> {
-            if(fs.existsSync(oldMainConfig.storagePath) && fs.existsSync(targetPath) && !isEmptyDir(targetPath)){
-                if(fs.existsSync(path.join(targetPath, "./config.json"))){
+        let canChangeStorage = (targetPath: string) => {
+            if (fs.existsSync(oldMainConfig.storagePath) && fs.existsSync(targetPath) && !isEmptyDir(targetPath)) {
+                if (fs.existsSync(path.join(targetPath, "./config.json"))) {
                     return true
                 }
                 return false
@@ -152,7 +159,7 @@ class Settings {
         if (typeof key === "string") {
             if (value != undefined && value !== this.#config[key]) {
                 if (key === "storagePath") {
-                    if(!canChangeStorage(value)) {
+                    if (!canChangeStorage(value)) {
                         throw "无法改变存储地址"
                         return
                     }
@@ -170,8 +177,8 @@ class Settings {
                 isChange = true
             }
         } else {
-            if (key['storagePath'] !== undefined && key['storagePath'] !== this.#config['storagePath']){
-                if(!canChangeStorage(key['storagePath'])) {
+            if (key['storagePath'] !== undefined && key['storagePath'] !== this.#config['storagePath']) {
+                if (!canChangeStorage(key['storagePath'])) {
                     throw "无法改变存储地址"
                     return
                 }

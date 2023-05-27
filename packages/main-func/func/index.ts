@@ -1,6 +1,6 @@
 
 
-import { shell, clipboard, Notification } from "electron"
+import { shell, clipboard, Notification, dialog } from "electron"
 import { appTrayPath } from "@rush/main-tool"
 import { mime } from "@rush/main-tool/mime-util"
 import fs from "fs"
@@ -11,7 +11,7 @@ export function openExternal(url:string) {
     shell.openExternal(url)
 }
 
-export function openDir(path: string){
+export async function openDir(path: string){
     shell.openPath(path)
 }
 

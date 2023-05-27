@@ -20,5 +20,5 @@ defineExpose({
 })
 </script>
 <template>
-    <browser ref="borwserRef" v-if="type === 'browser'" :url="src" :hide="['collect', 'menu']"></browser>
+    <browser ref="borwserRef" v-if="type === 'browser'" home="我的首页" :url="src" :hide="['collect', 'menu']"></browser>
 </template>

@@ -6,16 +6,20 @@ import path from "path";
 
 const allWatchDir: Record<string, watcher.AsyncSubscription> = {}
 
-export async function init(dir: string) {
-    if(!dir) return
-    if(allWatchDir[dir]) {
+export async function init(dir: string, id?: string) {
+    if (!dir) return
+    if (allWatchDir[dir]) {
         console.log("本就在监听：", dir);
-        return
+        return true
     }
     console.log("开始监听：", dir);
     allWatchDir[dir] = await watcher.subscribe(Settings.n.values("storagePath"), (err, events) => {
-        if(err) throw err
-        broadcast("filetree-update-message", events.map(v=>{
+        if (err) throw err
+        let key = "filetree-update-message"
+        if (id) {
+            key = key + "-" + id
+        }
+        broadcast(key, events.map(v => {
             return {
                 path: v.path.split(path.sep).join('/'),
                 type: v.type
@@ -28,14 +32,14 @@ export async function init(dir: string) {
 }
 
 export async function dispose(dir: string) {
-    if(!dir) return
+    if (!dir) return
     await allWatchDir[dir]?.unsubscribe()
     Reflect.deleteProperty(allWatchDir, dir)
     console.log("取消监听：", dir);
     return true
 }
 
-Mitt.on("exit", ({ code })=>{
+Mitt.on("exit", ({ code }) => {
     // 应用退出
     // 清除所有
     for (const key in allWatchDir) {
