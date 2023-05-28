@@ -16,6 +16,9 @@ const debounceUpdate = debounce(()=>{
 defineExpose({
     update(){
         debounceUpdate()
+    },
+    loadURL(url: string){
+        borwserRef.value?.loadURL(url)
     }
 })
 </script>

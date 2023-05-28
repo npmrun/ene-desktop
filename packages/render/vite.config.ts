@@ -46,6 +46,9 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
                     additionalData: `@import (reference) "@/assets/style/global.less";`,
                     javascriptEnabled: true,
                 },
+                scss: {
+                    additionalData: ` @import "@/assets/style/_global.scss"; `,
+                },
             },
         },
         build: {
@@ -90,7 +93,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
                 onRoutesGenerated(routes) {
                     routes.push({
                         path: "",
-                        redirect: "/home",
+                        redirect: "/bookmark",
                     })
                     return routes
                 },

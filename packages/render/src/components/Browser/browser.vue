@@ -100,6 +100,7 @@ onMounted(() => {
             if (we) {
                 state.canGoBack = we.canGoBack()
                 state.canGoForward = we.canGoForward()
+                console.log(we.getURL());
                 let url = decodeURIComponent(we.getURL())
                 state.curWebviewUrl = decodeURIComponent(we.getURL())
                 let have = false
@@ -118,6 +119,10 @@ onMounted(() => {
                 }
             }
         }
+        we.addEventListener("did-navigate-in-page", (ev) => {
+            // 内部导航，可用于局部更新的网址更新
+            updateInfo()
+        })
         we.addEventListener("did-navigate", (ev) => {
             updateInfo()
         })
@@ -218,6 +223,9 @@ function clickForward() {
 defineExpose({
     update(){
         clickRefresh()
+    },
+    loadURL(url: string){
+        toPage(url)
     }
 })
 

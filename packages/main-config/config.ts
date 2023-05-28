@@ -7,6 +7,13 @@ import { cloneDeep } from "lodash"
 type IOnFunc = (n: IConfig, c: IConfig) => void
 type IT = (keyof IConfig)[] | keyof IConfig | "_"
 
+let storagePath = path.join(app.getPath("documents"), setting.app_title)
+console.log(111111111, process.env.NODE_ENV);
+
+if (process.env.NODE_ENV === "development") {
+    storagePath = path.join(app.getPath("documents"), setting.app_title + "-dev")
+}
+
 const defaultConfig: IConfig = {
     language: "zh",
     backup_rule: "0 0/30 * * * ?",
@@ -14,9 +21,9 @@ const defaultConfig: IConfig = {
     "update.repo": "electron-template",
     "update.owner": "npmrun",
     "editor.bg": "",
-    "snippet.storagePath": path.join(app.getPath("documents"), setting.app_title, "./SnippetData"),
-    "bookmark.storagePath": path.join(app.getPath("documents"), setting.app_title, "./BookmarkData"),
-    storagePath: path.join(app.getPath("documents"), setting.app_title),
+    "snippet.storagePath": path.join(storagePath, "./SnippetData"),
+    "bookmark.storagePath": path.join(storagePath, "./BookmarkData"),
+    storagePath,
 }
 
 function init(config: IConfig) {

@@ -1,7 +1,7 @@
 <script lang="ts" setup>
 import { PopupMenu } from "@/bridge/PopupMenu"
 import FileTree from "@/page-ui/FileTree/filetree.vue"
-import { findNode, findPath } from "@common/util/treeHelper"
+import { findNode, findPath, filter } from "@common/util/treeHelper"
 import { ENiuTreeStatus, INiuTreeData, INiuTreeKey, convert, convertTreeData, findByKeyParent } from "princess-ui"
 import { toast } from "vue3-toastify"
 
@@ -41,6 +41,19 @@ function listenFileChange(_: any, ev: any) {
                 break
             }
             case "create": {
+                if (!temp.path.endsWith(".md") && !temp.path.endsWith(".mdx")) {
+                    toast.error("请新建md文档")
+                    return
+                }
+                let realkey = _agent.file.realpathSync(temp.path, "hex")
+                let cur = findNode(state.fileData, (node)=>{
+                    return node.key === realkey
+                })
+                if(cur && cur.justcreate){
+                    state.fileData = filter(state.fileData, (node)=>{
+                        return node.key !== realkey
+                    })
+                }
                 let pPath = temp.path.split("/").slice(0, -1).join("/")
                 let childFiles =
                     (_agent.file.isDirectory(temp.path)
@@ -102,6 +115,8 @@ const props = withDefaults(defineProps<{
 }>(), {})
 const emit = defineEmits<{
     (ev: "update:activeNode", node: INiuTreeData): void
+    (ev: "updateinfo", node: any): void
+    (ev: "delete", node: INiuTreeData): void
     (ev: "change", node: { openKey?: INiuTreeKey, activeNode?: any, activeKeys?: INiuTreeKey[], isFocus?: boolean, focusKey?: INiuTreeKey }): void
 }>()
 
@@ -129,9 +144,11 @@ defineExpose({
             let nodes = findPath(state.fileData, (data) => {
                 return data.key == key
             })
-            nodes.forEach((node: any) => {
-                node.isFolder && (node.isExpand = true)
-            });
+            if (nodes) {
+                nodes.forEach((node: any) => {
+                    node.isFolder && (node.isExpand = true)
+                });
+            }
         } else {
             state.openKey = undefined
             state.activeKeys = []
@@ -206,7 +223,9 @@ onBeforeUnmount(() => {
 async function initDir() {
     if (!state.rootDir) return
     if (!_agent.file.isDirectory(state.rootDir)) throw new Error("将要打开的目录不是文件夹:" + state.rootDir)
-    state.fileData = convertTreeData(_agent.file.readFolderToTree(state.rootDir, (name: string) => name.endsWith('.md')).children)
+    state.fileData = convertTreeData(_agent.file.readFolderToTree(state.rootDir, (name: string) => {
+        return name.endsWith('.md') || name.endsWith('.mdx')
+    }).children)
     await _agent.call("filetree.init", state.rootDir, props.mid)
     console.log("initDir", state.rootDir)
 }
@@ -313,11 +332,12 @@ function handleContextmenu(data: INiuTreeData) {
     menuList.push({
         label: "删除",
         async click() {
-            const answer = await _agent.call("dialog.confrim", { title: "是否删除", message: "是否删除？" })
+            const answer = await _agent.callLong("dialog.confrim", { title: "是否删除", message: "是否删除？" })
             if (answer) {
                 let path = findNodePath(data)
                 if (_agent.file.existsSync(path)) {
                     _agent.file.rm(path)
+                    emit("delete", data)
                 }
             }
         },
@@ -326,7 +346,7 @@ function handleContextmenu(data: INiuTreeData) {
         menuList.push({
             label: "删除所有",
             async click() {
-                const answer = await _agent.call("dialog.confrim", { title: "是否删除所有", message: "是否删除所有？" })
+                const answer = await _agent.callLong("dialog.confrim", { title: "是否删除所有", message: "是否删除所有？" })
                 if (answer) {
                     for (let i = 0; i < state.activeKeys.length; i++) {
                         const key = state.activeKeys[i]
@@ -337,6 +357,7 @@ function handleContextmenu(data: INiuTreeData) {
                             let path = findNodePath(node)
                             if (path && _agent.file.existsSync(path)) {
                                 _agent.file.rm(path)
+                                emit("delete", data)
                             }
                         }
                     }
@@ -415,6 +436,14 @@ async function handleRename(data: INiuTreeData, done: (status?: boolean) => void
         await _agent.file.renameFile(oldPath, newPath)
         let isSuccess = _agent.file.existsSync(newPath)
         console.log(isSuccess);
+        emit("updateinfo", {
+            path: newPath,
+            title: data.title,
+            oldKey: data.key,
+            key: _agent.file.realpathSync(newPath, "hex"),
+            isFile: data.isFile,
+            isFolder: data.isFolder,
+        })
         done(isSuccess)
     } catch (error) {
         console.error(error)
@@ -429,14 +458,14 @@ function handleCreateOne(data: INiuTreeData, parent: INiuTreeData, done: (status
         // @ts-ignore
         // if(!data.base.endsWith(".md")) data.base += ".md"
         // if(!data.title.endsWith(".md")) data.title += ".md"
-        if(!data.title.endsWith(".md")) {
+        if (!data.title.endsWith(".md") && !data.title.endsWith(".mdx") && data.isFile) {
             toast.error("请新建md文档")
             done(false)
             return
         }
         const pPath = p.split("/").slice(0, -1).join("/")
         let newPath = pPath + "/" + data.title
-        if(_agent.file.existsSync(newPath)) throw new Error("已存在该路径")
+        if (_agent.file.existsSync(newPath)) throw new Error("已存在该路径")
         // @ts-ignore
         if (data.type === "file") {
             _agent.file.createFileSync(newPath)
@@ -445,7 +474,13 @@ function handleCreateOne(data: INiuTreeData, parent: INiuTreeData, done: (status
         if (data.type === "folder") {
             _agent.file.mkdirSync(newPath)
         }
-        done(false)
+        let isSuccess = _agent.file.existsSync(newPath)
+        if(isSuccess){
+            data.key = _agent.file.realpathSync(newPath, "hex")
+            // @ts-ignore
+            data.justcreate = true
+        }
+        done(isSuccess)
     } catch (error) {
         console.error(error)
         toast.error("新建失败")
@@ -474,6 +509,14 @@ async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData
             toast.error("移动失败")
             return false
         }
+        emit("updateinfo", {
+            path: destPath,
+            title: data.title,
+            oldKey: data.key,
+            key: _agent.file.realpathSync(destPath, "hex"),
+            isFile: data.isFile,
+            isFolder: data.isFolder,
+        })
         targetData.isExpand = true
         return false
     } else if (data.key && targetData === undefined) {
@@ -486,6 +529,14 @@ async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData
             toast.error("移动失败")
             return false
         }
+        emit("updateinfo", {
+            path: destPath,
+            title: data.title,
+            oldKey: data.key,
+            key: _agent.file.realpathSync(destPath, "hex"),
+            isFile: data.isFile,
+            isFolder: data.isFolder,
+        })
         return false
     }
     return false
@@ -494,7 +545,7 @@ async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData
 
 <template>
     <div class="h-1/1" @contextmenu="handleGlobalContextmenu">
-        <FileTree v-if="state.rootDir" ref="filetreeRef" @contextmenu="handleContextmenu" sort :list="state.fileData"
+        <FileTree v-if="state.rootDir && !!state.fileData.length" ref="filetreeRef" @contextmenu="handleContextmenu" sort :list="state.fileData"
             v-model:activeKeys="state.activeKeys" v-model:openKey="state.openKey" v-model:focusKey="state.focusKey"
             v-model:isFocus="state.isFocus" @clickNode="handleClickNode" @rename="handleRename" @createOne="handleCreateOne"
             :dropFn="handleDropFn">
@@ -502,5 +553,8 @@ async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData
                 <!-- 未保存 -->
             </template>
         </FileTree>
+        <div class="text-center text-red-300 pt-20px" style="font-size: 20px;white-space: nowrap;overflow: hidden;" v-if="!state.fileData.length">
+            空空如也
+        </div>
     </div>
 </template>

@@ -43,7 +43,7 @@
                 </div>
             </div>
         </SettingItem>
-        <SettingItem title="代码片段保存位置" desc="用于储存代码片段" :red-border="!configStore.isSameOne('snippet.storagePath')">
+        <SettingItem v-if="isDev" title="代码片段保存位置" desc="用于储存代码片段" :red-border="!configStore.isSameOne('snippet.storagePath')">
             <div class="whitespace-nowrap flex">
                 <div class="!min-w-320px !max-w-550px hover:flex-1 hover:w-0" style="transition: flex .5s linear;">
                     <input spellcheck="false" :value="configStore['snippet.storagePath']" :title="configStore['snippet.storagePath']"
@@ -81,6 +81,7 @@ import SettingItem from "@/page-ui/SettingItem/SettingItem.vue";
 import ConfigStore from "@/store/module/config"
 
 const configStore = ConfigStore()
+const isDev = import.meta.env.DEV
 
 function openDir(path: string) {
     _agent.call("func.openDir", path)
