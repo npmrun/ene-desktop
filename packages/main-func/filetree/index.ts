@@ -13,12 +13,13 @@ export async function init(dir: string, id?: string) {
         return true
     }
     console.log("开始监听：", dir);
-    allWatchDir[dir] = await watcher.subscribe(Settings.n.values("storagePath"), (err, events) => {
+    allWatchDir[dir] = await watcher.subscribe(dir, (err, events) => {
         if (err) throw err
         let key = "filetree-update-message"
         if (id) {
             key = key + "-" + id
         }
+        console.log(key);
         broadcast(key, events.map(v => {
             return {
                 path: v.path.split(path.sep).join('/'),

@@ -23,15 +23,15 @@
             </div>
         </SettingItem>
         <SettingItem :title="$t('setting.storagePath.title')" :desc="$t('setting.storagePath.desc')" :red-border="!configStore.isSameOne('storagePath')">
+            <button class="button is-light is-medium is-small mb-8px"
+            @click="chooseDir(configStore.storagePath)"> {{ $t('setting.storagePath.buttons.select') }} </button>
+            <button class="button is-light is-medium is-small ml-8px mb-8px" @click="openDir(configStore.storagePath)">{{ $t('setting.storagePath.buttons.open') }}</button>
             <div class="whitespace-nowrap flex">
                 <div class="!min-w-320px !max-w-550px hover:flex-1 hover:w-0" style="transition: flex .5s linear;">
                     <input spellcheck="false" :value="configStore.storagePath" :title="configStore.storagePath"
                         @change="(e: any) => configStore.setConfig('storagePath', e.target.value)"
                         class="input is-medium block" disabled type="text" placeholder="Text input">
                 </div>
-                <button class="button is-info is-medium ml-8px"
-                    @click="chooseDir(configStore.storagePath)">{{ $t('setting.storagePath.buttons.select') }}</button>
-                <button class="button is-info is-medium ml-8px" @click="openDir(configStore.storagePath)">{{ $t('setting.storagePath.buttons.open') }}</button>
             </div>
         </SettingItem>
         <SettingItem title="编辑器背景" desc="改变编辑器背景" :red-border="!configStore.isSameOne('editor.bg')">
@@ -44,27 +44,27 @@
             </div>
         </SettingItem>
         <SettingItem v-if="isDev" title="代码片段保存位置" desc="用于储存代码片段" :red-border="!configStore.isSameOne('snippet.storagePath')">
+            <button class="button is-light is-medium is-small mb-8px"
+                    @click="chooseSnippetDataDir(configStore['snippet.storagePath'])"> 选择目录 </button>
+            <button class="button is-light is-medium is-small ml-8px mb-8px" @click="openDir(configStore['snippet.storagePath'])">打开目录</button>
             <div class="whitespace-nowrap flex">
                 <div class="!min-w-320px !max-w-550px hover:flex-1 hover:w-0" style="transition: flex .5s linear;">
                     <input spellcheck="false" :value="configStore['snippet.storagePath']" :title="configStore['snippet.storagePath']"
                         @change="(e: any) => configStore.setConfig('snippet.storagePath', e.target.value)"
                         class="input is-medium block" disabled type="text" placeholder="Text input">
                 </div>
-                <button class="button is-info is-medium ml-8px"
-                    @click="chooseSnippetDataDir(configStore['snippet.storagePath'])"> 选择目录 </button>
-                <button class="button is-info is-medium ml-8px" @click="openDir(configStore['snippet.storagePath'])">打开目录</button>
             </div>
         </SettingItem>
         <SettingItem title="收藏家保存位置" desc="用于储存收藏数据" :red-border="!configStore.isSameOne('bookmark.storagePath')">
+            <button class="button is-light is-medium is-small mb-8px"
+                @click="chooseBookmarkDataDir(configStore['bookmark.storagePath'])"> 选择目录 </button>
+            <button class="button is-light is-medium is-small ml-8px mb-8px" @click="openDir(configStore['bookmark.storagePath'])">打开目录</button>
             <div class="whitespace-nowrap flex">
                 <div class="!min-w-320px !max-w-550px hover:flex-1 hover:w-0" style="transition: flex .5s linear;">
                     <input spellcheck="false" :value="configStore['bookmark.storagePath']" :title="configStore['bookmark.storagePath']"
                         @change="(e: any) => configStore.setConfig('bookmark.storagePath', e.target.value)"
                         class="input is-medium block" disabled type="text" placeholder="Text input">
                 </div>
-                <button class="button is-info is-medium ml-8px"
-                    @click="chooseBookmarkDataDir(configStore['bookmark.storagePath'])"> 选择目录 </button>
-                <button class="button is-info is-medium ml-8px" @click="openDir(configStore['bookmark.storagePath'])">打开目录</button>
             </div>
         </SettingItem>
         <!-- <SettingItem title="数据备份频次" desc="采用Cron表达式，主要用于备份本地数据，若文件未修改则不会备份"

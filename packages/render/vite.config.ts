@@ -53,6 +53,15 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
         },
         build: {
             outDir: path.resolve(__dirname, "../../dist/electron"),
+            sourcemap: true,
+            chunkSizeWarningLimit: 1024,
+            minify: "terser",
+            terserOptions: {
+                compress: {
+                    drop_console: isProd,
+                    drop_debugger: isProd,
+                },
+            },
         },
         plugins: [
             Icons({

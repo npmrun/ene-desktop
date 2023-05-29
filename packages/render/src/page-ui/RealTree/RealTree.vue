@@ -41,10 +41,6 @@ function listenFileChange(_: any, ev: any) {
                 break
             }
             case "create": {
-                if (!temp.path.endsWith(".md") && !temp.path.endsWith(".mdx")) {
-                    toast.error("请新建md文档")
-                    return
-                }
                 let realkey = _agent.file.realpathSync(temp.path, "hex")
                 let cur = findNode(state.fileData, (node)=>{
                     return node.key === realkey
@@ -53,6 +49,8 @@ function listenFileChange(_: any, ev: any) {
                     state.fileData = filter(state.fileData, (node)=>{
                         return node.key !== realkey
                     })
+                    state.openKey = _agent.file.realpathSync(temp.path, "hex")
+                    state.activeKeys = [_agent.file.realpathSync(temp.path, "hex")]
                 }
                 let pPath = temp.path.split("/").slice(0, -1).join("/")
                 let childFiles =
@@ -116,6 +114,7 @@ const props = withDefaults(defineProps<{
 const emit = defineEmits<{
     (ev: "update:activeNode", node: INiuTreeData): void
     (ev: "updateinfo", node: any): void
+    (ev: "create", node: INiuTreeData): void
     (ev: "delete", node: INiuTreeData): void
     (ev: "change", node: { openKey?: INiuTreeKey, activeNode?: any, activeKeys?: INiuTreeKey[], isFocus?: boolean, focusKey?: INiuTreeKey }): void
 }>()
@@ -155,7 +154,8 @@ defineExpose({
         }
     }
 })
-watch(() => [props, state], () => {
+
+function emitChange() {
     const node = findNode(state.fileData, n => {
         return n.key === state.openKey
     })
@@ -174,7 +174,12 @@ watch(() => [props, state], () => {
             isFolder: node.isFolder,
         }
     }
+    console.log(result);
+    
     emit("change", result)
+}
+watch(() => state.openKey, () => {
+    emitChange()
 }, {
     deep: true
 })
@@ -203,9 +208,9 @@ watch(() => [props, state], () => {
 
 watch(() => props.dir, async () => {
     await dispose()
-    state.rootDir = props.dir
+    state.rootDir = _agent.file.replacePath(props.dir)
     await initDir()
-    console.log("props.dir changed");
+    console.log("props.dir changed ", state.rootDir);
 }, {
     immediate: true
 })
@@ -223,9 +228,7 @@ onBeforeUnmount(() => {
 async function initDir() {
     if (!state.rootDir) return
     if (!_agent.file.isDirectory(state.rootDir)) throw new Error("将要打开的目录不是文件夹:" + state.rootDir)
-    state.fileData = convertTreeData(_agent.file.readFolderToTree(state.rootDir, (name: string) => {
-        return name.endsWith('.md') || name.endsWith('.mdx')
-    }).children)
+    state.fileData = convertTreeData(_agent.file.readFolderToTree(state.rootDir).children)
     await _agent.call("filetree.init", state.rootDir, props.mid)
     console.log("initDir", state.rootDir)
 }
@@ -356,8 +359,9 @@ function handleContextmenu(data: INiuTreeData) {
                         if (node) {
                             let path = findNodePath(node)
                             if (path && _agent.file.existsSync(path)) {
+                                console.log("delete", node);
+                                emit("delete", node)
                                 _agent.file.rm(path)
-                                emit("delete", data)
                             }
                         }
                     }
@@ -424,6 +428,7 @@ function handleClickNode(data: INiuTreeData) {
     }
     state.openKey = data.key
     state.activeKeys = [data.key]
+    emitChange()
 }
 
 async function handleRename(data: INiuTreeData, done: (status?: boolean) => void) {
@@ -435,7 +440,7 @@ async function handleRename(data: INiuTreeData, done: (status?: boolean) => void
     try {
         await _agent.file.renameFile(oldPath, newPath)
         let isSuccess = _agent.file.existsSync(newPath)
-        console.log(isSuccess);
+        // TODO 当修改的是一个文件夹时，内部的子文件路径会改变，但是这里没有处理子文件的信息更新
         emit("updateinfo", {
             path: newPath,
             title: data.title,
@@ -455,14 +460,6 @@ async function handleRename(data: INiuTreeData, done: (status?: boolean) => void
 function handleCreateOne(data: INiuTreeData, parent: INiuTreeData, done: (status?: boolean) => void) {
     try {
         let p = findNodePath(data)
-        // @ts-ignore
-        // if(!data.base.endsWith(".md")) data.base += ".md"
-        // if(!data.title.endsWith(".md")) data.title += ".md"
-        if (!data.title.endsWith(".md") && !data.title.endsWith(".mdx") && data.isFile) {
-            toast.error("请新建md文档")
-            done(false)
-            return
-        }
         const pPath = p.split("/").slice(0, -1).join("/")
         let newPath = pPath + "/" + data.title
         if (_agent.file.existsSync(newPath)) throw new Error("已存在该路径")
@@ -479,6 +476,8 @@ function handleCreateOne(data: INiuTreeData, parent: INiuTreeData, done: (status
             data.key = _agent.file.realpathSync(newPath, "hex")
             // @ts-ignore
             data.justcreate = true
+            emitChange()
+            emit("create", data)
         }
         done(isSuccess)
     } catch (error) {
@@ -517,6 +516,8 @@ async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData
             isFile: data.isFile,
             isFolder: data.isFolder,
         })
+        state.openKey = _agent.file.realpathSync(destPath, "hex")
+        state.activeKeys = [_agent.file.realpathSync(destPath, "hex")]
         targetData.isExpand = true
         return false
     } else if (data.key && targetData === undefined) {
@@ -537,6 +538,8 @@ async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData
             isFile: data.isFile,
             isFolder: data.isFolder,
         })
+        state.openKey = _agent.file.realpathSync(destPath, "hex")
+        state.activeKeys = [_agent.file.realpathSync(destPath, "hex")]
         return false
     }
     return false

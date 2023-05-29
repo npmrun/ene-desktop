@@ -171,7 +171,15 @@ function handleUpdateinfo(node: any) {
         }
     }
 }
-
+function handleCreate(data: INiuTreeData) {
+    for (let i = 0; i < state.tabs.length; i++) {
+        const tab = state.tabs[i];
+        if (data.key === tab.key && tab.isDelete) {
+            Reflect.deleteProperty(tab, "isDelete")
+            break
+        }
+    }
+}
 function handleDelete(data: INiuTreeData) {
     for (let i = 0; i < state.tabs.length; i++) {
         const tab = state.tabs[i];
@@ -225,13 +233,13 @@ const previewLayout = ref("bottom")
 <template>
     <div class="h-1/1 flex">
         <div class="h-1/1 w-300px border-r relative">
-            <RealTree ref="FileTreeRef" mid="bookmark" @updateinfo="handleUpdateinfo" @delete="handleDelete"
+            <RealTree ref="FileTreeRef" mid="bookmark" @updateinfo="handleUpdateinfo" @create="handleCreate" @delete="handleDelete"
                 @rename="handleRename" :dir="configStore['bookmark.storagePath']" @change="handleChange">
             </RealTree>
             <AdjustLine mid="filetree-tree-right" direction="right"></AdjustLine>
         </div>
         <div class="flex-1 w-0 h-1/1 flex flex-col">
-            <div class="tabs is-boxed pt-5px !mb-2px" v-if="state.tabs.length">
+            <div class="tabs is-boxed pt-5px !mb-0" v-if="state.tabs.length">
                 <ul>
                     <li v-for="(item, index) in state.tabs" class="group"
                         :class="[state.activeTab === index ? 'is-active' : '', index == 0 ? 'ml-6px' : '']"

@@ -30,7 +30,7 @@ export const useGlobalStore = defineStore("global", {
     state: (): { topMenu: IPage[], bottomMenu: IPage[] } => ({
         topMenu: topMenu,
         bottomMenu: [
-            { key: 7, title: "设置", url: "/setting" },
+            { key: getID(), title: "设置", url: "/setting" },
         ]
     }),
     actions: {
