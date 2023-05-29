@@ -53,7 +53,7 @@ export default ({ command, mode }: ConfigEnv): UserConfigExport => {
         },
         build: {
             outDir: path.resolve(__dirname, "../../dist/electron"),
-            sourcemap: true,
+            sourcemap: false, // 为true时会导致v8内存溢出
             chunkSizeWarningLimit: 1024,
             minify: "terser",
             terserOptions: {
