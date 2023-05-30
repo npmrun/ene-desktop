@@ -18,6 +18,7 @@ let topMenu = [
 
 if (import.meta.env.DEV) {
     topMenu = topMenu.concat([
+        { key: getID(), title: "Demo", url: "/test" },
         { key: getID(), title: "工具", url: "/home" },
         { key: getID(), title: "代码", url: `/collect` },
         { key: getID(), title: "代码片段", url: `/snippet` },

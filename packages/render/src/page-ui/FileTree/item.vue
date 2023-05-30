@@ -260,6 +260,7 @@ function judgeFile(filename: string) {
         { language: "tsx", ext: ".tsx", index: -1, icon: "tsx" },
         { language: "typescript", ext: ".ts", index: -1, icon: "typescript" },
         { language: "markdown", ext: ".md", index: -1, icon: "markdown" },
+        { language: "markdown", ext: ".mdx", index: -1, icon: "markdown" },
         { language: "dot", pre: ".", index: -1, icon: "dot" },
     ]
     let cur

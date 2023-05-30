@@ -1,8 +1,8 @@
 <route lang="yaml">
-name: bookmark
-meta:
-    cache: true
-</route>
+    name: bookmark
+    meta:
+        cache: true
+    </route>
 <script lang="ts">
 export default defineComponent({
     name: "bookmark",
@@ -112,6 +112,28 @@ function handleTabContextMenu(item: any, index: number) {
             label: "关闭",
             click() {
                 handleClose(item, index)
+            }
+        },
+        {
+            label: "关闭其他",
+            async click() {
+                for (let i = state.tabs.length - 1; i >= 0; i--) {
+                    if (item.key !== state.tabs[i].key) {
+                        await handleClose(state.tabs[i], i)
+                    }
+                }
+            }
+        },
+        {
+            label: "关闭右侧",
+            async click() {
+                for (let i = state.tabs.length - 1; i >= 0; i--) {
+                    console.log(index, i);
+                    if (i <= index) {
+                        break;
+                    }
+                    await handleClose(state.tabs[i], i)
+                }
             }
         }
     ])
@@ -229,93 +251,110 @@ watch(CtrlS, async (v) => {
 
 const previewLayout = ref("bottom")
 </script>
-
+    
 <template>
-    <div class="h-1/1 flex">
-        <div class="h-1/1 w-300px border-r relative">
-            <RealTree ref="FileTreeRef" mid="bookmark" @updateinfo="handleUpdateinfo" @create="handleCreate" @delete="handleDelete"
-                @rename="handleRename" :dir="configStore['bookmark.storagePath']" @change="handleChange">
+    <LRLayout>
+        <template #left>
+            <RealTree ref="FileTreeRef" mid="bookmark" @updateinfo="handleUpdateinfo" @create="handleCreate"
+                @delete="handleDelete" @rename="handleRename" :dir="configStore['bookmark.storagePath']"
+                @change="handleChange">
             </RealTree>
-            <AdjustLine mid="filetree-tree-right" direction="right"></AdjustLine>
-        </div>
-        <div class="flex-1 w-0 h-1/1 flex flex-col">
-            <div class="tabs is-boxed pt-5px !mb-0" v-if="state.tabs.length">
-                <ul>
-                    <li v-for="(item, index) in state.tabs" class="group"
-                        :class="[state.activeTab === index ? 'is-active' : '', index == 0 ? 'ml-6px' : '']"
-                        @click.stop="handleTabClick(item, index)" @contextmenu="handleTabContextMenu(item, index)">
-                        <a>
-                            <span class="icon">
-                                <svg-icon name="micons-document"></svg-icon>
-                            </span>
-                            <span :style="{ textDecoration: item.isDelete ? 'line-through' : '' }">{{ item.title }}</span>
-                            <svg-icon v-if="item.isModify" name="code-active" class="ml-5px"
-                                style="width: 8px; height: 8px"></svg-icon>
-                            <button class="delete ml-6px group-hover:!inline-block !hidden"
-                                style="width: 16px !important; height: 16px !important;min-width: 16px !important;min-height: 16px !important;"
-                                @click.stop="handleClose(item, index)"></button>
-                        </a>
-                    </li>
-                </ul>
-            </div>
-            <div class="flex-1 h-0 flex">
-                <div class="h-1/1 filetree flex-1 w-0">
-                    <MdEditor style="height:100%" :value="state.tabs[state.activeTab].content"
-                        @change="(v: string) => handleChangeCode(v)" :key="state.tabs[state.activeTab].key"
-                        v-if="state.tabs[state.activeTab] && state.tabs[state.activeTab].isFile && (state.tabs[state.activeTab].title.endsWith('.md') || state.tabs[state.activeTab].title.endsWith('.mdx'))">
-                    </MdEditor>
-                    <CodeEditor
-                        v-if="state.tabs[state.activeTab] && state.tabs[state.activeTab].isFile && !state.tabs[state.activeTab].title.endsWith('.md') && !state.tabs[state.activeTab].title.endsWith('.mdx')"
-                        v-model="state.tabs[state.activeTab].content" :key="state.tabs[state.activeTab].key"
-                        :name="state.tabs[state.activeTab].title as any" :logo="configStore['editor.bg']"
-                        @change="handleChangeCode">
-                    </CodeEditor>
+        </template>
+        <template #right>
+            <div class="h-1/1 flex flex-col">
+                <div class="tabs is-boxed pt-5px !mb-0" v-if="state.tabs.length">
+                    <ul>
+                        <li v-for="(item, index) in state.tabs" class="group"
+                            :class="[state.activeTab === index ? 'is-active' : '', index == 0 ? 'pl-6px' : '']"
+                            @click.stop="handleTabClick(item, index)" @contextmenu.stop="handleTabContextMenu(item, index)">
+                            <a>
+                                <span class="icon">
+                                    <svg-icon name="micons-document"></svg-icon>
+                                </span>
+                                <span :style="{ textDecoration: item.isDelete ? 'line-through' : '' }">{{ item.title
+                                }}</span>
+                                <svg-icon v-if="item.isModify" name="code-active" class="ml-5px"
+                                    style="width: 8px; height: 8px"></svg-icon>
+                                <div @click.stop="handleClose(item, index)" class="ml-6px group-hover:opacity-100 opacity-0"
+                                    style="width: 16px !important; height: 16px !important;min-width: 16px !important;min-height: 16px !important;">
+                                    X
+                                </div>
+                            </a>
+                        </li>
+                    </ul>
                 </div>
-                <div class="relative h-1/1 border-l bg-white flex flex-col"
-                    v-if="state.showURL && previewLayout == 'right'">
+                <div class="flex-1 h-0 flex">
+                    <div class="h-1/1 filetree flex-1 w-0">
+                        <MdEditor style="height:100%" :value="state.tabs[state.activeTab].content"
+                            @change="(v: string) => handleChangeCode(v)" :key="state.tabs[state.activeTab].key"
+                            v-if="state.tabs[state.activeTab] && state.tabs[state.activeTab].isFile && (state.tabs[state.activeTab].title.endsWith('.md') || state.tabs[state.activeTab].title.endsWith('.mdx'))">
+                        </MdEditor>
+                        <CodeEditor
+                            v-if="state.tabs[state.activeTab] && state.tabs[state.activeTab].isFile && !state.tabs[state.activeTab].title.endsWith('.md') && !state.tabs[state.activeTab].title.endsWith('.mdx')"
+                            v-model="state.tabs[state.activeTab].content" :key="state.tabs[state.activeTab].key"
+                            :name="state.tabs[state.activeTab].title as any" :logo="configStore['editor.bg']"
+                            @change="handleChangeCode">
+                        </CodeEditor>
+                    </div>
+                    <div class="relative h-1/1 border-l bg-white flex flex-col"
+                        v-if="state.showURL && previewLayout == 'right'">
+                        <div class="px-6px py-6px bg-white border-b">
+                            <button class="button" @click="state.showURL = undefined">关闭网页</button>
+                            <button class="button ml-6px" @click="previewLayout = 'bottom'">切换到底部</button>
+                        </div>
+                        <div class="flex-1 h-0">
+                            <Preview ref="previewRef" class="h-1/1" type="browser" :src="state.showURL"
+                                :key="state.showURL">
+                            </Preview>
+                        </div>
+                        <AdjustLine mid="filetree-demo-right" direction="left"></AdjustLine>
+                    </div>
+                </div>
+                <!-- <div class="absolute right-0 top-0 b-0 h-1/1 border-l bg-white flex flex-col" v-if="state.showURL && previewLayout == 'right'">
                     <div class="px-6px py-6px bg-white border-b">
                         <button class="button" @click="state.showURL = undefined">关闭网页</button>
                         <button class="button ml-6px" @click="previewLayout = 'bottom'">切换到底部</button>
                     </div>
                     <div class="flex-1 h-0">
-                        <Preview ref="previewRef" class="h-1/1" type="browser" :src="state.showURL" :key="state.showURL">
-                        </Preview>
+                        <Preview ref="previewRef" class="h-1/1" type="browser" :src="state.showURL" :key="state.showURL"></Preview>
                     </div>
                     <AdjustLine mid="filetree-demo-right" direction="left"></AdjustLine>
-                </div>
-            </div>
-            <!-- <div class="absolute right-0 top-0 b-0 h-1/1 border-l bg-white flex flex-col" v-if="state.showURL && previewLayout == 'right'">
-                <div class="px-6px py-6px bg-white border-b">
-                    <button class="button" @click="state.showURL = undefined">关闭网页</button>
-                    <button class="button ml-6px" @click="previewLayout = 'bottom'">切换到底部</button>
-                </div>
-                <div class="flex-1 h-0">
-                    <Preview ref="previewRef" class="h-1/1" type="browser" :src="state.showURL" :key="state.showURL"></Preview>
-                </div>
-                <AdjustLine mid="filetree-demo-right" direction="left"></AdjustLine>
-            </div> -->
-            <!-- <div class="relative h-1/1 border-l bg-white flex flex-col" v-if="state.showURL && previewLayout == 'bottom'">
-                <div class="px-6px py-6px bg-white border-b">
+                </div> -->
+                <!-- <div class="relative h-1/1 border-l bg-white flex flex-col" v-if="state.showURL && previewLayout == 'bottom'">
+                    <div class="px-6px py-6px bg-white border-b">
+                        <button class="button" @click="state.showURL = undefined">关闭网页</button>
+                        <button class="button ml-6px" @click="previewLayout = 'right'">切换到右边</button>
+                    </div>
+                    <div class="flex-1 h-0">
+                        <Preview ref="previewRef" class="h-1/1" type="browser" :src="state.showURL" :key="state.showURL"></Preview>
+                    </div>
+                    <AdjustLine mid="filetree-demo-right" direction="left"></AdjustLine>
+                </div> -->
+                <div v-if="state.showURL && previewLayout == 'bottom'" class="px-6px py-6px bg-white" style="width: 60%">
                     <button class="button" @click="state.showURL = undefined">关闭网页</button>
                     <button class="button ml-6px" @click="previewLayout = 'right'">切换到右边</button>
                 </div>
-                <div class="flex-1 h-0">
-                    <Preview ref="previewRef" class="h-1/1" type="browser" :src="state.showURL" :key="state.showURL"></Preview>
+                <div class="relative border-t bg-white" v-if="state.showURL && previewLayout == 'bottom'">
+                    <Preview ref="previewRef" class="h-1/1" type="browser" :src="state.showURL" :key="state.showURL">
+                    </Preview>
+                    <AdjustLine mid="filetree-demo-right" direction="top"></AdjustLine>
                 </div>
-                <AdjustLine mid="filetree-demo-right" direction="left"></AdjustLine>
-            </div> -->
-            <div v-if="state.showURL && previewLayout == 'bottom'" class="px-6px py-6px bg-white" style="width: 60%">
-                <button class="button" @click="state.showURL = undefined">关闭网页</button>
-                <button class="button ml-6px" @click="previewLayout = 'right'">切换到右边</button>
             </div>
-            <div class="relative border-t bg-white" v-if="state.showURL && previewLayout == 'bottom'">
-                <Preview ref="previewRef" class="h-1/1" type="browser" :src="state.showURL" :key="state.showURL"></Preview>
-                <AdjustLine mid="filetree-demo-right" direction="top"></AdjustLine>
+        </template>
+    </LRLayout>
+    <!-- <div class="h-1/1 flex">
+            <div class="h-1/1 w-300px border-r relative">
+                <RealTree ref="FileTreeRef" mid="bookmark" @updateinfo="handleUpdateinfo" @create="handleCreate" @delete="handleDelete"
+                    @rename="handleRename" :dir="configStore['bookmark.storagePath']" @change="handleChange">
+                </RealTree>
+                <AdjustLine mid="filetree-tree-right" direction="right"></AdjustLine>
             </div>
-        </div>
-    </div>
+            <div class="flex-1 w-0 h-1/1 flex flex-col">
+                
+            </div>
+        </div> -->
 </template>
-
+    
 <style scoped lang="scss">
 .filetree {
     :deep(.bytemd) {

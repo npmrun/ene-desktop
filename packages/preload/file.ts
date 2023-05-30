@@ -112,7 +112,7 @@ export function walkDir(fromDir, cb: (file: string, isDirectory: boolean) => voi
     })
 }
 
-export function readFolderToTree(folderPath, fn?:(name: string)=>boolean) {
+export function readFolderToTree(folderPath, fn?:(node: any)=>boolean) {
     const stats = fs.statSync(folderPath) // 获取文件夹的状态信息
     if (!stats.isDirectory()) {
         throw new Error("The provided path is not a directory.")
@@ -139,11 +139,8 @@ export function readFolderToTree(folderPath, fn?:(name: string)=>boolean) {
             // const fileName = path.basename(file, path.extname(file)); // 获取文件的名称（不包括扩展名）
             const fileName = file // 获取文件的名称（包括扩展名）
             const fileNode = { title: fileName, base: fileName, type: "file", key: fs.realpathSync(filePath, "hex") }
-            if(fn && fn(fileName)){
-                tree.children.push(fileNode)
-            }else if(fn === undefined){
-                tree.children.push(fileNode)
-            }
+            fn && fn(fileNode)
+            tree.children.push(fileNode)
         }
     })
     return tree

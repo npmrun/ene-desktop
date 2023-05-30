@@ -10,6 +10,7 @@ export {}
 declare module '@vue/runtime-core' {
   export interface GlobalComponents {
     Devtool: typeof import('./src/componentsAuto/Devtool/Devtool.vue')['default']
+    LRLayout: typeof import('./src/componentsAuto/Layout/LRLayout.vue')['default']
     NiuAdjustWidth: typeof import('./src/componentsAuto/niu-adjust-width/niu-adjust-width.vue')['default']
     NiuImage: typeof import('./src/componentsAuto/niu-image/niu-image.vue')['default']
     Preview: typeof import('./src/componentsAuto/Preview/Preview.vue')['default']

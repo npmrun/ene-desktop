@@ -42,11 +42,11 @@ function listenFileChange(_: any, ev: any) {
             }
             case "create": {
                 let realkey = _agent.file.realpathSync(temp.path, "hex")
-                let cur = findNode(state.fileData, (node)=>{
+                let cur = findNode(state.fileData, (node) => {
                     return node.key === realkey
                 })
-                if(cur && cur.justcreate){
-                    state.fileData = filter(state.fileData, (node)=>{
+                if (cur && cur.justcreate) {
+                    state.fileData = filter(state.fileData, (node) => {
                         return node.key !== realkey
                     })
                     state.openKey = _agent.file.realpathSync(temp.path, "hex")
@@ -175,7 +175,7 @@ function emitChange() {
         }
     }
     console.log(result);
-    
+
     emit("change", result)
 }
 watch(() => state.openKey, () => {
@@ -206,10 +206,29 @@ watch(() => state.openKey, () => {
 //     emit("change", result)
 // })
 
+let stopWatch: Function
 watch(() => props.dir, async () => {
     await dispose()
+    stopWatch?.()
     state.rootDir = _agent.file.replacePath(props.dir)
     await initDir()
+    let data: any = null
+    let n = localStorage.getItem("RealTreeData")
+    if (n) {
+        data = JSON.parse(n)
+        if (data) {
+            Reflect.deleteProperty(data, "rootDir")
+            Object.assign(state, data)
+        }
+    }
+    stopWatch = watch(() => [state.openKey, state.focusKey, state.activeKeys, state.isFocus, state.rootDir], () => {
+        localStorage.setItem("RealTreeData", JSON.stringify({
+            openKey: state.openKey,
+            focusKey: state.focusKey,
+            activeKeys: state.activeKeys,
+            isFocus: state.isFocus,
+        }))
+    })
     console.log("props.dir changed ", state.rootDir);
 }, {
     immediate: true
@@ -222,6 +241,7 @@ onBeforeMount(() => {
 onBeforeUnmount(() => {
     console.log("onBeforeUnmount");
     dispose()
+    stopWatch?.()
     _agent.offAll("filetree-update-message")
 })
 
@@ -438,6 +458,21 @@ async function handleRename(data: INiuTreeData, done: (status?: boolean) => void
     let oldPath = pPath + "/" + data.base
     let newPath = pPath + "/" + data.title
     try {
+        // let successFn: Function[] = []
+        // if (data.isFolder) {
+        //     await _agent.file.readFolderToTree(newPath, (node: any) => {
+        //         successFn.push(()=>{
+        //             emit("updateinfo", {
+        //                 path: node.path,
+        //                 title: node.title,
+        //                 oldKey: node.key,
+        //                 key: _agent.file.realpathSync(oldPath, "hex"),
+        //                 isFile: node.isFile,
+        //                 isFolder: node.isFolder,
+        //             })
+        //         })
+        //     }).children
+        // }
         await _agent.file.renameFile(oldPath, newPath)
         let isSuccess = _agent.file.existsSync(newPath)
         // TODO 当修改的是一个文件夹时，内部的子文件路径会改变，但是这里没有处理子文件的信息更新
@@ -449,6 +484,20 @@ async function handleRename(data: INiuTreeData, done: (status?: boolean) => void
             isFile: data.isFile,
             isFolder: data.isFolder,
         })
+        // if (data.isFolder) {
+        //     console.log(oldPath, newPath);
+            
+        //     await _agent.file.readFolderToTree(newPath, (node: any) => {
+        //         emit("updateinfo", {
+        //             path: node.path,
+        //             title: node.title,
+        //             oldKey: _agent.file.realpathSync(oldPath, "hex"),
+        //             key: data.key,
+        //             isFile: node.isFile,
+        //             isFolder: node.isFolder,
+        //         })
+        //     }).children
+        // }
         done(isSuccess)
     } catch (error) {
         console.error(error)
@@ -472,7 +521,7 @@ function handleCreateOne(data: INiuTreeData, parent: INiuTreeData, done: (status
             _agent.file.mkdirSync(newPath)
         }
         let isSuccess = _agent.file.existsSync(newPath)
-        if(isSuccess){
+        if (isSuccess) {
             data.key = _agent.file.realpathSync(newPath, "hex")
             // @ts-ignore
             data.justcreate = true
@@ -547,16 +596,17 @@ async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData
 </script>
 
 <template>
-    <div class="h-1/1" @contextmenu="handleGlobalContextmenu">
-        <FileTree v-if="state.rootDir && !!state.fileData.length" ref="filetreeRef" @contextmenu="handleContextmenu" sort :list="state.fileData"
-            v-model:activeKeys="state.activeKeys" v-model:openKey="state.openKey" v-model:focusKey="state.focusKey"
-            v-model:isFocus="state.isFocus" @clickNode="handleClickNode" @rename="handleRename" @createOne="handleCreateOne"
-            :dropFn="handleDropFn">
+    <div class="h-1/1 py-15px" @contextmenu="handleGlobalContextmenu">
+        <FileTree v-if="state.rootDir && !!state.fileData.length" ref="filetreeRef" @contextmenu="handleContextmenu" sort
+            :list="state.fileData" v-model:activeKeys="state.activeKeys" v-model:openKey="state.openKey"
+            v-model:focusKey="state.focusKey" v-model:isFocus="state.isFocus" @clickNode="handleClickNode"
+            @rename="handleRename" @createOne="handleCreateOne" :dropFn="handleDropFn">
             <template #default="{ data: { data } }">
                 <!-- 未保存 -->
             </template>
         </FileTree>
-        <div class="text-center text-red-300 pt-20px" style="font-size: 20px;white-space: nowrap;overflow: hidden;" v-if="!state.fileData.length">
+        <div class="text-center text-red-300 pt-20px" style="font-size: 20px;white-space: nowrap;overflow: hidden;"
+            v-if="!state.fileData.length">
             空空如也
         </div>
     </div>
