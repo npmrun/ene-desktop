@@ -26,6 +26,10 @@ export function moveSync(src: string, dest: string) {
 export function writeFileSync(path: string, str: string) {
     fs.writeFileSync(path, str, "utf8")
 }
+export function fileStat(path: string) {
+    const fileStats = fs.statSync(path) // 获取文件的状态信息
+    return fileStats
+}
 export function rm(path: string) {
     const fileStats = fs.statSync(path) // 获取文件的状态信息
     if (fileStats.isDirectory()) {
@@ -125,8 +129,9 @@ export function readFolderToTree(folderPath, fn?:(node: any)=>boolean) {
         type: "folder",
         children: [],
         key: fs.realpathSync(folderPath, "hex"),
+        path: folderPath
     }
-
+    fn && fn(tree)
     const files = fs.readdirSync(folderPath) // 读取文件夹内的所有文件和文件夹
     files.forEach(file => {
         const filePath = path.join(folderPath, file) // 构建文件的完整路径
@@ -138,7 +143,7 @@ export function readFolderToTree(folderPath, fn?:(node: any)=>boolean) {
         } else {
             // const fileName = path.basename(file, path.extname(file)); // 获取文件的名称（不包括扩展名）
             const fileName = file // 获取文件的名称（包括扩展名）
-            const fileNode = { title: fileName, base: fileName, type: "file", key: fs.realpathSync(filePath, "hex") }
+            const fileNode = { title: fileName, base: fileName, type: "file", key: fs.realpathSync(filePath, "hex"),path: filePath }
             fn && fn(fileNode)
             tree.children.push(fileNode)
         }

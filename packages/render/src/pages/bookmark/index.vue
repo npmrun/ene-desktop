@@ -109,6 +109,12 @@ function handleTabClick(item: any, index: number) {
 function handleTabContextMenu(item: any, index: number) {
     const menu = new PopupMenu([
         {
+            label: "打开所在文件夹",
+            click() {
+                _agent.call("func.showItemInFolder", item.path)
+            }
+        },
+        {
             label: "关闭",
             click() {
                 handleClose(item, index)
@@ -239,15 +245,25 @@ watch(CtrlS, async (v) => {
                     _agent.file.writeFileSync(state.tabs[state.activeTab].path, state.tabs[state.activeTab].content)
                     Reflect.deleteProperty(state.tabs[state.activeTab], "isModify")
                     Reflect.deleteProperty(state.tabs[state.activeTab], "isDelete")
+                    if (state.showURL && state.showURL.endsWith(".html") && state.showURL === _agent.file.pathToFileURL(state.tabs[state.activeTab].path)) {
+                        previewRef.value?.update()
+                    }
                 }
                 return
             }
             _agent.file.writeFileSync(state.tabs[state.activeTab].path, state.tabs[state.activeTab].content)
             Reflect.deleteProperty(state.tabs[state.activeTab], "isModify")
             Reflect.deleteProperty(state.tabs[state.activeTab], "isDelete")
+            if (state.showURL && state.showURL.endsWith(".html") && state.showURL === _agent.file.pathToFileURL(state.tabs[state.activeTab].path)) {
+                previewRef.value?.update()
+            }
         }
     }
 })
+
+function handlePreview(node: INiuTreeData, p: string) {
+    state.showURL = _agent.file.pathToFileURL(p)
+}
 
 const previewLayout = ref("bottom")
 </script>
@@ -257,7 +273,7 @@ const previewLayout = ref("bottom")
         <template #left>
             <RealTree ref="FileTreeRef" mid="bookmark" @updateinfo="handleUpdateinfo" @create="handleCreate"
                 @delete="handleDelete" @rename="handleRename" :dir="configStore['bookmark.storagePath']"
-                @change="handleChange">
+                @change="handleChange" @preview="handlePreview">
             </RealTree>
         </template>
         <template #right>

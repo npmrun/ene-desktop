@@ -1,10 +1,11 @@
 <script lang="ts" setup>
 import { PopupMenu } from "@/bridge/PopupMenu"
 import FileTree from "@/page-ui/FileTree/filetree.vue"
-import { findNode, findPath, filter } from "@common/util/treeHelper"
+import { findNode, findPath, filter, forEach } from "@common/util/treeHelper"
 import { ENiuTreeStatus, INiuTreeData, INiuTreeKey, convert, convertTreeData, findByKeyParent } from "princess-ui"
 import { toast } from "vue3-toastify"
 
+let justRename = ref(false)
 /**
  * 处理监听器发出的文件变化事件
  */
@@ -41,6 +42,8 @@ function listenFileChange(_: any, ev: any) {
                 break
             }
             case "create": {
+                let isRename = justRename.value
+                justRename.value =  false
                 let realkey = _agent.file.realpathSync(temp.path, "hex")
                 let cur = findNode(state.fileData, node => {
                     return node.key === realkey
@@ -49,14 +52,19 @@ function listenFileChange(_: any, ev: any) {
                     state.fileData = filter(state.fileData, node => {
                         return node.key !== realkey
                     })
+                    cur.justcreate = undefined
                     state.openKey = _agent.file.realpathSync(temp.path, "hex")
                     state.activeKeys = [_agent.file.realpathSync(temp.path, "hex")]
                 }
                 let pPath = temp.path.split("/").slice(0, -1).join("/")
+
                 let childFiles =
                     (_agent.file.isDirectory(temp.path)
                         ? _agent.file.readFolderToTree(temp.path).children
                         : undefined) ?? []
+                if(!isRename) {
+                    childFiles = []
+                }
                 if (state.rootDir === pPath) {
                     let key = _agent.file.realpathSync(temp.path, "hex")
                     state.fileData.push(
@@ -118,6 +126,7 @@ const emit = defineEmits<{
     (ev: "update:activeNode", node: INiuTreeData): void
     (ev: "updateinfo", node: any): void
     (ev: "create", node: INiuTreeData): void
+    (ev: "preview", node: INiuTreeData, p: string): void
     (ev: "delete", node: INiuTreeData): void
     (
         ev: "change",
@@ -369,12 +378,14 @@ function handleContextmenu(data: INiuTreeData) {
     menuList.push({
         type: "separator",
     })
-    if (data.isFile) {
+    if (data.isFile && data.title.endsWith(".html")) {
         menuList.push({
-            label: "复制",
+            label: "预览html",
             click() {
                 const path = findNodePath(data)
-                _agent.call("copyFile", path)
+                emit("preview", data, path)
+                // const path = findNodePath(data)
+                // _agent.call("copyFile", path)
             },
         })
     }
@@ -504,23 +515,61 @@ async function handleRename(data: INiuTreeData, done: (status?: boolean) => void
             isFile: data.isFile,
             isFolder: data.isFolder,
         })
-        if (data.isFolder) {
-            await _agent.file.readFolderToTree(newPath, (node: any) => {
-                let array =
-                    findPath(state.fileData, n => {
-                        return node.key === n.key
-                    }) ?? []
-                // 获取新路径做ID
-                const path = state.rootDir + "/" + array.map((v: any) => v.title).join("/") // 新路径
-                emit("updateinfo", {
-                    path: node.path,
-                    title: node.title,
-                    oldKey: node.key,
-                    key: _agent.file.realpathSync(path, "hex"),
-                    isFile: node.isFile,
-                    isFolder: node.isFolder,
+        if (data.isFolder && data.children) {
+            function read(children: INiuTreeData[], o: string, n: string) {
+                children.forEach(node => {
+                    let _o = o + "/" + node.title
+                    let _n = n + "/" + node.title
+                    emit("updateinfo", {
+                        path: _n,
+                        title: node.title,
+                        oldKey: node.key,
+                        key: _agent.file.realpathSync(_n, "hex"),
+                        isFile: node.isFile,
+                        isFolder: node.isFolder,
+                    })
+                    if (node.children) {
+                        read(node.children, _o, _n)
+                    }
                 })
-            }).children
+            }
+            read(data.children, oldPath, newPath)
+            // let num = 0
+            // await _agent.file.readFolderToTree(newPath, (node: any) => {
+            //     if(num === 0) {
+            //         num = 1
+            //         return
+            //     } 
+            //     let array =
+            //         findPath(state.fileData, n => {
+            //             return node.key === n.key
+            //         }) ?? []
+            //     // 获取新路径做ID
+            //     console.log(oldPath+ "/" + array.map((v: any) => v.base).join("/"));
+
+            //     const path = state.rootDir + "/" + array.map((v: any) => v.base).join("/") // 新路径
+            //     emit("updateinfo", {
+            //         path: node.path,
+            //         title: node.title,
+            //         oldKey: _agent.file.realpathSync(path, "hex"),
+            //         key: node.key,
+            //         isFile: node.type === "file",
+            //         isFolder: node.type === "folder",
+            //     })
+            //     console.log({
+            //         path: node.path,
+            //         title: node.title,
+            //         oldKey: _agent.file.realpathSync(path, "hex"),
+            //         oldPath: path,
+            //         key: node.key,
+            //         isFile: node.type === "file",
+            //         isFolder: node.type === "folder",
+            //     });
+
+            // }).children
+        }
+        if(isSuccess){
+            justRename.value = true
         }
         done(isSuccess)
     } catch (error) {
@@ -621,30 +670,16 @@ async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData
 
 <template>
     <div class="h-1/1 py-15px" @contextmenu="handleGlobalContextmenu">
-        <FileTree
-            v-if="state.rootDir && !!state.fileData.length"
-            ref="filetreeRef"
-            @contextmenu="handleContextmenu"
-            sort
-            :list="state.fileData"
-            v-model:activeKeys="state.activeKeys"
-            v-model:openKey="state.openKey"
-            v-model:focusKey="state.focusKey"
-            v-model:isFocus="state.isFocus"
-            @clickNode="handleClickNode"
-            @rename="handleRename"
-            @createOne="handleCreateOne"
-            :dropFn="handleDropFn"
-        >
+        <FileTree v-if="state.rootDir && !!state.fileData.length" ref="filetreeRef" @contextmenu="handleContextmenu" sort
+            :list="state.fileData" v-model:activeKeys="state.activeKeys" v-model:openKey="state.openKey"
+            v-model:focusKey="state.focusKey" v-model:isFocus="state.isFocus" @clickNode="handleClickNode"
+            @rename="handleRename" @createOne="handleCreateOne" :dropFn="handleDropFn">
             <template #default="{ data: { data } }">
                 <!-- 未保存 -->
             </template>
         </FileTree>
-        <div
-            class="text-center text-red-300 pt-20px"
-            style="font-size: 20px; white-space: nowrap; overflow: hidden"
-            v-if="!state.fileData.length"
-        >
+        <div class="text-center text-red-300 pt-20px" style="font-size: 20px; white-space: nowrap; overflow: hidden"
+            v-if="!state.fileData.length">
             空空如也
         </div>
     </div>
