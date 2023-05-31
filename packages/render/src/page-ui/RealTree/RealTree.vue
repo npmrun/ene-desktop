@@ -6,7 +6,7 @@ import { ENiuTreeStatus, INiuTreeData, INiuTreeKey, convert, convertTreeData, fi
 import { toast } from "vue3-toastify"
 
 /**
- * 处理监听器发出的文件变化事件 
+ * 处理监听器发出的文件变化事件
  */
 function listenFileChange(_: any, ev: any) {
     console.log(ev)
@@ -42,11 +42,11 @@ function listenFileChange(_: any, ev: any) {
             }
             case "create": {
                 let realkey = _agent.file.realpathSync(temp.path, "hex")
-                let cur = findNode(state.fileData, (node) => {
+                let cur = findNode(state.fileData, node => {
                     return node.key === realkey
                 })
                 if (cur && cur.justcreate) {
-                    state.fileData = filter(state.fileData, (node) => {
+                    state.fileData = filter(state.fileData, node => {
                         return node.key !== realkey
                     })
                     state.openKey = _agent.file.realpathSync(temp.path, "hex")
@@ -96,7 +96,7 @@ function listenFileChange(_: any, ev: any) {
                 break
             }
             case "update": {
-                console.log(ev);
+                console.log(ev)
                 break
             }
             default:
@@ -106,17 +106,29 @@ function listenFileChange(_: any, ev: any) {
     }
 }
 
-const props = withDefaults(defineProps<{
-    mid: string
-    dir: string
-    openKey?: INiuTreeKey
-}>(), {})
+const props = withDefaults(
+    defineProps<{
+        mid: string
+        dir: string
+        openKey?: INiuTreeKey
+    }>(),
+    {},
+)
 const emit = defineEmits<{
     (ev: "update:activeNode", node: INiuTreeData): void
     (ev: "updateinfo", node: any): void
     (ev: "create", node: INiuTreeData): void
     (ev: "delete", node: INiuTreeData): void
-    (ev: "change", node: { openKey?: INiuTreeKey, activeNode?: any, activeKeys?: INiuTreeKey[], isFocus?: boolean, focusKey?: INiuTreeKey }): void
+    (
+        ev: "change",
+        node: {
+            openKey?: INiuTreeKey
+            activeNode?: any
+            activeKeys?: INiuTreeKey[]
+            isFocus?: boolean
+            focusKey?: INiuTreeKey
+        },
+    ): void
 }>()
 
 const state = reactive<{
@@ -140,26 +152,32 @@ defineExpose({
         if (key) {
             state.openKey = key
             state.activeKeys = [key]
-            let nodes = findPath(state.fileData, (data) => {
+            let nodes = findPath(state.fileData, data => {
                 return data.key == key
             })
             if (nodes) {
                 nodes.forEach((node: any) => {
                     node.isFolder && (node.isExpand = true)
-                });
+                })
             }
         } else {
             state.openKey = undefined
             state.activeKeys = []
         }
-    }
+    },
 })
 
 function emitChange() {
     const node = findNode(state.fileData, n => {
         return n.key === state.openKey
     })
-    let result: { openKey?: INiuTreeKey, activeNode?: any, activeKeys?: INiuTreeKey[], isFocus?: boolean, focusKey?: INiuTreeKey } = {
+    let result: {
+        openKey?: INiuTreeKey
+        activeNode?: any
+        activeKeys?: INiuTreeKey[]
+        isFocus?: boolean
+        focusKey?: INiuTreeKey
+    } = {
         openKey: state.openKey,
         activeKeys: state.activeKeys,
         isFocus: state.isFocus,
@@ -174,15 +192,19 @@ function emitChange() {
             isFolder: node.isFolder,
         }
     }
-    console.log(result);
+    console.log(result)
 
     emit("change", result)
 }
-watch(() => state.openKey, () => {
-    emitChange()
-}, {
-    deep: true
-})
+watch(
+    () => state.openKey,
+    () => {
+        emitChange()
+    },
+    {
+        deep: true,
+    },
+)
 // watchEffect(() => {
 //     const node = findNode(state.fileData, n => {
 //         return n.key === state.openKey
@@ -207,39 +229,49 @@ watch(() => state.openKey, () => {
 // })
 
 let stopWatch: Function
-watch(() => props.dir, async () => {
-    await dispose()
-    stopWatch?.()
-    state.rootDir = _agent.file.replacePath(props.dir)
-    await initDir()
-    let data: any = null
-    let n = localStorage.getItem("RealTreeData")
-    if (n) {
-        data = JSON.parse(n)
-        if (data) {
-            Reflect.deleteProperty(data, "rootDir")
-            Object.assign(state, data)
+watch(
+    () => props.dir,
+    async () => {
+        await dispose()
+        stopWatch?.()
+        state.rootDir = _agent.file.replacePath(props.dir)
+        await initDir()
+        let data: any = null
+        let n = localStorage.getItem("RealTreeData")
+        if (n) {
+            data = JSON.parse(n)
+            if (data) {
+                Reflect.deleteProperty(data, "rootDir")
+                Object.assign(state, data)
+            }
         }
-    }
-    stopWatch = watch(() => [state.openKey, state.focusKey, state.activeKeys, state.isFocus, state.rootDir], () => {
-        localStorage.setItem("RealTreeData", JSON.stringify({
-            openKey: state.openKey,
-            focusKey: state.focusKey,
-            activeKeys: state.activeKeys,
-            isFocus: state.isFocus,
-        }))
-    })
-    console.log("props.dir changed ", state.rootDir);
-}, {
-    immediate: true
-})
+        stopWatch = watch(
+            () => [state.openKey, state.focusKey, state.activeKeys, state.isFocus, state.rootDir],
+            () => {
+                localStorage.setItem(
+                    "RealTreeData",
+                    JSON.stringify({
+                        openKey: state.openKey,
+                        focusKey: state.focusKey,
+                        activeKeys: state.activeKeys,
+                        isFocus: state.isFocus,
+                    }),
+                )
+            },
+        )
+        console.log("props.dir changed ", state.rootDir)
+    },
+    {
+        immediate: true,
+    },
+)
 onBeforeMount(() => {
-    console.log("onBeforeMount");
+    console.log("onBeforeMount")
     _agent.offAll("filetree-update-message-" + props.mid)
     _agent.on("filetree-update-message-" + props.mid, listenFileChange)
 })
 onBeforeUnmount(() => {
-    console.log("onBeforeUnmount");
+    console.log("onBeforeUnmount")
     dispose()
     stopWatch?.()
     _agent.offAll("filetree-update-message")
@@ -369,7 +401,10 @@ function handleContextmenu(data: INiuTreeData) {
         menuList.push({
             label: "删除所有",
             async click() {
-                const answer = await _agent.callLong("dialog.confrim", { title: "是否删除所有", message: "是否删除所有？" })
+                const answer = await _agent.callLong("dialog.confrim", {
+                    title: "是否删除所有",
+                    message: "是否删除所有？",
+                })
                 if (answer) {
                     for (let i = 0; i < state.activeKeys.length; i++) {
                         const key = state.activeKeys[i]
@@ -379,7 +414,7 @@ function handleContextmenu(data: INiuTreeData) {
                         if (node) {
                             let path = findNodePath(node)
                             if (path && _agent.file.existsSync(path)) {
-                                console.log("delete", node);
+                                console.log("delete", node)
                                 emit("delete", node)
                                 _agent.file.rm(path)
                             }
@@ -458,21 +493,6 @@ async function handleRename(data: INiuTreeData, done: (status?: boolean) => void
     let oldPath = pPath + "/" + data.base
     let newPath = pPath + "/" + data.title
     try {
-        // let successFn: Function[] = []
-        // if (data.isFolder) {
-        //     await _agent.file.readFolderToTree(newPath, (node: any) => {
-        //         successFn.push(()=>{
-        //             emit("updateinfo", {
-        //                 path: node.path,
-        //                 title: node.title,
-        //                 oldKey: node.key,
-        //                 key: _agent.file.realpathSync(oldPath, "hex"),
-        //                 isFile: node.isFile,
-        //                 isFolder: node.isFolder,
-        //             })
-        //         })
-        //     }).children
-        // }
         await _agent.file.renameFile(oldPath, newPath)
         let isSuccess = _agent.file.existsSync(newPath)
         // TODO 当修改的是一个文件夹时，内部的子文件路径会改变，但是这里没有处理子文件的信息更新
@@ -484,20 +504,24 @@ async function handleRename(data: INiuTreeData, done: (status?: boolean) => void
             isFile: data.isFile,
             isFolder: data.isFolder,
         })
-        // if (data.isFolder) {
-        //     console.log(oldPath, newPath);
-            
-        //     await _agent.file.readFolderToTree(newPath, (node: any) => {
-        //         emit("updateinfo", {
-        //             path: node.path,
-        //             title: node.title,
-        //             oldKey: _agent.file.realpathSync(oldPath, "hex"),
-        //             key: data.key,
-        //             isFile: node.isFile,
-        //             isFolder: node.isFolder,
-        //         })
-        //     }).children
-        // }
+        if (data.isFolder) {
+            await _agent.file.readFolderToTree(newPath, (node: any) => {
+                let array =
+                    findPath(state.fileData, n => {
+                        return node.key === n.key
+                    }) ?? []
+                // 获取新路径做ID
+                const path = state.rootDir + "/" + array.map((v: any) => v.title).join("/") // 新路径
+                emit("updateinfo", {
+                    path: node.path,
+                    title: node.title,
+                    oldKey: node.key,
+                    key: _agent.file.realpathSync(path, "hex"),
+                    isFile: node.isFile,
+                    isFolder: node.isFolder,
+                })
+            }).children
+        }
         done(isSuccess)
     } catch (error) {
         console.error(error)
@@ -597,16 +621,30 @@ async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData
 
 <template>
     <div class="h-1/1 py-15px" @contextmenu="handleGlobalContextmenu">
-        <FileTree v-if="state.rootDir && !!state.fileData.length" ref="filetreeRef" @contextmenu="handleContextmenu" sort
-            :list="state.fileData" v-model:activeKeys="state.activeKeys" v-model:openKey="state.openKey"
-            v-model:focusKey="state.focusKey" v-model:isFocus="state.isFocus" @clickNode="handleClickNode"
-            @rename="handleRename" @createOne="handleCreateOne" :dropFn="handleDropFn">
+        <FileTree
+            v-if="state.rootDir && !!state.fileData.length"
+            ref="filetreeRef"
+            @contextmenu="handleContextmenu"
+            sort
+            :list="state.fileData"
+            v-model:activeKeys="state.activeKeys"
+            v-model:openKey="state.openKey"
+            v-model:focusKey="state.focusKey"
+            v-model:isFocus="state.isFocus"
+            @clickNode="handleClickNode"
+            @rename="handleRename"
+            @createOne="handleCreateOne"
+            :dropFn="handleDropFn"
+        >
             <template #default="{ data: { data } }">
                 <!-- 未保存 -->
             </template>
         </FileTree>
-        <div class="text-center text-red-300 pt-20px" style="font-size: 20px;white-space: nowrap;overflow: hidden;"
-            v-if="!state.fileData.length">
+        <div
+            class="text-center text-red-300 pt-20px"
+            style="font-size: 20px; white-space: nowrap; overflow: hidden"
+            v-if="!state.fileData.length"
+        >
             空空如也
         </div>
     </div>
