@@ -9,11 +9,13 @@ let webviewPreloadPath = path.join(__dirname, "webview.js")
 let preloadPath = path.join(__dirname, "preload.js")
 let iframePath = `http://localhost:${process.env.PORT}/iframe.html`
 let extraPath = path.join(__dirname, "../../extra")
+let buildAssetsPath = path.join(__dirname, "../../build-assets")
 if (__dirname.split(path.sep).indexOf("app.asar") >= 0) {
     webviewPreloadPath = path.join(__dirname, "webview.js")
     preloadPath = path.join(__dirname, "preload.js")
     iframePath = path.join(__dirname, "iframe.html")
     extraPath = path.join(__dirname, "../..")
+    buildAssetsPath = path.join(__dirname, "../../..")
 }
 webviewPreloadPath = url.pathToFileURL(webviewPreloadPath).href
 preloadPath = url.pathToFileURL(preloadPath).href
@@ -37,6 +39,7 @@ const _agent = {
     preloadPath: preloadPath,
     iframePath: iframePath,
     extraPath: extraPath,
+    buildAssetsPath: buildAssetsPath,
     file: file,
     crash() {
         process.crash()

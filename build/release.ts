@@ -72,6 +72,12 @@ builder.build({
             output: "../out",
             app: "../dist",
         },
+        extraFiles: [
+            {
+                "from": "../build-assets",
+                "to": ""
+            },
+        ],
         electronDownload: {
             cache: path.join(homedir(), ".electron"),
             mirror: "https://npm.taobao.org/mirrors/electron/",
@@ -151,7 +157,7 @@ builder.build({
                 GenericName: "效率工具，懒人必备",
             },
         },
-        protocols:{
+        protocols: {
             name: setting.app_title,
             schemes: [setting.app_scheme]
         }

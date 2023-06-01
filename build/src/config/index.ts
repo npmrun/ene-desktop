@@ -38,12 +38,14 @@ export const mainWebpack = {
     devVariable: {
         // __static: `"${genPathRoot("public/static").replace(/\\/g, "\\\\")}"`,
         // __public: `"${genPathRoot("public").replace(/\\/g, "\\\\")}"`,
+        __buildAssets: `"${genPathRoot("build-assets").replace(/\\/g, "\\\\")}"`,
         __extra: `"${genPathRoot("extra").replace(/\\/g, "\\\\")}"`,
         __appStatic: `"${genPathRoot("dist/electron").replace(/\\/g, "\\\\")}"`,
     },
     prodVariable: {
         // __static: `require("path").join(__dirname, "/static").replace(/\\\\/g, "\\\\\\\\")`,
         // __public: `require("path").join(__dirname).replace(/\\\\/g, "\\\\\\\\")`,
+        __buildAssets: `require("path").join(__dirname, "../../..").replace(/\\\\/g, "\\\\\\\\")`,
         __extra: `require("path").join(__dirname, "../..").replace(/\\\\/g, "\\\\\\\\")`,
         __appStatic: `require("path").join(__dirname).replace(/\\\\/g, "\\\\\\\\")`,
     },

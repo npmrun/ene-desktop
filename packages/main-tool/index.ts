@@ -1,9 +1,9 @@
 import { broadcast } from "./broadcast"
 import path from "path"
 
-declare const __extra: string
-export const appIconPath = path.join(__extra, "/icons/180x180.png")
-export const appTrayPath = path.join(__extra, "/icons/120x120.png")
+declare const __buildAssets: string
+export const appIconPath = path.join(__buildAssets, "/icons/180x180.png")
+export const appTrayPath = path.join(__buildAssets, "/icons/120x120.png")
 
 export { broadcast }
 
