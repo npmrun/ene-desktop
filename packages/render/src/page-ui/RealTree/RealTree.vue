@@ -5,7 +5,6 @@ import { findNode, findPath, filter, forEach } from "@common/util/treeHelper"
 import { ENiuTreeStatus, INiuTreeData, INiuTreeKey, convert, convertTreeData, findByKeyParent } from "princess-ui"
 import { toast } from "vue3-toastify"
 
-let justRename = ref(false)
 /**
  * 处理监听器发出的文件变化事件
  */
@@ -42,8 +41,6 @@ function listenFileChange(_: any, ev: any) {
                 break
             }
             case "create": {
-                let isRename = justRename.value
-                justRename.value =  false
                 let realkey = _agent.file.realpathSync(temp.path, "hex")
                 let cur = findNode(state.fileData, node => {
                     return node.key === realkey
@@ -62,9 +59,9 @@ function listenFileChange(_: any, ev: any) {
                     (_agent.file.isDirectory(temp.path)
                         ? _agent.file.readFolderToTree(temp.path).children
                         : undefined) ?? []
-                if(!isRename) {
-                    childFiles = []
-                }
+                // if(!isRename) {
+                //     childFiles = []
+                // }
                 if (state.rootDir === pPath) {
                     let key = _agent.file.realpathSync(temp.path, "hex")
                     state.fileData.push(
@@ -567,9 +564,6 @@ async function handleRename(data: INiuTreeData, done: (status?: boolean) => void
             //     });
 
             // }).children
-        }
-        if(isSuccess){
-            justRename.value = true
         }
         done(isSuccess)
     } catch (error) {
