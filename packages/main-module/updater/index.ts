@@ -35,6 +35,7 @@ export function initUpdate(): void {
 
         // 检查到新版本
         autoUpdater.on("update-available", (info: UpdateInfo) => {
+            log.debug("新版本信息为:", info)
             broadcast("updater:avaliable", {
                 message: `检查到新版本 v ${info.version}，开始下载`,
             })
@@ -42,6 +43,7 @@ export function initUpdate(): void {
 
         // 已经是新版本
         autoUpdater.on("update-not-available", (info: UpdateInfo) => {
+            log.debug("当前版本信息为:", info)
             broadcast("updater:notavaliable", {
                 message: `当前版本已经是最新 v ${info.version}`,
             })
