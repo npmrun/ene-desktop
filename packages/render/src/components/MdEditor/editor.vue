@@ -44,8 +44,6 @@
           props,
         })
         editor.$on('change', (e: any) => {
-            console.log(22111, e);
-            
           emit('change', e.detail.value)
         })
         editorRef.value = editor

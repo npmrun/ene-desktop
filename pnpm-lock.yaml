@@ -403,6 +403,9 @@ importers:
       jszip:
         specifier: ^3.10.1
         version: 3.10.1
+      juejin-markdown-themes:
+        specifier: ^1.29.7
+        version: 1.29.7
       less:
         specifier: ^4.1.3
         version: 4.1.3
@@ -8226,6 +8229,10 @@ packages:
       pako: 1.0.11
       readable-stream: 2.3.8
       setimmediate: 1.0.5
+    dev: false
+
+  /juejin-markdown-themes@1.29.7:
+    resolution: {integrity: sha512-IRQFOC4tGg+mAuYetu9ZS1TgVHU+lSWq02F6Dv7ntLjirLvac0hy3BbcarLQc0QfXxap00ntTDJvVtAZj1s7KQ==}
     dev: false
 
   /keyboardevent-from-electron-accelerator@2.0.0:

@@ -4,7 +4,7 @@ import frontmatter from '@bytemd/plugin-frontmatter'
 import btybreaks from '@bytemd/plugin-breaks'
 import { Editor as MdEditor, Viewer } from '.'
 import collectPlugin from './plugins/collectPlugin'
-
+import zhHans from 'bytemd/locales/zh_Hans.json'
 
 const ppp: any = {
     viewerEffect({ markdownBody }: any) {
@@ -13,19 +13,20 @@ const ppp: any = {
             link.setAttribute('target', '_blank');
             // @ts-ignore
             link.onclick = window.setURL
-            link.oncontextmenu = function () {
-                console.log('22');
-            }
+            link.oncontextmenu = function () {}
             link.setAttribute('ahref', link.getAttribute("href"));
             link.removeAttribute("href")
         });
     }
 }
 
+onMounted(()=>{
+    document.querySelector(".markdown-body")?.classList.add("content")
+})
 </script>
 
 <template>
-    <MdEditor :plugins="[gfm(), frontmatter(), btybreaks(), ppp, collectPlugin()]">
+    <MdEditor :plugins="[gfm(), frontmatter(), btybreaks(), ppp, collectPlugin()]" :locale="zhHans">
     </MdEditor>
 </template>
 

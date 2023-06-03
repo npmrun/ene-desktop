@@ -8,10 +8,10 @@ type IOnFunc = (n: IConfig, c: IConfig) => void
 type IT = (keyof IConfig)[] | keyof IConfig | "_"
 
 let storagePath = path.join(app.getPath("documents"), setting.app_title)
-console.log(111111111, process.env.NODE_ENV);
+let storagePathDev = path.join(app.getPath("documents"), setting.app_title + "-dev")
 
 if (process.env.NODE_ENV === "development") {
-    storagePath = path.join(app.getPath("documents"), setting.app_title + "-dev")
+    storagePath = storagePathDev
 }
 
 const defaultConfig: IConfig = {
@@ -85,7 +85,7 @@ class Settings {
         }
     }
 
-    #pathFile: string = path.resolve(app.getPath("userData"), "./config_path")
+    #pathFile: string = process.env.NODE_ENV === "development"? path.resolve(app.getPath("userData"), "./config_path-dev"): path.resolve(app.getPath("userData"), "./config_path")
     #config: IConfig = defaultConfig
     #configPath(storagePath?: string): string {
         return path.join(storagePath || this.#config.storagePath, "./config.json")
