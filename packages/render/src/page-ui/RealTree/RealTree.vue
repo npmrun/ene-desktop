@@ -333,6 +333,22 @@ function handleGlobalContextmenu() {
         },
     })
     menuList.push({
+        label: "新建片段",
+        click() {
+            state.fileData?.push(
+                convert({
+                    key: "",
+                    base: ".snip",
+                    title: ".snip",
+                    type: "file",
+                    order: 0,
+                    isNew: true,
+                    isEdit: true,
+                } as any),
+            )
+        },
+    })
+    menuList.push({
         label: "新建文件夹",
         click() {
             state.fileData?.push(
@@ -445,6 +461,23 @@ function handleContextmenu(data: INiuTreeData) {
                         key: "",
                         base: "",
                         title: "",
+                        type: "file",
+                        order: 0,
+                        isNew: true,
+                        isEdit: true,
+                    } as any),
+                )
+            },
+        })
+        menuList.push({
+            label: "新建片段",
+            click() {
+                data.isFolder && (data.isExpand = true)
+                data.children?.push(
+                    convert({
+                        key: "",
+                        base: ".snip",
+                        title: ".snip",
                         type: "file",
                         order: 0,
                         isNew: true,
@@ -664,7 +697,7 @@ async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData
 
 <template>
     <div class="h-1/1 py-15px" @contextmenu="handleGlobalContextmenu">
-        <FileTree v-if="state.rootDir && !!state.fileData.length" ref="filetreeRef" @contextmenu="handleContextmenu" sort
+        <FileTree :hideExt="['.snip']" v-if="state.rootDir && !!state.fileData.length" ref="filetreeRef" @contextmenu="handleContextmenu" sort
             :list="state.fileData" v-model:activeKeys="state.activeKeys" v-model:openKey="state.openKey"
             v-model:focusKey="state.focusKey" v-model:isFocus="state.isFocus" @clickNode="handleClickNode"
             @rename="handleRename" @createOne="handleCreateOne" :dropFn="handleDropFn">

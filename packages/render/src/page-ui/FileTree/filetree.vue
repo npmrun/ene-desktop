@@ -3,7 +3,7 @@
         <ps-tree v-bind="props" :dropFn="dropFn" @expand="$attrs.onExpand as any" @itemDragstart="onItemDragstart"
             @itemDragend="onItemDragend" @itemDrop="onItemDrop" @click="clickItem" auto-expand>
             <template #default="data">
-                <item @click.stop="clickNode($event, data.data)" @change="() => emit('change')"
+                <item :hideExt="hideExt" @click.stop="clickNode($event, data.data)" @change="() => emit('change')"
                     @contextmenu.stop="onContextMenu($event, data.data)" :active-keys="activeKeys" :open-key="openKey"
                     v-bind="{ ...data, ...$attrs }" :list="list" v-model:focus-key="focusKey" :isFocus="isFocus">
                     <slot :data="data"></slot>    
@@ -37,6 +37,7 @@ const props = withDefaults(
         sort?: boolean
         openKey?: INiuTreeKey
         activeKeys?: INiuTreeKey[]
+        hideExt?: string[]
         focusKey?: INiuTreeKey
         isFocus?: boolean
         justOpen?: boolean
@@ -48,6 +49,7 @@ const props = withDefaults(
         sort: false,
         isFocus: false,
         activeKeys: () => [],
+        hideExt: () => [],
         justOpenOne: false,
     },
 )

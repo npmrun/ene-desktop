@@ -48,7 +48,7 @@
                     ></svg-icon>
                 </div>
                 <div v-if="!data.isEdit" @click="clickTitle($event, data)" class="node__text__title">
-                    {{ data.title }}
+                    {{ computedTitle }}
                 </div>
                 <div v-if="!data.isEdit">
                     <slot></slot>
@@ -219,6 +219,7 @@ const props = withDefaults(
         data: INiuTreeData
         list: INiuTreeData[]
         activeKeys?: INiuTreeKey[]
+        hideExt?: string[]
         openKey?: INiuTreeKey
         focusKey?: INiuTreeKey
         deep: number
@@ -228,8 +229,21 @@ const props = withDefaults(
     }>(),
     {
         activeKeys: () => [],
+        hideExt: () => [],
     },
 )
+
+const computedTitle = computed(()=>{
+    let title = props.data.title
+    for (let i = 0; i < props.hideExt.length; i++) {
+        const ext = props.hideExt[i];
+        if(title.endsWith(ext)){
+            title = title.replace(ext, "")
+            break
+        }
+    }
+    return title
+})
 
 function getIcon(data: INiuTreeData) {
     if(data.isFile){
@@ -250,6 +264,7 @@ function getIcon(data: INiuTreeData) {
 function judgeFile(filename: string) {
     if (!filename) return
     let ext = [
+        { language: "json", ext: ".snip", index: -1, icon: "json" },
         { language: "json", ext: ".json", index: -1, icon: "json" },
         { language: "txt", ext: ".txt", index: -1, icon: "document" },
         { language: "vue", ext: ".vue", index: -1, icon: "vue" },
