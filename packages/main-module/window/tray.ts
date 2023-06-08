@@ -23,11 +23,11 @@ function setupTrayMenu() {
                 showMainWindow()
             },
         },
-        {
-            // 系统托盘图标目录
-            label: textHolder.openFloat,
-            click: () => {},
-        },
+        // {
+        //     // 系统托盘图标目录
+        //     label: textHolder.openFloat,
+        //     click: () => {},
+        // },
         {
             // 系统托盘图标目录
             label: textHolder.exitTray,
@@ -84,7 +84,7 @@ export function setupTray(isHide: boolean = true) {
     }
 
     // 设置托盘悬浮提示
-    Shared.data.trayWindow.setToolTip("never forget")
+    // Shared.data.trayWindow.setToolTip("never forget")
 
     // 单击托盘小图标显示应用
     Shared.data.trayWindow.on("double-click", () => {

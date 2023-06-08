@@ -264,6 +264,7 @@ function getIcon(data: INiuTreeData) {
 function judgeFile(filename: string) {
     if (!filename) return
     let ext = [
+        { language: "html", ext: ".web", index: -1, icon: "html" },
         { language: "json", ext: ".snip", index: -1, icon: "json" },
         { language: "json", ext: ".json", index: -1, icon: "json" },
         { language: "txt", ext: ".txt", index: -1, icon: "document" },

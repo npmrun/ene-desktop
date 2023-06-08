@@ -2,7 +2,8 @@
 import { PopupMenu } from "@/bridge/PopupMenu"
 import FileTree from "@/page-ui/FileTree/filetree.vue"
 import { findNode, findPath, filter, forEach } from "@common/util/treeHelper"
-import { ENiuTreeStatus, INiuTreeData, INiuTreeKey, convert, convertTreeData, findByKeyParent } from "princess-ui"
+import { cloneDeep } from "lodash"
+import { ENiuTreeStatus, INiuTreeData, INiuTreeKey, convert, convertTreeData, findByKey, findByKeyParent } from "princess-ui"
 import { toast } from "vue3-toastify"
 
 /**
@@ -135,6 +136,16 @@ const emit = defineEmits<{
             focusKey?: INiuTreeKey
         },
     ): void
+    (
+        ev: "edit",
+        node: {
+            openKey?: INiuTreeKey
+            activeNode?: any
+            activeKeys?: INiuTreeKey[]
+            isFocus?: boolean
+            focusKey?: INiuTreeKey
+        },
+    ): void
 }>()
 
 const state = reactive<{
@@ -156,8 +167,10 @@ const state = reactive<{
 defineExpose({
     setOpenKey(key?: INiuTreeKey) {
         if (key) {
+            if (state.openKey !== key) stop = true
             state.openKey = key
             state.activeKeys = [key]
+            emit("edit", getData())
             let nodes = findPath(state.fileData, data => {
                 return data.key == key
             })
@@ -173,7 +186,7 @@ defineExpose({
     },
 })
 
-function emitChange() {
+function getData() {
     const node = findNode(state.fileData, n => {
         return n.key === state.openKey
     })
@@ -198,13 +211,21 @@ function emitChange() {
             isFolder: node.isFolder,
         }
     }
-    console.log(result)
+    return result
+}
 
+function emitChange() {
+    let result = getData()
     emit("change", result)
 }
+let stop = false
 watch(
     () => state.openKey,
     () => {
+        if (stop) {
+            stop = false
+            return
+        }
         emitChange()
     },
     {
@@ -371,7 +392,7 @@ function handleGlobalContextmenu() {
 }
 
 function handleContextmenu(data: INiuTreeData) {
-    const menuList: IMenuItemOption[] = []
+    let menuList: IMenuItemOption[] = []
     if (data.isFile) {
         menuList.push({
             label: "默认程序打开",
@@ -391,6 +412,36 @@ function handleContextmenu(data: INiuTreeData) {
     menuList.push({
         type: "separator",
     })
+    if (data.isFile) {
+        menuList.push({
+            label: "编辑",
+            click() {
+                if (state.openKey !== data.key) stop = true
+                state.openKey = data.key
+                state.activeKeys = [data.key]
+                emit("edit", getData())
+            },
+        })
+        if (data.isFile && data.title.endsWith(".web")) {
+            menuList = [
+                {
+                    label: "编辑源码",
+                    click() {
+                        if (state.openKey !== data.key) stop = true
+                        state.openKey = data.key
+                        state.activeKeys = [data.key]
+                        emit("edit", getData())
+                    },
+                },
+                {
+                    label: "查看网页",
+                    click() {
+                        emitChange()
+                    },
+                }
+            ]
+        }
+    }
     if (data.isFile && data.title.endsWith(".html")) {
         menuList.push({
             label: "预览html",
@@ -524,7 +575,7 @@ function handleClickNode(data: INiuTreeData) {
     }
     state.openKey = data.key
     state.activeKeys = [data.key]
-    emitChange()
+    // emitChange()
 }
 
 async function handleRename(data: INiuTreeData, done: (status?: boolean) => void) {
@@ -697,10 +748,10 @@ async function handleDropFn(type: ENiuTreeStatus, data: INiuTreeData, targetData
 
 <template>
     <div class="h-1/1 py-15px" @contextmenu="handleGlobalContextmenu">
-        <FileTree :hideExt="['.snip']" v-if="state.rootDir && !!state.fileData.length" ref="filetreeRef" @contextmenu="handleContextmenu" sort
-            :list="state.fileData" v-model:activeKeys="state.activeKeys" v-model:openKey="state.openKey"
-            v-model:focusKey="state.focusKey" v-model:isFocus="state.isFocus" @clickNode="handleClickNode"
-            @rename="handleRename" @createOne="handleCreateOne" :dropFn="handleDropFn">
+        <FileTree :hideExt="['.snip', '.web']" v-if="state.rootDir && !!state.fileData.length" ref="filetreeRef"
+            @contextmenu="handleContextmenu" sort :list="state.fileData" v-model:activeKeys="state.activeKeys"
+            v-model:openKey="state.openKey" v-model:focusKey="state.focusKey" v-model:isFocus="state.isFocus"
+            @clickNode="handleClickNode" @rename="handleRename" @createOne="handleCreateOne" :dropFn="handleDropFn">
             <template #default="{ data: { data } }">
                 <!-- 未保存 -->
             </template>

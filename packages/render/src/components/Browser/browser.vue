@@ -130,20 +130,20 @@ onMounted(() => {
             console.error(e);
             console.error(e?.errorDescription);
             // TODO 此处执行js代码不知有没有风险，只用于展示错误
-            if (e.errorCode === -300) {
-                we.executeJavaScript(`document.open();document.write(\`${_agent.getStaticHtmlSource("404")}\`);document.close();`)
-            }
-            if (e.errorCode === -100) {
-                we.executeJavaScript(`document.open();document.write(\`${_agent.getStaticHtmlSource("404")}\`);document.close();`)
-            }
-            if (e.errorCode === -105) {
-                we.executeJavaScript(`document.open();document.write(\`${_agent.getStaticHtmlSource("403")}\`);document.close();`)
-                // internalLoad("404")
-            }
-            if (e.errorCode === -21) {
-                we.executeJavaScript(`document.open();document.write(\`${_agent.getStaticHtmlSource("403")}\`);document.close();`)
-                // internalLoad("404")
-            }
+            // if (e.errorCode === -300) {
+            //     we.executeJavaScript(`document.open();document.write(\`${_agent.getStaticHtmlSource("404")}\`);document.close();`)
+            // }
+            // if (e.errorCode === -100) {
+            //     we.executeJavaScript(`document.open();document.write(\`${_agent.getStaticHtmlSource("404")}\`);document.close();`)
+            // }
+            // if (e.errorCode === -105) {
+            //     we.executeJavaScript(`document.open();document.write(\`${_agent.getStaticHtmlSource("403")}\`);document.close();`)
+            //     // internalLoad("404")
+            // }
+            // if (e.errorCode === -21) {
+            //     we.executeJavaScript(`document.open();document.write(\`${_agent.getStaticHtmlSource("403")}\`);document.close();`)
+            //     // internalLoad("404")
+            // }
             // if(e.errorCode === -337){
             //     internalLoad("403")
             // }

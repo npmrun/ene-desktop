@@ -82,7 +82,21 @@ const state = reactive<any>({
     content: undefined,
 })
 
-function handleChange({ activeNode }: any) {
+let curActiveNode = ref()
+let curActiveNodeContent = ref()
+function handleEdit({ activeNode }: any) {
+    handleChange({ activeNode }, true)
+}
+function handleChange({ activeNode }: any, justOpen: boolean) {
+    if(activeNode.isFolder) return
+    if (activeNode.isFile && activeNode.title.endsWith(".web") && !justOpen) {
+        curActiveNode.value = activeNode
+        curActiveNodeContent.value = _agent.file.readFileSync(curActiveNode.value.path)
+        return
+    }
+    curActiveNode.value = undefined
+    curActiveNodeContent.value = undefined
+
     state.activeNode = activeNode
     if (state.activeNode) {
         const node = cloneDeep(state.activeNode)
@@ -97,7 +111,6 @@ function handleChange({ activeNode }: any) {
             }
         }
     }
-    console.log(state.tabs);
 }
 
 const FileTreeRef = ref<InstanceType<typeof RealTree>>()
@@ -273,11 +286,15 @@ const previewLayout = ref("bottom")
         <template #left>
             <RealTree ref="FileTreeRef" mid="bookmark" @updateinfo="handleUpdateinfo" @create="handleCreate"
                 @delete="handleDelete" @rename="handleRename" :dir="configStore['bookmark.storagePath']"
-                @change="handleChange" @preview="handlePreview">
+                @change="handleChange($event, false)" @edit="handleEdit" @preview="handlePreview">
             </RealTree>
         </template>
         <template #right>
-            <div class="h-1/1 flex flex-col">
+            <div class="h-1/1 flex flex-col" v-if="curActiveNode">
+                <Preview ref="previewRef" class="h-1/1" type="browser" :src="curActiveNodeContent" :key="curActiveNodeContent">
+                </Preview>
+            </div>
+            <div class="h-1/1 flex flex-col" v-else>
                 <div class="tabs is-boxed pt-5px !mb-0" v-if="state.tabs.length">
                     <ul>
                         <li v-for="(item, index) in state.tabs" class="group"
