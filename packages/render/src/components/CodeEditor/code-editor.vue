@@ -148,8 +148,6 @@ onBeforeUnmount(() => {
     }
 })
 const style = computed(() => {
-    console.log(props)
-
     if (props.logo && props.logoType === "bg") {
         return {
             backgroundImage: `url(${props.logo})`,

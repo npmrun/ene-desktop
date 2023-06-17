@@ -5,7 +5,7 @@ import { quit } from "."
 import { appIconPath } from "@rush/main-tool"
 import windowStateKeeper from "electron-window-state"
 import { Settings } from "@rush/main-config/config"
-import { confrim } from "@rush/main-tool/dialog"
+import { confrim } from "@rush/main-func/dialog"
 
 export function hideMainWindow() {
     if (!Shared.data.mainWindow || Shared.data.mainWindow?.isDestroyed()) {

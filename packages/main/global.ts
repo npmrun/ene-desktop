@@ -1,6 +1,7 @@
 import { app, crashReporter } from "electron"
-import { initCommands, initPrase } from "./parseCommand"
 import { Settings } from "@rush/main-config/config"
+import "@rush/main-module/localiza"
+import { initCommands, initPrase } from "./parseCommand"
 import path from "path"
 import { initGlobalLog } from "@rush/main-module/log"
 import { initFileChange } from "@rush/main-module/filechange"
@@ -8,9 +9,6 @@ import { initMenu } from "@rush/main-module/menu"
 import { initUpdate } from "@rush/main-module/updater"
 import { initFolder } from "@rush/main-module/folder"
 import { initProtocol } from "@rush/main-module/protocol"
-
-// 配置文件初始化
-Settings.init()
 
 // 记录崩溃日志
 crashReporter.start({

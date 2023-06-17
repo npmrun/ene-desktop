@@ -62,15 +62,15 @@ checkAutoStatus()
 
 export let windowsMenu: IMenuItemOption[] = [
     {
-        label: "置顶",
+        label: localiza("main.menu.top"),
         id: "alwaysTopID",
         click: function (item: any, focusedWindow: BrowserWindow) {
             if (Shared.data.mainWindow?.isAlwaysOnTop()) {
                 Shared.data.mainWindow.setAlwaysOnTop(false)
-                updateMenu("alwaysTopID", "label", "置顶")
+                updateMenu("alwaysTopID", "label", localiza("main.menu.top"))
             } else {
                 Shared.data.mainWindow?.setAlwaysOnTop(true)
-                updateMenu("alwaysTopID", "label", "取消置顶")
+                updateMenu("alwaysTopID", "label", localiza("main.menu.untop"))
             }
         },
     },

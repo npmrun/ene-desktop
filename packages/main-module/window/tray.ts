@@ -6,7 +6,7 @@ import { appTrayPath } from "@rush/main-tool"
 
 let textHolder = {
     openWindow: "打开窗口",
-    openFloat: "打开悬浮时钟",
+    // openFloat: "打开悬浮时钟",
     exitTray: "退出托盘",
     quit: "退出",
 }

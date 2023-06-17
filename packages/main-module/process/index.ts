@@ -14,6 +14,16 @@ import fs from "fs-extra"
 const appPath = path.resolve(app.getAppPath(), "all-pid")
 fs.ensureDir(appPath)
 
+// abstract class Base {
+//     constructor() {
+
+//     }
+//     _whenReady(){
+//         this.whenReady()
+//     }
+//     abstract whenReady()
+// }
+
 // function spawnEvent(pid) {
 //     console.log("创建" + path.resolve(appPath, String(pid)))
 //     fs.createFileSync(path.resolve(appPath, String(pid)))

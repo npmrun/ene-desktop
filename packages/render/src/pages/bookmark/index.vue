@@ -88,6 +88,7 @@ function handleEdit({ activeNode }: any) {
     handleChange({ activeNode }, true)
 }
 function handleChange({ activeNode }: any, justOpen: boolean) {
+    if(!activeNode) return
     if(activeNode.isFolder) return
     if (activeNode.isFile && activeNode.title.endsWith(".web") && !justOpen) {
         curActiveNode.value = activeNode

@@ -28,8 +28,14 @@ const defaultConfig: IConfig = {
 
 function init(config: IConfig) {
     // 在配置初始化后执行
-    fs.ensureDirSync(config["snippet.storagePath"])
-    fs.ensureDirSync(config["bookmark.storagePath"])
+    Object.keys(config).forEach(key=>{
+        if(path.isAbsolute(config[key])){
+            fs.ensureDirSync(config[key])
+        } 
+    })
+    // 在配置初始化后执行
+    // fs.ensureDirSync(config["snippet.storagePath"])
+    // fs.ensureDirSync(config["bookmark.storagePath"])
 }
 
 // 判断是否是空文件夹
@@ -218,5 +224,8 @@ class Settings {
         return this.#config[key]
     }
 }
+
+// 配置文件初始化
+Settings.init()
 
 export { Settings }

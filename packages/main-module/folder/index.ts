@@ -1,5 +1,5 @@
 import watcher from "@parcel/watcher"
-import { alert } from "@rush/main-tool/dialog";
+import { alert } from "@rush/main-func/dialog";
 import fs from "fs-extra"
 import path from "path"
 import _ from "lodash"

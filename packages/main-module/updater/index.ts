@@ -7,7 +7,7 @@ import logger from "electron-log"
 let autoUpdater: NsisUpdater
 
 export function initUpdate(): void {
-    // if (!app.isPackaged) return
+    if (!app.isPackaged) return
 
     let owner = Settings.n.values("update.owner")
     let repo = Settings.n.values("update.repo")

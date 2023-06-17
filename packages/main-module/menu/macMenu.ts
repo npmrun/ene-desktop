@@ -15,7 +15,7 @@ MenuFunc.setMenuListData([
         label: "常用功能",
         submenu: [
             {
-                label: "置顶",
+                label: localiza("main.menu.top"),
                 id: "alwaysTopID",
                 click: MenuFunc.alwaysTop,
             },

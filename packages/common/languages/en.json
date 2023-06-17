@@ -1,4 +1,13 @@
 {
+    "main": {
+        "menu": {
+            "top": "top",
+            "untop": "untop"
+        },
+        "tray": {
+
+        }
+    },
     "title": "enenenene",
     "setting": {
         "tabs": {

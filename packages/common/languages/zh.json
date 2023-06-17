@@ -1,4 +1,13 @@
 {
+    "main": {
+        "menu": {
+            "top": "置顶",
+            "untop": "取消置顶"
+        },
+        "tray": {
+
+        }
+    },
     "title": "chchchchch",
     "setting": {
         "tabs": {
