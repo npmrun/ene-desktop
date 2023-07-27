@@ -126,6 +126,7 @@ const emit = defineEmits<{
     (ev: "create", node: INiuTreeData): void
     (ev: "preview", node: INiuTreeData, p: string): void
     (ev: "delete", node: INiuTreeData): void
+    (ev: "reClick", node: INiuTreeData): void
     (
         ev: "change",
         node: {
@@ -438,6 +439,14 @@ function handleContextmenu(data: INiuTreeData) {
                     click() {
                         emitChange()
                     },
+                },
+                {
+                    label: "外部浏览器打开",
+                    async click() {
+                        // @ts-ignore
+                        const url = await _agent.file.readLastLineSync(data.path)
+                        _agent.call('func.openExternal', url)
+                    },
                 }
             ]
         }
@@ -575,6 +584,7 @@ function handleClickNode(data: INiuTreeData) {
     }
     state.openKey = data.key
     state.activeKeys = [data.key]
+    emit("reClick", getData() as any)
     // emitChange()
 }
 

@@ -346,6 +346,9 @@ function onSubmit(e: Event, data: INiuTreeData, temp: number) {
     if (!value && data.isNew) {
         data.isDel = true
         removeByKey(data.key, props.list)
+    } else if (props.hideExt.includes(value) && data.isNew) {
+        data.isDel = true
+        removeByKey(data.key, props.list)
     } else if (value != data.title) {
         if (data.isNew) {
             data.title = trim(value)

@@ -82,17 +82,24 @@ const state = reactive<any>({
     content: undefined,
 })
 
+
+function handleReClick(node: any) {
+    if (node.activeNode?.key === state.activeNode?.key) {
+        handleChange(node, false)
+    }
+}
+
 let curActiveNode = ref()
 let curActiveNodeContent = ref()
 function handleEdit({ activeNode }: any) {
     handleChange({ activeNode }, true)
 }
-function handleChange({ activeNode }: any, justOpen: boolean) {
+async function handleChange({ activeNode }: any, justOpen: boolean) {
     if(!activeNode) return
     if(activeNode.isFolder) return
     if (activeNode.isFile && activeNode.title.endsWith(".web") && !justOpen) {
         curActiveNode.value = activeNode
-        curActiveNodeContent.value = _agent.file.readFileSync(curActiveNode.value.path)
+        curActiveNodeContent.value = await  _agent.file.readLastLineSync(curActiveNode.value.path)
         return
     }
     curActiveNode.value = undefined
@@ -223,12 +230,19 @@ function handleCreate(data: INiuTreeData) {
     }
 }
 function handleDelete(data: INiuTreeData) {
+    let del = -1;
     for (let i = 0; i < state.tabs.length; i++) {
         const tab = state.tabs[i];
         if (data.key === tab.key) {
             tab.isDelete = true
+            if(!tab.content && !tab.isModify && state.activeTab !== i){
+                del = i
+            }
             break
         }
+    }
+    if(del != -1){
+        state.tabs.splice(del, 1)
     }
 }
 
@@ -283,14 +297,15 @@ const previewLayout = ref("bottom")
 </script>
     
 <template>
-    <LRLayout>
-        <template #left>
-            <RealTree ref="FileTreeRef" mid="bookmark" @updateinfo="handleUpdateinfo" @create="handleCreate"
+    <div class="flex h-1/1">
+        <div class="w-280px relative border-r h-1/1 overflow-y-auto overflow-x-hidden">
+            <RealTree @re-click="handleReClick" ref="FileTreeRef" mid="bookmark" @updateinfo="handleUpdateinfo" @create="handleCreate"
                 @delete="handleDelete" @rename="handleRename" :dir="configStore['bookmark.storagePath']"
                 @change="handleChange($event, false)" @edit="handleEdit" @preview="handlePreview">
             </RealTree>
-        </template>
-        <template #right>
+            <adjust-line></adjust-line>
+        </div>
+        <div class="flex-1 w-0">
             <div class="h-1/1 flex flex-col" v-if="curActiveNode">
                 <Preview ref="previewRef" class="h-1/1" type="browser" :src="curActiveNodeContent" :key="curActiveNodeContent">
                 </Preview>
@@ -321,10 +336,10 @@ const previewLayout = ref("bottom")
                     <div class="h-1/1 filetree flex-1 w-0">
                         <MdEditor style="height:100%" :value="state.tabs[state.activeTab].content"
                             @change="(v: string) => handleChangeCode(v)" :key="state.tabs[state.activeTab].key"
-                            v-if="state.tabs[state.activeTab] && state.tabs[state.activeTab].isFile && (state.tabs[state.activeTab].title.endsWith('.md') || state.tabs[state.activeTab].title.endsWith('.mdx'))">
+                            v-if="state.tabs[state.activeTab] && state.tabs[state.activeTab].isFile && (state.tabs[state.activeTab].title.endsWith('.md') || state.tabs[state.activeTab].title.endsWith('.mdx') || state.tabs[state.activeTab].title.endsWith('.web'))">
                         </MdEditor>
                         <CodeEditor
-                            v-if="state.tabs[state.activeTab] && state.tabs[state.activeTab].isFile && !state.tabs[state.activeTab].title.endsWith('.md') && !state.tabs[state.activeTab].title.endsWith('.mdx')"
+                            v-if="state.tabs[state.activeTab] && state.tabs[state.activeTab].isFile && !state.tabs[state.activeTab].title.endsWith('.md') && !state.tabs[state.activeTab].title.endsWith('.mdx') && !state.tabs[state.activeTab].title.endsWith('.web') "
                             v-model="state.tabs[state.activeTab].content" :key="state.tabs[state.activeTab].key"
                             :name="state.tabs[state.activeTab].title as any" :logo="configStore['editor.bg']"
                             @change="handleChangeCode">
@@ -374,19 +389,8 @@ const previewLayout = ref("bottom")
                     <AdjustLine mid="filetree-demo-right" direction="top"></AdjustLine>
                 </div>
             </div>
-        </template>
-    </LRLayout>
-    <!-- <div class="h-1/1 flex">
-            <div class="h-1/1 w-300px border-r relative">
-                <RealTree ref="FileTreeRef" mid="bookmark" @updateinfo="handleUpdateinfo" @create="handleCreate" @delete="handleDelete"
-                    @rename="handleRename" :dir="configStore['bookmark.storagePath']" @change="handleChange">
-                </RealTree>
-                <AdjustLine mid="filetree-tree-right" direction="right"></AdjustLine>
-            </div>
-            <div class="flex-1 w-0 h-1/1 flex flex-col">
-                
-            </div>
-        </div> -->
+        </div>
+    </div>
 </template>
     
 <style scoped lang="scss">

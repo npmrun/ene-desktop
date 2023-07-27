@@ -1,6 +1,7 @@
 import fs from "fs-extra"
 import path from "path"
 import URL from "url"
+import readline from "readline"
 
 export function isDirectory(path: string): boolean {
     const fileStats = fs.statSync(path) // 获取文件的状态信息
@@ -45,6 +46,31 @@ export function readFileSync(path: string): string {
     }
     const data = fs.readFileSync(path, "utf8")
     return data
+}
+export function readLastLineSync(path: string): Promise<string> {
+    const fileStats = fs.statSync(path) // 获取文件的状态信息
+    if (fileStats.isDirectory()) {
+        throw new Error(`${path} 不是文件`)
+    }
+    const fileStream = fs.createReadStream(path);
+    const rl = readline.createInterface({
+        input: fileStream,
+        crlfDelay: Infinity
+    });
+
+    let firrstLine;
+
+    return new Promise((resolve) => {
+        rl.on('line', (line) => {
+            firrstLine = line;
+            rl.close()
+            resolve(firrstLine)
+        });
+
+        rl.on('close', () => {
+            console.log(`The last line is: ${firrstLine}`);
+        });
+    })
 }
 export function pathToFileURL(path: string): string {
     return URL.pathToFileURL(path).toString()
@@ -116,7 +142,7 @@ export function walkDir(fromDir, cb: (file: string, isDirectory: boolean) => voi
     })
 }
 
-export function readFolderToTree(folderPath, fn?:(node: any)=>boolean) {
+export function readFolderToTree(folderPath, fn?: (node: any) => boolean) {
     const stats = fs.statSync(folderPath) // 获取文件夹的状态信息
     if (!stats.isDirectory()) {
         throw new Error("The provided path is not a directory.")
@@ -143,7 +169,7 @@ export function readFolderToTree(folderPath, fn?:(node: any)=>boolean) {
         } else {
             // const fileName = path.basename(file, path.extname(file)); // 获取文件的名称（不包括扩展名）
             const fileName = file // 获取文件的名称（包括扩展名）
-            const fileNode = { title: fileName, base: fileName, type: "file", key: fs.realpathSync(filePath, "hex"),path: filePath }
+            const fileNode = { title: fileName, base: fileName, type: "file", key: fs.realpathSync(filePath, "hex"), path: filePath }
             fn && fn(fileNode)
             tree.children.push(fileNode)
         }
