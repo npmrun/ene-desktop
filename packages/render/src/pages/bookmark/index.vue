@@ -306,7 +306,7 @@ const previewLayout = ref("bottom")
             <adjust-line></adjust-line>
         </div>
         <div class="flex-1 w-0">
-            <div class="h-1/1 flex flex-col" v-if="curActiveNode">
+            <div class="h-1/1 flex flex-col" v-if="curActiveNode && curActiveNodeContent">
                 <Preview ref="previewRef" class="h-1/1" type="browser" :src="curActiveNodeContent" :key="curActiveNodeContent">
                 </Preview>
             </div>
