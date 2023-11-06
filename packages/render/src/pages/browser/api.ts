@@ -11,7 +11,7 @@
  */
 
 export async function getData() {
-    const data = await _agent.call("getDB", "collect")
+    const data = await _agent.call("db.getData", "collect")
     if (data) {
         return data.items
     }
@@ -19,5 +19,5 @@ export async function getData() {
 }
 
 export async function saveData(data: any) {
-    await _agent.call("saveDB", "collect", data)
+    await _agent.call("db.saveData", "collect", data)
 }

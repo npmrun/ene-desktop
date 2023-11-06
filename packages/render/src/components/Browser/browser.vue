@@ -8,15 +8,16 @@ import NProgress from "nprogress";
 const props = withDefaults(defineProps<{
     collect?: boolean,
     home?: string
-    hide?: ("collect" | "clean" | "open" | "devtool" | "menu")[]
+    hide?: ("collect" | "clean" | "open" | "devtool" | "menu" | "left-menu")[]
     url?: string
 }>(), {
     collect: false,
-    hide: () => [],
+    hide: () => ["left-menu"],
     url: '我的首页'
 })
 
 const emits = defineEmits<{
+    (ev: "leftmenu"): void
     (ev: "collect", url: string): void
     (ev: "load-page", url: string): void
 }>()
@@ -299,11 +300,20 @@ function clickClear() {
 }
 
 const webviewPreloadPath = _agent.webviewPreloadPath
+
+function handleClickMenu() {
+    emits("leftmenu")
+}
 </script>
 
 <template>
     <div class="flex flex-col">
         <div class="h-40px px-6px text-size-16px border-b flex items-center">
+            <div v-if="!hide.includes('left-menu')"
+                class="w-30px h-30px p-5px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer"
+                @click="handleClickMenu" title="侧边菜单">
+                <SvgIcon name="browser-left-menu"></SvgIcon>
+            </div>
             <div v-if="!!home"
                 class="w-30px h-30px p-5px box-border flex items-center justify-center hover:bg-light-700 rounded-lg cursor-pointer"
                 @click="clickHome" title="主页">
