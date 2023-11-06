@@ -20,6 +20,8 @@ interface IConfig {
     "bookmark.storagePath": string // 书签保存位置
     backup_rule: string // 备份规则
     storagePath: string // 存储地址
+    userDataPath: string // 用户应用程序地址
+    logPath: string // log地址
 }
 
 type TAgent<T = (event: Electron.IpcRendererEvent, ...args: any[]) => void> = {

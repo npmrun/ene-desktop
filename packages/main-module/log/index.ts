@@ -3,6 +3,7 @@ import fs from "fs-extra"
 import logger from "electron-log"
 import { app, netLog } from "electron"
 import { Settings } from "@rush/main-config/config"
+import { formatDate } from "@rush/common/util/date"
 
 export type TLog = Record<string, { path: string; log: logger.ElectronLog }>
 export type Tname = "global"
@@ -46,30 +47,42 @@ declare module "electron-log" {
 }
 declare global {
     var logger: logger.ElectronLog
+    var loggerClient: logger.ElectronLog
+    var loggerMain: logger.ElectronLog
 }
 
-export function initGlobalLog() {
-    const storagePath = Settings.n.values("storagePath")
-    let logFilePath = path.resolve(storagePath, "./logs", "__global__" + ".txt")
+function getLogPath(name: string) {
+    const logPath = Settings.n.values("logPath")
+    let logFilePath = path.resolve(logPath, `${curTimestamp}.` + name + ".txt")
     fs.ensureFileSync(logFilePath)
+    return logFilePath
+}
+
+const curTimestamp = formatDate(new Date(), "yyyy_MM_dd_HH_mm_ss_S")
+
+export function initGlobalLog() {
+    let logFilePath = getLogPath("__global__")
     logger.transports.file.resolvePath = () => logFilePath
     logger.debug("日志路径:" + logFilePath)
     logger.debug("日志路径配置成功")
     logger._createLog = createLog
     global.logger = logger
+    global.loggerMain = createLog("__main__").log
+    global.loggerClient = createLog("__client__").log
+    loggerMain.debug("主进程日志初始化")
+    loggerClient.debug("客户端日志初始化")
+    loggerMain.debug(app.getPath("logs"))
     // ;(async () => {
     //     await netLog.stopLogging()
-    //     await netLog.startLogging(path.resolve(mainConfig.storagePath, "./logs", "__net__" + ".txt"))
+    //     await netLog.startLogging(path.resolve(mainConfig.userData, "./logs", "__net__" + ".txt"))
     // })()
 }
 export function createLog(name: Tname | any) {
     if (_logs[name]) return _logs[name]
     const _log = logger.create(name)
-    const storagePath = Settings.n.values("storagePath")
     return {
         get path() {
-            let logFilePath = path.resolve(storagePath, "./logs", name + ".txt")
-            fs.ensureFileSync(logFilePath)
+            let logFilePath = getLogPath(name)
             return logFilePath
         },
         get log() {

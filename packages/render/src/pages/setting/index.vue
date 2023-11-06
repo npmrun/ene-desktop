@@ -34,6 +34,16 @@
                 </div>
             </div>
         </SettingItem>
+        <SettingItem title="Log存储地址" desc="log数据存储" :red-border="!configStore.isSameOne('logPath')">
+            <button class="button is-light is-medium is-small ml-8px mb-8px" @click="openDir(configStore['logPath'])">打开目录</button>
+            <div class="whitespace-nowrap flex">
+                <div class="!min-w-320px !max-w-550px hover:flex-1 hover:w-0" style="transition: flex .5s linear;">
+                    <input spellcheck="false" :value="configStore['logPath']" :title="configStore['logPath']"
+                        @change="(e: any) => configStore.setConfig('logPath', e.target.value)"
+                        class="input is-medium block" disabled type="text" placeholder="Text input">
+                </div>
+            </div>
+        </SettingItem>
         <SettingItem title="编辑器背景" desc="改变编辑器背景" :red-border="!configStore.isSameOne('editor.bg')">
             <div class="whitespace-nowrap flex">
                 <div class="!min-w-320px !max-w-550px hover:flex-1 hover:w-0" style="transition: flex .5s linear;">

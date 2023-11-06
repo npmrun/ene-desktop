@@ -29,7 +29,7 @@ export function crash() {
 let lastWebview
 export function preventWebview(id: number) {
     const webview = webContents.fromId(id)
-    if (webview === lastWebview) {
+    if (webview.id === lastWebview?.id) {
         return
     }
     webview.setWindowOpenHandler(details => {
@@ -41,6 +41,13 @@ export function preventWebview(id: number) {
         webview.loadURL(url)
     })
     lastWebview = webview
+}
+
+export function destoryWebview(id: number) {
+    const webview = webContents.fromId(id)
+    if (webview.id === lastWebview?.id) {
+        lastWebview = undefined
+    }
 }
 
 export function toggleDevTools(id: number) {

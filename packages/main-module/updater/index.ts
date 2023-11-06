@@ -18,7 +18,7 @@ export function initUpdate(): void {
             owner: owner,
         })
         autoUpdater.fullChangelog = true
-        const log = logger._createLog("updater").log
+        const log = logger._createLog("__updater__").log
         autoUpdater.logger = log
         // 开始检查更新
         autoUpdater.on("checking-for-update", () => {

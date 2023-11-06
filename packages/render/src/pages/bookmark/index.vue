@@ -294,6 +294,16 @@ function handlePreview(node: INiuTreeData, p: string) {
 }
 
 const previewLayout = ref("bottom")
+
+const isWebFile = computed(()=>{
+    return state.tabs[state.activeTab] && state.tabs[state.activeTab].isFile && state.tabs[state.activeTab].title.endsWith('.web')
+})
+const isMdFile = computed(()=>{
+    return state.tabs[state.activeTab] && state.tabs[state.activeTab].isFile && (state.tabs[state.activeTab].title.endsWith('.md') || state.tabs[state.activeTab].title.endsWith('.mdx') || state.tabs[state.activeTab].title.endsWith('.web'))
+})
+const isCodeFile = computed(()=>{
+    return state.tabs[state.activeTab] && state.tabs[state.activeTab].isFile && !state.tabs[state.activeTab].title.endsWith('.md') && !state.tabs[state.activeTab].title.endsWith('.mdx') && !state.tabs[state.activeTab].title.endsWith('.web')
+})
 </script>
     
 <template>
@@ -336,10 +346,10 @@ const previewLayout = ref("bottom")
                     <div class="h-1/1 filetree flex-1 w-0">
                         <MdEditor style="height:100%" :value="state.tabs[state.activeTab].content"
                             @change="(v: string) => handleChangeCode(v)" :key="state.tabs[state.activeTab].key"
-                            v-if="state.tabs[state.activeTab] && state.tabs[state.activeTab].isFile && (state.tabs[state.activeTab].title.endsWith('.md') || state.tabs[state.activeTab].title.endsWith('.mdx') || state.tabs[state.activeTab].title.endsWith('.web'))">
+                            v-if="isMdFile">
                         </MdEditor>
                         <CodeEditor
-                            v-if="state.tabs[state.activeTab] && state.tabs[state.activeTab].isFile && !state.tabs[state.activeTab].title.endsWith('.md') && !state.tabs[state.activeTab].title.endsWith('.mdx') && !state.tabs[state.activeTab].title.endsWith('.web') "
+                            v-if="isCodeFile"
                             v-model="state.tabs[state.activeTab].content" :key="state.tabs[state.activeTab].key"
                             :name="state.tabs[state.activeTab].title as any" :logo="configStore['editor.bg']"
                             @change="handleChangeCode">

@@ -3,6 +3,7 @@ import { app } from "electron"
 import path from "path"
 import setting from "@rush/share/setting"
 import { cloneDeep } from "lodash"
+import { broadcast } from "@rush/main-tool"
 
 type IOnFunc = (n: IConfig, c: IConfig) => void
 type IT = (keyof IConfig)[] | keyof IConfig | "_"
@@ -23,6 +24,8 @@ const defaultConfig: IConfig = {
     "editor.bg": "",
     "snippet.storagePath": path.join(storagePath, "./SnippetData"),
     "bookmark.storagePath": path.join(storagePath, "./BookmarkData"),
+    "userDataPath": path.resolve(app.getPath("appData")),
+    "logPath": path.resolve(app.getPath("logs")),
     storagePath,
 }
 
@@ -57,6 +60,7 @@ class Settings {
         if (Settings.instance === null) {
             Settings.instance = new Settings()
         }
+        return Settings.instance
     }
     static get n() {
         return Settings.instance
@@ -88,6 +92,7 @@ class Settings {
             if (Array.isArray(k) && k.filter(v => keys.indexOf(v) !== -1).length) {
                 fn(n, c)
             }
+            broadcast("config-change", keys, n, c)
         }
     }
 

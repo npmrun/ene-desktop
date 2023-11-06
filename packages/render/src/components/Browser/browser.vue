@@ -8,13 +8,18 @@ import NProgress from "nprogress";
 const props = withDefaults(defineProps<{
     collect?: boolean,
     home?: string
-    hide: ("collect" | "clean" | "open" | "devtool" | "menu")[]
+    hide?: ("collect" | "clean" | "open" | "devtool" | "menu")[]
     url?: string
 }>(), {
     collect: false,
     hide: () => [],
     url: '我的首页'
 })
+
+const emits = defineEmits<{
+    (ev: "collect", url: string): void
+    (ev: "load-page", url: string): void
+}>()
 
 NProgress.configure({
     easing: 'ease',
@@ -72,6 +77,10 @@ const state = reactive<{
     websiteInfo: undefined,
 })
 
+onBeforeUnmount(()=>{
+    _agent.call("destoryWebview", state.webContentsId)
+})
+
 function toPage(url: string) {
     let page = getURL(url)
     if (webviewRef.value?.isLoading()) {
@@ -103,6 +112,7 @@ onMounted(() => {
                 console.log(we.getURL());
                 let url = decodeURIComponent(we.getURL())
                 state.curWebviewUrl = decodeURIComponent(we.getURL())
+                emits("load-page", state.curWebviewUrl)
                 let have = false
                 // 路径相同时只展示对应的文字路径，主要看跳转以及前进返回的顶部路径是否正确，这是比较妥协的办法。
                 for (const key in matchCustomUrl) {
@@ -267,7 +277,7 @@ function handleInputFocus(ev: any) {
 }
 
 function handleCollect() {
-
+    emits("collect", state.curWebviewUrl)
 }
 
 function clickOpenBrowser() {
