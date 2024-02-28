@@ -80,7 +80,7 @@ builder.build({
         ],
         electronDownload: {
             cache: path.join(homedir(), ".electron"),
-            mirror: "https://npm.taobao.org/mirrors/electron/",
+            mirror: "https://registry.npmmirror.com/binary.html?path=electron/",
         },
         publish: [
             {
