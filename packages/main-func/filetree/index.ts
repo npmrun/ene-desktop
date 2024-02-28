@@ -1,6 +1,7 @@
 import watcher from "@parcel/watcher";
 import { Settings } from "@rush/main-config/config";
 import { Mitt } from "@rush/main-module/mitt";
+import { platform } from "@rush/main-tool";
 import { broadcast } from "@rush/main-tool/broadcast";
 import path from "path";
 
@@ -27,7 +28,8 @@ export async function init(dir: string, id?: string) {
             }
         }))
     }, {
-        ignore: ["node_modules"]
+        ignore: ["node_modules"],
+        backend: platform === "Linux" ? "inotify" : "windows"
     });
     return true
 }
