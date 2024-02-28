@@ -19,7 +19,7 @@ const defaultConfig: IConfig = {
     language: "zh",
     backup_rule: "0 0/30 * * * ?",
     "common.theme": "auto",
-    "update.repo": "electron-template",
+    "update.repo": setting.app_title,
     "update.owner": "npmrun",
     "editor.bg": "",
     "snippet.storagePath": path.join(storagePath, "./SnippetData"),

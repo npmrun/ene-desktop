@@ -85,7 +85,7 @@ builder.build({
         publish: [
             {
                 provider: 'github',
-                repo: 'electron-template',
+                repo: setting.app_title,
                 owner: 'npmrun'
             }
         ],
